@@ -1,14 +1,15 @@
 {
   "name": "would-you-rather-server",
-  "version": "1.0.0",
-  "description": "WebSocket game server for Would You Rather",
+  "version": "2.0.0",
+  "description": "WebSocket game server for Would You Rather - with database",
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
     "dev": "node server.js"
   },
   "dependencies": {
-    "ws": "^8.16.0"
+    "ws": "^8.16.0",
+    "better-sqlite3": "^9.4.3"
   },
   "engines": {
     "node": ">=18.0.0"

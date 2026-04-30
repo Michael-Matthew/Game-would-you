@@ -3,1732 +3,1094 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Would You Rather? 🌸</title>
+<title>Would You Rather? 🎮</title>
 <link href="https://fonts.googleapis.com/css2?family=Boogaloo&family=Nunito:wght@400;700;800;900&display=swap" rel="stylesheet">
 <style>
-*{margin:0;padding:0;box-sizing:border-box}
+*{margin:0;padding:0;box-sizing:border-box;}
 :root{
-  --sun:#FFD6E7;--coral:#FF6EB4;--sky:#FF9DD1;--grape:#E040A0;
-  --lime:#FF69B4;--cream:#FFF0F8;--dark:#3D1A2E;--card:#fff;
-  --orange:#FFB3D9;--pink:#FF6EB4;
-  --hot:#E0047A;--blush:#FFE4F2;--rose:#FF3D96;
+  --sun:#FFB6D9;--coral:#FF69B4;--sky:#FF9EC7;--grape:#E040A0;
+  --lime:#FF85C0;--cream:#FFF0F7;--dark:#5A0A3A;--white:#fff;
+  --ink:#3D0030;
+  --pink-light:#FFE4F2;--pink-mid:#FFB6D9;--pink-deep:#E91E8C;
+  --pink-soft:#FFC0E0;--pink-pale:#FFF5FA;
 }
-html,body{height:100%;font-family:'Nunito',sans-serif;background:var(--cream);overflow-x:hidden}
+html,body{min-height:100%;font-family:'Nunito',sans-serif;background:var(--cream);overflow-x:hidden;}
 body::before{content:'';position:fixed;inset:0;z-index:0;
-  background:
-    radial-gradient(circle at 10% 15%,rgba(255,182,222,.45) 0%,transparent 38%),
-    radial-gradient(circle at 90% 80%,rgba(255,110,180,.3) 0%,transparent 38%),
-    radial-gradient(circle at 55% 50%,rgba(224,4,122,.08) 0%,transparent 55%),
-    radial-gradient(circle at 80% 10%,rgba(255,214,231,.5) 0%,transparent 30%);
-  pointer-events:none}
+  background:radial-gradient(circle at 15% 20%,rgba(255,105,180,.18) 0%,transparent 45%),
+             radial-gradient(circle at 85% 80%,rgba(255,182,217,.25) 0%,transparent 45%),
+             radial-gradient(circle at 50% 50%,rgba(224,64,160,.08) 0%,transparent 60%);
+  pointer-events:none;}
 body::after{content:'';position:fixed;inset:0;z-index:0;
-  background-image:radial-gradient(circle,rgba(255,110,180,.18) 1.5px,transparent 1.5px);
-  background-size:24px 24px;pointer-events:none}
-.wrap{position:relative;z-index:1;min-height:100vh;display:flex;
-  align-items:center;justify-content:center;padding:16px 16px 48px;flex-direction:column;gap:0}
+  background-image:radial-gradient(circle,rgba(255,105,180,.12) 1.5px,transparent 1.5px);
+  background-size:28px 28px;pointer-events:none;}
 
-/* COPYRIGHT FOOTER */
-.copyright{position:fixed;bottom:0;left:0;right:0;z-index:50;
-  text-align:center;padding:9px 16px;
-  background:linear-gradient(135deg,#FF6EB4,#E040A0);
-  font-family:'Nunito',sans-serif;font-size:.72rem;font-weight:800;
-  color:rgba(255,255,255,.9);letter-spacing:1.5px;
-  box-shadow:0 -3px 12px rgba(224,64,160,.3);}
-.copyright span{opacity:.7;margin:0 6px}
-.copyright b{color:#fff;font-weight:900;letter-spacing:2px}
+.wrap{position:relative;z-index:1;min-height:100vh;display:flex;align-items:flex-start;justify-content:center;padding:16px 12px 40px;}
+.screen{display:none;width:100%;max-width:460px;flex-direction:column;align-items:center;gap:16px;}
+.screen.on{display:flex;}
 
-/* SCREENS */
-.screen{display:none;width:100%;max-width:460px;flex-direction:column;align-items:center;gap:14px}
-.screen.on{display:flex}
+/* ── CARDS ── */
+.card{background:var(--white);border-radius:22px;padding:20px;width:100%;
+  box-shadow:4px 4px 0 rgba(0,0,0,.1),0 8px 24px rgba(0,0,0,.06);
+  border:2px solid rgba(0,0,0,.06);}
+.card-title{font-family:'Boogaloo',cursive;font-size:1.2rem;color:var(--ink);margin-bottom:12px;display:flex;align-items:center;gap:8px;}
 
-/* TYPOGRAPHY */
-.logo{font-family:'Boogaloo',cursive;font-size:2.8rem;color:var(--dark);line-height:1}
-.logo span{background:linear-gradient(135deg,var(--rose),var(--hot));
-  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
-.logo-sub{font-size:.85rem;font-weight:800;color:#999;letter-spacing:2px;text-transform:uppercase;margin-top:4px}
-.mascot{font-size:4rem;animation:wobble 2s ease-in-out infinite;display:block;margin-bottom:2px}
-@keyframes wobble{0%,100%{transform:rotate(-8deg) scale(1)}50%{transform:rotate(8deg) scale(1.08)}}
+/* ── BUTTONS ── */
+.btn{border:none;cursor:pointer;font-family:'Boogaloo',cursive;letter-spacing:.5px;
+  border-radius:14px;transition:all .15s cubic-bezier(.34,1.56,.64,1);width:100%;display:block;}
+.btn:active{transform:scale(.96) translateY(2px)!important;}
+.btn-coral{background:linear-gradient(135deg,#FF69B4,#FF1493);color:var(--white);padding:14px;font-size:1.15rem;box-shadow:0 4px 0 #C0006A;}
+.btn-coral:hover{transform:translateY(-3px);box-shadow:0 7px 0 #C0006A;}
+.btn-sky{background:linear-gradient(135deg,#FFB6D9,#FF69B4);color:var(--white);padding:14px;font-size:1.15rem;box-shadow:0 4px 0 #CC3399;}
+.btn-sky:hover{transform:translateY(-3px);box-shadow:0 7px 0 #CC3399;}
+.btn-sun{background:linear-gradient(135deg,#FFD6EE,#FFB6D9);color:var(--ink);padding:14px;font-size:1.15rem;box-shadow:0 4px 0 #D4699A;}
+.btn-sun:hover{transform:translateY(-3px);box-shadow:0 7px 0 #D4699A;}
+.btn-grape{background:linear-gradient(135deg,#E040A0,#C0007A);color:var(--white);padding:14px;font-size:1.15rem;box-shadow:0 4px 0 #8A0055;}
+.btn-grape:hover{transform:translateY(-3px);box-shadow:0 7px 0 #8A0055;}
+.btn-lime{background:linear-gradient(135deg,#FF85C0,#FF4DA0);color:var(--white);padding:14px;font-size:1.15rem;box-shadow:0 4px 0 #CC1A7A;}
+.btn-lime:hover{transform:translateY(-3px);box-shadow:0 7px 0 #CC1A7A;}
+.btn-ghost{background:transparent;color:#C06090;padding:11px;font-size:1rem;border:2px solid #FFCCE5;font-family:'Nunito',sans-serif;font-weight:800;}
+.btn-ghost:hover{background:#FFF0F7;border-color:#FF69B4;}
+.btn-sm{padding:9px 16px;font-size:.9rem;width:auto;border-radius:10px;}
 
-/* CARD */
-.card{background:#fff;border-radius:22px;padding:20px;width:100%;
-  box-shadow:4px 4px 0 rgba(224,4,122,.12),0 8px 30px rgba(255,110,180,.1);border:2.5px solid rgba(255,110,180,.18)}
-.card-title{font-family:'Boogaloo',cursive;font-size:1.2rem;color:var(--dark);
-  margin-bottom:12px;display:flex;align-items:center;gap:8px}
+/* ── INPUTS ── */
+input,textarea{width:100%;padding:12px 14px;border:2px solid #e8e8e8;border-radius:12px;
+  font-family:'Nunito',sans-serif;font-size:.95rem;font-weight:700;color:var(--ink);
+  background:#fafafa;outline:none;transition:border-color .2s;}
+input:focus,textarea:focus{border-color:var(--coral);background:var(--white);}
+input::placeholder,textarea::placeholder{color:#FFAAD0;font-weight:600;}
+textarea{resize:vertical;min-height:70px;}
 
-/* INPUTS */
-.inp{width:100%;padding:13px 16px;border:2.5px solid #e8e8e8;border-radius:12px;
-  font-family:'Nunito',sans-serif;font-size:.95rem;font-weight:700;color:var(--dark);
-  background:#FAFAFA;outline:none;transition:border-color .2s;margin-bottom:10px}
-.inp:focus{border-color:var(--rose);background:#fff}
-.inp::placeholder{color:#f0b3d0;font-weight:600}
-.inp-row{display:flex;gap:8px}
-.inp-row .inp{margin-bottom:0;flex:1}
-.inp-label{font-size:.75rem;font-weight:900;color:#aaa;letter-spacing:1px;
-  text-transform:uppercase;margin-bottom:4px}
+/* ── LOGO ── */
+.logo{font-family:'Boogaloo',cursive;font-size:2.8rem;color:var(--ink);line-height:1;text-align:center;}
+.logo span{background:linear-gradient(135deg,#FF1493,#E040A0);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+.logo-sub{font-size:.85rem;font-weight:800;color:#FF9EC7;letter-spacing:2px;text-transform:uppercase;text-align:center;margin-top:2px;}
+.mascot{font-size:4rem;animation:wobble 2s ease-in-out infinite;display:block;text-align:center;}
+@keyframes wobble{0%,100%{transform:rotate(-8deg) scale(1);}50%{transform:rotate(8deg) scale(1.08);}}
 
-/* BUTTONS */
-.btn{border:none;cursor:pointer;font-family:'Boogaloo',cursive;
-  border-radius:12px;transition:all .15s cubic-bezier(.34,1.56,.64,1);
-  position:relative;width:100%;padding:14px;font-size:1.1rem;letter-spacing:.5px}
-.btn:active{transform:scale(.96) translateY(2px)!important}
-.btn-coral{background:linear-gradient(135deg,#FF6EB4,#E040A0);color:#fff;box-shadow:0 4px 0 #b8006a}
-.btn-coral:hover{transform:translateY(-3px);box-shadow:0 7px 0 #b8006a}
-.btn-sky{background:linear-gradient(135deg,#FFB3D9,#FF6EB4);color:#fff;box-shadow:0 4px 0 #d4458e}
-.btn-sky:hover{transform:translateY(-3px);box-shadow:0 7px 0 #d4458e}
-.btn-sun{background:linear-gradient(135deg,#FFD6E7,#FFB3D9);color:var(--dark);box-shadow:0 4px 0 #e8a0c0}
-.btn-sun:hover{transform:translateY(-3px);box-shadow:0 7px 0 #e8a0c0}
-.btn-grape{background:linear-gradient(135deg,#E040A0,#b8006a);color:#fff;box-shadow:0 4px 0 #880050}
-.btn-grape:hover{transform:translateY(-3px);box-shadow:0 7px 0 #880050}
-.btn-lime{background:linear-gradient(135deg,#FF9DD1,#FF6EB4);color:#fff;box-shadow:0 4px 0 #d4458e}
-.btn-lime:hover{transform:translateY(-3px);box-shadow:0 7px 0 #d4458e}
-.btn-dark{background:linear-gradient(135deg,var(--dark),#5a2040);color:#fff;box-shadow:0 4px 0 #1a0010}
-.btn-dark:hover{transform:translateY(-3px);box-shadow:0 7px 0 #1a0010}
-.btn-outline{background:transparent;color:var(--dark);border:2.5px solid #f0b3d0;
-  box-shadow:0 3px 0 #f0b3d0;font-size:.95rem;padding:12px}
-.btn-outline:hover{border-color:var(--rose);color:var(--rose);box-shadow:0 3px 0 #f88}
-.btn-sm{padding:10px 14px;font-size:.95rem;width:auto}
-.divider{text-align:center;font-weight:900;color:#f0b3d0;font-size:.8rem;letter-spacing:2px;margin:2px 0}
+/* ── ROOM CODE ── */
+.room-code-box{background:linear-gradient(135deg,#5A0A3A,#8B1560);border-radius:16px;padding:16px;text-align:center;width:100%;border:2px solid #FF69B4;}
+.rc-label{color:#FFB6D9;font-weight:800;font-size:.7rem;letter-spacing:2px;text-transform:uppercase;margin-bottom:4px;}
+.rc-code{font-family:'Boogaloo',cursive;font-size:3rem;color:#FFD6EE;letter-spacing:8px;line-height:1;}
+.rc-hint{color:#FF9EC7;font-size:.78rem;font-weight:700;margin-top:6px;}
 
-/* QUESTION CARDS LOBBY */
-.custom-q-list{display:flex;flex-direction:column;gap:8px;margin-top:4px;max-height:280px;overflow-y:auto}
-.cq-item{background:#FFF0F8;border:2px solid #f0b3d0;border-radius:12px;padding:12px;position:relative}
-.cq-q{font-weight:800;font-size:.85rem;color:var(--dark);margin-bottom:6px}
-.cq-opts{display:flex;gap:6px}
-.cq-opt{flex:1;background:#fff;border:2px solid #f0b3d0;border-radius:8px;padding:6px 8px;
-  font-size:.75rem;font-weight:800;color:#e070aa;text-align:center}
-.cq-opt.a{border-color:rgba(255,61,150,.4);color:var(--rose)}
-.cq-opt.b{border-color:rgba(255,157,209,.5);color:#d4458e}
-.cq-del{position:absolute;top:8px;right:8px;background:none;border:none;
-  cursor:pointer;font-size:1rem;opacity:.4;transition:opacity .2s}
-.cq-del:hover{opacity:1}
-.empty-state{text-align:center;padding:16px;color:#f0b3d0;font-weight:700;font-size:.85rem}
+/* ── PLAYER SLOTS ── */
+.slots{display:flex;gap:10px;width:100%;}
+.slot{flex:1;background:var(--white);border:2.5px dashed #e8e8e8;border-radius:16px;padding:14px 10px;text-align:center;transition:all .3s;}
+.slot.filled{border-style:solid;border-color:var(--lime);background:#FFF0F7;}
+.slot-icon{font-size:1.8rem;margin-bottom:4px;}
+.slot-name{font-weight:900;font-size:.9rem;color:var(--ink);}
+.slot-status{font-size:.72rem;font-weight:700;color:#FFAAD0;}
+.slot-status.ok{color:#FF69B4;}
+.wait-dots span{display:inline-block;width:6px;height:6px;border-radius:50%;background:#FF69B4;margin:0 2px;animation:bounce 1.2s ease infinite;}
+.wait-dots span:nth-child(2){animation-delay:.2s;}
+.wait-dots span:nth-child(3){animation-delay:.4s;}
+@keyframes bounce{0%,100%{transform:translateY(0);opacity:.4;}50%{transform:translateY(-6px);opacity:1;}}
 
-/* ROOM CODE */
-.room-code-display{background:linear-gradient(135deg,var(--dark),#5a2040);border-radius:16px;padding:16px;text-align:center;width:100%;
-  border:2px solid rgba(255,110,180,.2)}
-.rc-label{color:#e070aa;font-weight:800;font-size:.72rem;letter-spacing:2px;text-transform:uppercase;margin-bottom:4px}
-.rc-code{font-family:'Boogaloo',cursive;font-size:3.2rem;color:#FFD6E7;letter-spacing:8px;line-height:1}
-.rc-hint{color:#c080a0;font-size:.78rem;font-weight:700;margin-top:6px}
+/* ── SETUP SCREEN ── */
+.level-tabs{display:flex;gap:6px;width:100%;}
+.tab{flex:1;padding:10px 6px;border-radius:12px;font-family:'Boogaloo',cursive;font-size:1rem;
+  border:2.5px solid #eee;background:var(--white);color:#aaa;cursor:pointer;text-align:center;
+  transition:all .2s;}
+.tab.active{border-color:var(--coral);background:#FFF0F7;color:var(--coral);}
 
-.players-row{display:flex;gap:12px;width:100%}
-.player-slot{flex:1;background:#fff;border:2.5px dashed #f0b3d0;border-radius:16px;
-  padding:14px 10px;text-align:center;transition:all .3s}
-.player-slot.filled{border-style:solid;border-color:var(--rose);background:#FFF0F8}
-.slot-avatar{font-size:2rem;margin-bottom:4px}
-.slot-name{font-weight:900;font-size:.9rem;color:var(--dark)}
-.slot-status{font-size:.72rem;font-weight:700;color:#f0b3d0}
-.slot-status.ok{color:var(--rose)}
+.q-editor{display:flex;flex-direction:column;gap:10px;width:100%;}
+.q-item{background:#fafafa;border:2px solid #f0f0f0;border-radius:14px;padding:14px;position:relative;}
+.q-item-header{display:flex;align-items:center;gap:8px;margin-bottom:8px;}
+.q-num{font-family:'Boogaloo',cursive;font-size:1rem;color:#aaa;}
+.q-type-toggle{display:flex;gap:4px;margin-left:auto;}
+.type-btn{font-size:.7rem;font-weight:800;padding:4px 10px;border-radius:8px;border:2px solid #e8e8e8;
+  background:var(--white);color:#aaa;cursor:pointer;font-family:'Nunito',sans-serif;transition:all .15s;}
+.type-btn.active{border-color:var(--coral);background:#FFF0F7;color:var(--coral);}
+.ab-fields{display:flex;flex-direction:column;gap:6px;}
+.ab-row{display:flex;gap:6px;align-items:center;}
+.ab-label{font-family:'Boogaloo',cursive;font-size:1.1rem;color:#aaa;width:18px;flex-shrink:0;}
 
-/* WAIT DOTS */
-.wait-dots span{display:inline-block;width:7px;height:7px;border-radius:50%;
-  background:var(--rose);margin:0 3px;animation:waitBounce 1.2s ease infinite}
-.wait-dots span:nth-child(2){animation-delay:.2s}
-.wait-dots span:nth-child(3){animation-delay:.4s}
-@keyframes waitBounce{0%,100%{transform:translateY(0);opacity:.4}50%{transform:translateY(-8px);opacity:1}}
-
-/* LEVEL BANNER */
-.level-banner{background:linear-gradient(135deg,var(--dark),#5a2040);
-  border-radius:16px;padding:14px;text-align:center;width:100%;
-  border:2px solid rgba(255,110,180,.15)}
-.lv-num{font-family:'Boogaloo',cursive;font-size:1rem;color:#FFD6E7;
-  letter-spacing:2px;text-transform:uppercase}
-.lv-name{font-family:'Boogaloo',cursive;font-size:1.5rem;color:#fff;line-height:1.2}
-.lv-desc{font-size:.75rem;font-weight:700;color:#c080a0;margin-top:4px}
-
-/* TOPBAR GAME */
-.topbar{display:flex;align-items:center;gap:10px;width:100%}
-.score-pill{flex:1;background:#fff;border-radius:50px;padding:9px 14px;
+/* ── TOPBAR ── */
+.topbar{display:flex;align-items:center;gap:8px;width:100%;}
+.score-pill{flex:1;background:var(--white);border-radius:50px;padding:10px 14px;
   display:flex;align-items:center;justify-content:space-between;
-  box-shadow:3px 3px 0 rgba(224,4,122,.1);border:2px solid rgba(255,110,180,.2)}
-.score-name{font-weight:900;font-size:.75rem;color:#d488b0}
-.score-pts{font-family:'Boogaloo',cursive;font-size:1.4rem;color:var(--dark)}
-.rnd-badge{background:linear-gradient(135deg,var(--dark),#5a2040);color:#FFD6E7;border-radius:50px;padding:7px 12px;
-  font-family:'Boogaloo',cursive;font-size:.95rem;white-space:nowrap}
-.lv-badge{background:linear-gradient(135deg,var(--rose),var(--hot));color:#fff;border-radius:50px;padding:5px 10px;
-  font-family:'Boogaloo',cursive;font-size:.85rem;white-space:nowrap}
+  box-shadow:3px 3px 0 rgba(0,0,0,.07);border:2px solid rgba(0,0,0,.05);}
+.s-name{font-weight:900;font-size:.75rem;color:#aaa;text-transform:uppercase;letter-spacing:.5px;}
+.s-pts{font-family:'Boogaloo',cursive;font-size:1.5rem;color:var(--ink);}
+.rnd-badge{background:linear-gradient(135deg,#E040A0,#C0007A);color:var(--white);border-radius:50px;padding:8px 12px;
+  font-family:'Boogaloo',cursive;font-size:.95rem;white-space:nowrap;}
 
-/* PROGRESS */
-.prog-wrap{width:100%;height:7px;background:#f0f0f0;border-radius:50px;overflow:hidden}
-.prog-bar{height:100%;background:linear-gradient(90deg,var(--coral),var(--grape));
-  border-radius:50px;transition:width .5s ease}
+/* ── LEVEL BADGE ── */
+.level-badge{display:flex;align-items:center;gap:6px;width:100%;}
+.lv-pip{flex:1;height:6px;border-radius:50px;background:#f0f0f0;overflow:hidden;}
+.lv-pip.done{background:var(--lime);}
+.lv-pip.active .lv-fill{height:100%;background:linear-gradient(90deg,#FF69B4,#E040A0);border-radius:50px;transition:width .5s ease;}
+.lv-pip.inactive{background:#f0f0f0;}
+.lv-label{font-family:'Boogaloo',cursive;font-size:.85rem;color:#aaa;white-space:nowrap;}
 
-/* QUESTION CARD */
-.q-card{width:100%;background:#fff;border-radius:20px;padding:20px;
-  box-shadow:4px 4px 0 rgba(224,4,122,.1);border:2.5px solid rgba(255,110,180,.18);text-align:center}
-.q-cat{display:inline-block;background:linear-gradient(135deg,var(--dark),#5a2040);color:#FFD6E7;
-  border-radius:50px;padding:4px 14px;font-size:.72rem;font-weight:900;
-  letter-spacing:1px;margin-bottom:10px}
-.q-text{font-size:1.1rem;font-weight:900;color:var(--dark);line-height:1.4}
-.q-secret-badge{display:inline-block;background:linear-gradient(135deg,var(--rose),var(--hot));
-  color:#fff;border-radius:50px;padding:3px 10px;font-size:.7rem;font-weight:900;
-  margin-bottom:6px;letter-spacing:1px}
+/* ── QUESTION CARD ── */
+.q-card{width:100%;background:var(--white);border-radius:22px;padding:22px;
+  box-shadow:4px 4px 0 rgba(0,0,0,.09);border:2px solid rgba(0,0,0,.06);text-align:center;}
+.q-cat{display:inline-block;background:linear-gradient(135deg,#E040A0,#FF1493);color:#FFE4F2;border-radius:50px;
+  padding:4px 14px;font-size:.72rem;font-weight:900;letter-spacing:1px;margin-bottom:10px;}
+.q-text{font-size:1.15rem;font-weight:900;color:var(--ink);line-height:1.4;}
+.secret-glow{background:linear-gradient(135deg,#3D0030,#6B0050)!important;color:#FFB6D9!important;}
+.secret-glow .q-text{color:#FFB6D9!important;}
 
-/* TIMER */
-.timer-wrap{position:relative;width:60px;height:60px;margin:0 auto}
-.timer-wrap svg{transform:rotate(-90deg)}
-circle{fill:none;stroke-width:5}
-.t-bg{stroke:#ffe0f0}.t-fg{stroke:var(--rose);stroke-linecap:round;
-  stroke-dasharray:175;stroke-dashoffset:0;transition:stroke-dashoffset 1s linear,stroke .3s}
+/* ── TIMER ── */
+.timer-wrap{position:relative;width:64px;height:64px;margin:0 auto;}
+.timer-wrap svg{transform:rotate(-90deg);}
+circle{fill:none;stroke-width:5;}
+.t-bg{stroke:#f0f0f0;}
+.t-fg{stroke:#FF69B4;stroke-linecap:round;stroke-dasharray:170;stroke-dashoffset:0;transition:stroke-dashoffset 1s linear,stroke .3s;}
 .t-num{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);
-  font-family:'Boogaloo',cursive;font-size:1.2rem;color:var(--dark)}
+  font-family:'Boogaloo',cursive;font-size:1.3rem;color:var(--ink);}
 
-/* STATUS BAR */
-.status-bar{width:100%;background:#fff;border-radius:50px;padding:9px 18px;
-  text-align:center;font-weight:800;font-size:.85rem;color:#d488b0;border:2px solid #ffe0f0;
-  min-height:42px;display:flex;align-items:center;justify-content:center;gap:8px}
-.dot{width:7px;height:7px;border-radius:50%;background:var(--rose);animation:blink 1s ease infinite}
-@keyframes blink{0%,100%{opacity:1}50%{opacity:.2}}
+/* ── STATUS ── */
+.status-bar{width:100%;background:var(--white);border-radius:50px;padding:10px 18px;text-align:center;
+  font-weight:800;font-size:.88rem;color:#888;border:2px solid #f0f0f0;min-height:44px;
+  display:flex;align-items:center;justify-content:center;gap:8px;}
+.dot{width:8px;height:8px;border-radius:50%;background:#FF69B4;animation:blink 1s ease infinite;flex-shrink:0;}
+@keyframes blink{0%,100%{opacity:1;}50%{opacity:.2;}}
 
-/* CHOICE BUTTONS */
-.choices{width:100%;display:flex;flex-direction:column;gap:9px}
-.btn-choice{width:100%;background:#fff;border:2.5px solid #ffe0f0;border-radius:14px;
-  padding:14px 16px;font-family:'Nunito',sans-serif;font-weight:900;font-size:.9rem;
-  color:var(--dark);cursor:pointer;display:flex;align-items:center;gap:12px;text-align:left;
-  transition:all .18s cubic-bezier(.34,1.56,.64,1);box-shadow:3px 3px 0 rgba(224,4,122,.07)}
-.btn-choice:hover:not(:disabled){border-color:var(--rose);transform:translateX(4px) translateY(-2px)}
-.btn-choice:disabled{cursor:default}
-.btn-choice .c-letter{width:34px;height:34px;border-radius:9px;display:flex;
-  align-items:center;justify-content:center;font-family:'Boogaloo',cursive;font-size:1.1rem;flex-shrink:0}
-.btn-choice:nth-child(1) .c-letter{background:rgba(255,61,150,.12);color:var(--rose)}
-.btn-choice:nth-child(2) .c-letter{background:rgba(224,64,160,.12);color:var(--hot)}
-.btn-choice.picked-me{border-color:var(--hot);background:#FFF0F8}
-.btn-choice.picked-me .c-letter{background:rgba(224,4,122,.15);color:var(--hot)}
-.btn-choice.reveal-same{border-color:var(--rose);background:#FFF0F8;animation:popIn .4s cubic-bezier(.34,1.56,.64,1)}
-.btn-choice.reveal-diff-me{border-color:var(--hot);background:#FFF0F8}
-.btn-choice.reveal-diff-opp{border-color:var(--sky);background:#FFF5FA}
-@keyframes popIn{0%{transform:scale(.95)}60%{transform:scale(1.04)}100%{transform:scale(1)}}
+/* ── CHOICES ── */
+.choices{width:100%;display:flex;flex-direction:column;gap:10px;}
+.btn-choice{width:100%;background:var(--white);border:2.5px solid #eee;border-radius:16px;
+  padding:15px 16px;font-family:'Nunito',sans-serif;font-weight:900;font-size:.93rem;
+  color:var(--ink);cursor:pointer;display:flex;align-items:center;gap:12px;text-align:left;
+  transition:all .18s cubic-bezier(.34,1.56,.64,1);box-shadow:3px 3px 0 rgba(0,0,0,.06);}
+.btn-choice:hover:not(:disabled){border-color:var(--coral);transform:translateX(4px) translateY(-2px);}
+.btn-choice:disabled{cursor:default;}
+.c-letter{width:34px;height:34px;border-radius:10px;display:flex;align-items:center;justify-content:center;
+  font-family:'Boogaloo',cursive;font-size:1.2rem;flex-shrink:0;}
+.btn-choice:nth-child(1) .c-letter{background:rgba(255,105,180,.18);color:#FF1493;}
+.btn-choice:nth-child(2) .c-letter{background:rgba(224,64,160,.15);color:#E040A0;}
+.btn-choice.picked{border-color:#E040A0;background:#FFF0F7;}
+.btn-choice.reveal-same{border-color:#FF85C0;background:#FFF0F7;animation:pop .4s cubic-bezier(.34,1.56,.64,1);}
+.btn-choice.reveal-me{border-color:#FF1493;background:#FFE8F5;}
+.btn-choice.reveal-opp{border-color:#FFB6D9;background:#FFF5FA;}
+@keyframes pop{0%{transform:scale(.95);}60%{transform:scale(1.04);}100%{transform:scale(1);}}
 
-/* STREAK DISPLAY */
-.streak-bar{width:100%;display:flex;gap:6px;justify-content:center}
-.streak-dot{width:28px;height:28px;border-radius:50%;background:#ffe8f4;
-  border:2.5px solid #f0b3d0;display:flex;align-items:center;justify-content:center;
-  font-size:.9rem;transition:all .3s cubic-bezier(.34,1.56,.64,1)}
-.streak-dot.lit{background:linear-gradient(135deg,var(--rose),var(--hot));
-  border-color:var(--hot);transform:scale(1.15);box-shadow:0 0 12px rgba(224,4,122,.4)}
+/* open-ended textarea in game */
+.open-input-wrap{width:100%;}
+.open-input-wrap textarea{font-size:.95rem;}
+.btn-submit-open{margin-top:8px;}
 
-/* OVERLAYS */
-.overlay{position:fixed;inset:0;background:rgba(26,26,46,.6);backdrop-filter:blur(6px);
-  display:flex;align-items:center;justify-content:center;z-index:100;padding:20px;
-  opacity:0;pointer-events:none;transition:opacity .3s}
-.overlay.on{opacity:1;pointer-events:all}
-.popup{background:#fff;border-radius:24px;padding:24px 20px;max-width:380px;width:100%;
-  text-align:center;box-shadow:0 30px 60px rgba(0,0,0,.2),6px 6px 0 rgba(0,0,0,.08);
+/* ── OVERLAY ── */
+.overlay{position:fixed;inset:0;background:rgba(93,0,60,.45);backdrop-filter:blur(6px);
+  display:flex;align-items:center;justify-content:center;z-index:100;padding:16px;
+  opacity:0;pointer-events:none;transition:opacity .3s;}
+.overlay.on{opacity:1;pointer-events:all;}
+.popup{background:var(--white);border-radius:26px;padding:26px 20px;max-width:400px;width:100%;
+  text-align:center;box-shadow:0 30px 60px rgba(0,0,0,.2),6px 6px 0 rgba(0,0,0,.07);
   transform:scale(.85) translateY(20px);transition:all .4s cubic-bezier(.34,1.56,.64,1);
-  border:2.5px solid rgba(0,0,0,.07)}
-.overlay.on .popup{transform:scale(1) translateY(0)}
-.pop-emoji{font-size:4rem;display:block;margin-bottom:8px;animation:spinIn .5s ease}
-@keyframes spinIn{from{transform:rotate(-30deg) scale(.4)}to{transform:rotate(0) scale(1)}}
-.pop-title{font-family:'Boogaloo',cursive;font-size:1.9rem;color:var(--dark);margin-bottom:5px}
-.pop-sub{font-size:.88rem;font-weight:700;color:#666;line-height:1.5;margin-bottom:12px}
+  border:2px solid rgba(0,0,0,.06);}
+.overlay.on .popup{transform:scale(1) translateY(0);}
+.pop-emoji{font-size:4rem;display:block;margin-bottom:8px;animation:spinIn .5s ease;}
+@keyframes spinIn{from{transform:rotate(-30deg) scale(.4);}to{transform:rotate(0) scale(1);}}
+.pop-title{font-family:'Boogaloo',cursive;font-size:1.9rem;color:var(--ink);margin-bottom:6px;}
+.pop-sub{font-size:.9rem;font-weight:700;color:#666;line-height:1.5;margin-bottom:12px;}
+.challenge-box{background:linear-gradient(135deg,#FFF0F7,#FFE4F2);border:2.5px dashed #FF69B4;
+  border-radius:14px;padding:12px;margin-bottom:14px;font-size:.88rem;font-weight:800;color:var(--ink);line-height:1.5;}
+.ans-row{display:flex;gap:8px;margin-bottom:14px;}
+.ans-box{flex:1;border-radius:12px;padding:10px 8px;border:2.5px solid #eee;text-align:center;}
+.ans-box .an-player{color:#aaa;font-size:.68rem;letter-spacing:1px;text-transform:uppercase;margin-bottom:3px;font-weight:800;}
+.ans-box .an-val{font-family:'Boogaloo',cursive;font-size:1.4rem;color:var(--ink);}
+.ans-box .an-open{font-size:.82rem;font-weight:800;color:var(--ink);line-height:1.3;}
+.ans-box.same{border-color:#FF85C0;background:#FFF0F7;}
+.ans-box.diff1{border-color:#FF1493;background:#FFE8F5;}
+.ans-box.diff2{border-color:#FFB6D9;background:#FFF5FA;}
+.ans-box.secret{border-color:#E040A0;background:#FFF0F7;}
 
-/* ANSWER BOXES */
-.answers-reveal{display:flex;gap:9px;margin-bottom:12px}
-.ans-box{flex:1;border-radius:12px;padding:11px 8px;border:2.5px solid #eee;
-  font-size:.8rem;font-weight:800;text-align:center}
-.ans-box .ans-player{color:#aaa;font-size:.67rem;letter-spacing:1px;text-transform:uppercase;margin-bottom:3px}
-.ans-box .ans-choice{font-family:'Boogaloo',cursive;font-size:1.3rem}
-.ans-box.same{border-color:var(--lime);background:#F0FFF4}
-.ans-box.diff{border-color:var(--coral);background:#FFF5F5}
-.challenge-card{background:linear-gradient(135deg,#FFF8E7,#FFF0F5);border:2.5px dashed var(--coral);
-  border-radius:14px;padding:12px;margin-bottom:14px;font-size:.85rem;font-weight:800;
-  color:var(--dark);line-height:1.5}
+/* ── VOTE ── */
+.vote-row{display:flex;gap:10px;width:100%;}
+.vote-card{flex:1;text-align:center;background:var(--white);border-radius:16px;padding:14px;
+  border:2.5px solid #eee;box-shadow:3px 3px 0 rgba(0,0,0,.07);}
+.vote-name{font-size:.75rem;font-weight:900;color:#aaa;text-transform:uppercase;letter-spacing:1px;margin-bottom:6px;}
+.vote-icon{font-size:2rem;}
 
-/* VOTE OVERLAY */
-.vote-options{display:flex;gap:10px;width:100%;margin-top:4px}
-.vote-btn{flex:1;border:none;cursor:pointer;border-radius:14px;padding:14px;
-  font-family:'Boogaloo',cursive;font-size:1.2rem;transition:all .2s cubic-bezier(.34,1.56,.64,1)}
-.vote-yes{background:var(--lime);color:#fff;box-shadow:0 4px 0 #45943f}
-.vote-yes:hover{transform:translateY(-2px);box-shadow:0 6px 0 #45943f}
-.vote-no{background:var(--coral);color:#fff;box-shadow:0 4px 0 #cc4444}
-.vote-no:hover{transform:translateY(-2px);box-shadow:0 6px 0 #cc4444}
-.vote-btn:disabled{opacity:.5;cursor:not-allowed;transform:none!important}
-.vote-status{font-size:.82rem;font-weight:800;color:#999;margin-top:8px}
-.vote-result-row{display:flex;gap:8px;margin:8px 0}
-.vote-chip{flex:1;border-radius:10px;padding:8px;text-align:center;font-size:.8rem;font-weight:800}
-.vote-chip.yes{background:#F0FFF4;color:var(--lime);border:2px solid var(--lime)}
-.vote-chip.no{background:#FFF5F5;color:var(--coral);border:2px solid var(--coral)}
-.vote-chip.wait{background:#f5f5f5;color:#ccc;border:2px dashed #e0e0e0}
+/* ── FINAL ── */
+.trophy{font-size:5rem;text-align:center;animation:dance 1s ease infinite alternate;}
+@keyframes dance{from{transform:rotate(-10deg) scale(1);}to{transform:rotate(10deg) scale(1.1);}}
+.final-scores{display:flex;gap:10px;width:100%;}
+.fs-card{flex:1;background:var(--white);border-radius:18px;padding:16px 10px;text-align:center;
+  box-shadow:4px 4px 0 rgba(0,0,0,.09);border:2.5px solid #eee;position:relative;overflow:hidden;}
+.fs-card.winner{border-color:#FFB6D9;background:#FFF5FA;}
+.fs-card.winner::after{content:'👑';position:absolute;top:-2px;right:8px;font-size:1.4rem;}
+.fs-name{font-size:.72rem;font-weight:900;color:#aaa;text-transform:uppercase;letter-spacing:1px;}
+.fs-pts{font-family:'Boogaloo',cursive;font-size:2.8rem;color:var(--ink);line-height:1;}
+.winner-msg{background:var(--white);border-radius:16px;padding:16px;width:100%;
+  font-weight:800;color:var(--ink);line-height:1.6;
+  box-shadow:4px 4px 0 rgba(0,0,0,.07);border:2px solid #eee;font-size:.9rem;}
 
-/* SECRET OVERLAY */
-.secret-unlock{background:linear-gradient(135deg,#1a0033,#2d0060);border-radius:20px;
-  padding:20px;width:100%;text-align:center;border:2px solid rgba(168,85,247,.4);
-  margin-bottom:12px}
-.secret-title{font-family:'Boogaloo',cursive;font-size:1.6rem;
-  background:linear-gradient(135deg,var(--sun),var(--pink));
-  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
-  margin-bottom:4px}
-.secret-sub{color:rgba(255,255,255,.6);font-size:.8rem;font-weight:700}
+/* ── HISTORY ── */
+.history-entry{background:var(--white);border-radius:16px;padding:14px;width:100%;
+  box-shadow:3px 3px 0 rgba(0,0,0,.07);border:2px solid #eee;cursor:pointer;transition:all .2s;}
+.history-entry:hover{border-color:#FF69B4;transform:translateY(-2px);}
+.he-header{display:flex;align-items:center;gap:8px;margin-bottom:4px;}
+.he-date{font-size:.75rem;font-weight:800;color:#aaa;}
+.he-players{font-weight:900;font-size:.9rem;color:var(--ink);}
+.he-badge{margin-left:auto;background:#FFE4F2;border-radius:50px;padding:3px 10px;font-size:.72rem;font-weight:800;color:#E040A0;}
 
-.secret-form{background:#f9f9f9;border-radius:14px;padding:14px;margin-bottom:10px;border:2px solid #eee}
-.secret-form .inp-label{color:#888}
-.secret-form .inp{background:#fff;font-size:.88rem;padding:11px 14px;margin-bottom:8px}
-.secret-form .inp-row{gap:6px}
-.secret-form .inp-row .inp{font-size:.82rem;padding:10px 12px}
-.secret-status{font-size:.8rem;font-weight:800;color:#aaa;text-align:center;padding:8px}
+/* History detail overlay */
+.hist-detail{max-width:500px;max-height:85vh;overflow-y:auto;text-align:left;padding:22px 18px;}
+.hd-level{margin-bottom:14px;}
+.hd-lv-title{font-family:'Boogaloo',cursive;font-size:1.1rem;color:var(--ink);margin-bottom:8px;
+  padding-bottom:6px;border-bottom:2px solid #f0f0f0;}
+.hd-q{margin-bottom:10px;padding:10px;background:#fafafa;border-radius:12px;border:1.5px solid #f0f0f0;}
+.hd-q-text{font-weight:900;font-size:.85rem;color:var(--ink);margin-bottom:6px;}
+.hd-ans{display:flex;gap:6px;}
+.hd-a{flex:1;text-align:center;padding:6px;border-radius:8px;border:2px solid #eee;font-size:.78rem;font-weight:800;}
+.hd-a .hda-name{color:#aaa;font-size:.65rem;text-transform:uppercase;letter-spacing:.5px;}
+.hd-a .hda-val{color:var(--ink);margin-top:2px;}
+.hd-a.same{border-color:#FF85C0;background:#FFF0F7;}
+.hd-a.s1{border-color:#FF1493;background:#FFE8F5;}
+.hd-a.s2{border-color:#FFB6D9;background:#FFF5FA;}
+.hd-a.secret{border-color:#E040A0;background:#FFF0F7;}
 
-/* FINAL / HISTORY */
-.trophy-big{font-size:5rem;animation:trophyDance 1s ease infinite alternate}
-@keyframes trophyDance{from{transform:rotate(-10deg) scale(1)}to{transform:rotate(10deg) scale(1.1)}}
-.final-title{font-family:'Boogaloo',cursive;font-size:2.2rem;color:var(--dark)}
-.final-scores{display:flex;gap:12px;width:100%}
-.fs-card{flex:1;background:#fff;border-radius:18px;padding:16px 10px;text-align:center;
-  box-shadow:4px 4px 0 rgba(0,0,0,.1);border:2.5px solid #eee;position:relative;overflow:hidden}
-.fs-card.winner{border-color:var(--sun);background:#FFFDF0}
-.fs-card.winner::after{content:'👑';position:absolute;top:-2px;right:8px;font-size:1.4rem}
-.fs-name{font-size:.74rem;font-weight:900;color:#aaa;text-transform:uppercase;letter-spacing:1px}
-.fs-pts{font-family:'Boogaloo',cursive;font-size:2.8rem;color:var(--dark);line-height:1}
-.fs-lbl{font-size:.68rem;font-weight:800;color:#ccc}
-
-/* HISTORY */
-.history-section{width:100%;margin-top:4px}
-.history-section-title{font-family:'Boogaloo',cursive;font-size:1.1rem;color:var(--dark);
-  margin-bottom:8px;display:flex;align-items:center;gap:8px}
-.history-lv-header{background:var(--dark);color:var(--sun);border-radius:10px;padding:8px 14px;
-  font-family:'Boogaloo',cursive;font-size:.9rem;margin:8px 0 4px;letter-spacing:1px;text-align:center}
-.hist-item{background:#fff;border-radius:12px;padding:12px;margin-bottom:6px;
-  border:2px solid #f0f0f0;box-shadow:2px 2px 0 rgba(0,0,0,.05)}
-.hist-q{font-weight:900;font-size:.82rem;color:var(--dark);margin-bottom:6px;line-height:1.4}
-.hist-answers{display:flex;gap:6px}
-.hist-ans{flex:1;border-radius:9px;padding:7px 8px;text-align:center;font-size:.75rem;font-weight:800}
-.hist-ans .player-n{color:#aaa;font-size:.65rem;letter-spacing:.5px;text-transform:uppercase;margin-bottom:2px}
-.hist-ans .ans-val{color:var(--dark);line-height:1.3}
-.hist-ans.same-ans{background:#F0FFF4;border:1.5px solid var(--lime)}
-.hist-ans.diff-ans-1{background:#FFF5F5;border:1.5px solid var(--coral)}
-.hist-ans.diff-ans-2{background:#F0FFFE;border:1.5px solid var(--sky)}
-.hist-ans.secret{background:#FAF5FF;border:1.5px solid var(--grape)}
-.hist-secret-badge{display:inline-block;background:var(--grape);color:#fff;border-radius:6px;
-  padding:1px 6px;font-size:.62rem;font-weight:800;margin-bottom:3px;vertical-align:middle}
-
-/* SAVED HISTORY */
-.saved-hist-list{width:100%;display:flex;flex-direction:column;gap:8px;max-height:400px;overflow-y:auto}
-.saved-hist-item{background:#fff;border-radius:14px;padding:14px;border:2px solid #eee;cursor:pointer;
-  transition:border-color .2s}
-.saved-hist-item:hover{border-color:var(--coral)}
-.shi-date{font-size:.72rem;font-weight:800;color:#bbb;letter-spacing:1px;margin-bottom:4px}
-.shi-players{font-weight:900;font-size:.95rem;color:var(--dark)}
-.shi-score{font-family:'Boogaloo',cursive;font-size:1.2rem;color:var(--coral)}
-
-/* CONNECTION */
-.conn{width:7px;height:7px;border-radius:50%;background:#ccc;display:inline-block;margin-right:4px}
-.conn.ok{background:var(--lime)}.conn.bad{background:var(--coral)}
-
-/* TOAST */
+/* ── TOAST ── */
 .toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(80px);
-  background:var(--coral);color:#fff;padding:11px 20px;border-radius:50px;font-weight:800;
-  font-size:.87rem;z-index:200;transition:transform .3s cubic-bezier(.34,1.56,.64,1);
-  box-shadow:0 6px 20px rgba(255,107,107,.4);white-space:nowrap}
-.toast.show{transform:translateX(-50%) translateY(0)}
-.toast.green{background:var(--lime)}
+  background:linear-gradient(135deg,#FF1493,#E040A0);color:var(--white);padding:11px 22px;border-radius:50px;
+  font-weight:800;font-size:.88rem;z-index:200;transition:transform .3s cubic-bezier(.34,1.56,.64,1);
+  box-shadow:0 6px 20px rgba(255,20,147,.4);white-space:nowrap;}
+.toast.show{transform:translateX(-50%) translateY(0);}
 
-/* CONFETTI */
-.conf{position:fixed;pointer-events:none;animation:confFall linear forwards;border-radius:3px;z-index:999}
-@keyframes confFall{0%{transform:translateY(-20px) rotate(0);opacity:1}
-  100%{transform:translateY(110vh) rotate(720deg);opacity:0}}
+/* ── CONN ── */
+.conn-wrap{font-size:.75rem;color:#FFAAD0;font-weight:700;text-align:center;}
+.conn-dot{width:7px;height:7px;border-radius:50%;background:#FFCCE5;display:inline-block;margin-right:4px;vertical-align:middle;}
+.conn-dot.ok{background:#FF69B4;}
+.conn-dot.bad{background:#FF1493;}
 
-/* SCROLLBAR */
-::-webkit-scrollbar{width:4px}
-::-webkit-scrollbar-track{background:transparent}
-::-webkit-scrollbar-thumb{background:#e0e0e0;border-radius:10px}
+/* ── CONFETTI ── */
+.conf{position:fixed;pointer-events:none;animation:fall linear forwards;border-radius:3px;z-index:999;}
+@keyframes fall{0%{transform:translateY(-20px) rotate(0);opacity:1;}100%{transform:translateY(110vh) rotate(720deg);opacity:0;}}
 
-/* LEVEL TRANSITION */
-.level-transition-bar{display:flex;gap:4px;width:100%;justify-content:center}
-.lt-dot{width:12px;height:12px;border-radius:50%;background:#e8e8e8;
-  border:2px solid #ddd;transition:all .4s cubic-bezier(.34,1.56,.64,1)}
-.lt-dot.done{background:var(--lime);border-color:var(--lime);transform:scale(1.2)}
-.lt-dot.active{background:var(--coral);border-color:var(--coral);
-  transform:scale(1.3);box-shadow:0 0 10px rgba(255,107,107,.5)}
-
-/* TAB NAV */
-.tab-nav{display:flex;gap:0;width:100%;background:#f0f0f0;border-radius:14px;padding:4px}
-.tab-btn{flex:1;border:none;cursor:pointer;border-radius:10px;padding:9px;
-  font-family:'Boogaloo',cursive;font-size:.9rem;background:transparent;color:#aaa;transition:all .2s}
-.tab-btn.active{background:#fff;color:var(--dark);box-shadow:2px 2px 0 rgba(0,0,0,.08)}
+/* consecutive streak indicator */
+.streak-bar{display:flex;gap:4px;align-items:center;justify-content:center;width:100%;}
+.streak-pip{width:24px;height:8px;border-radius:50px;background:#f0f0f0;transition:background .3s;}
+.streak-pip.lit{background:#FF69B4;}
+.streak-label{font-size:.75rem;font-weight:800;color:#aaa;margin-left:4px;}
 </style>
 </head>
 <body>
 <div class="wrap">
 
-<!-- ===== LOBBY ===== -->
+<!-- ═══════════════════════════════════════ LOBBY -->
 <div class="screen on" id="s-lobby">
-  <div style="text-align:center">
-    <span class="mascot">🎯</span>
-    <div class="logo">Would You <span>Rather?</span></div>
-    <div class="logo-sub">Game 3 Level · 2 Player</div>
-  </div>
+  <span class="mascot">🌸</span>
+  <div class="logo">Would You <span>Rather?</span></div>
+  <div class="logo-sub">Game Seru Berdua 🎮</div>
 
-  <div class="tab-nav">
-    <button class="tab-btn active" id="tab-new" onclick="switchTab('new')">🚀 Buat Room</button>
-    <button class="tab-btn" id="tab-join" onclick="switchTab('join')">🔗 Join Room</button>
-    <button class="tab-btn" id="tab-history" onclick="switchTab('history')">📜 History</button>
-  </div>
-
-  <!-- NEW ROOM TAB -->
-  <div id="tab-content-new" style="width:100%;display:flex;flex-direction:column;gap:10px">
-    <div class="card">
-      <div class="card-title">👤 Nama Kamu</div>
-      <input class="inp" id="inp-name-create" placeholder="Nama kamu..." maxlength="16">
-
-      <div class="card-title" style="margin-top:8px">📝 Tambah Pertanyaan Custom</div>
-      <div style="font-size:.78rem;font-weight:700;color:#aaa;margin-bottom:8px">
-        Opsional — kalau dikosongkan, pakai soal default
-      </div>
-
-      <div class="inp-label">Pertanyaan</div>
-      <input class="inp" id="new-q-text" placeholder="Lebih pilih mana?" maxlength="120">
-      <div class="inp-row">
-        <div style="flex:1">
-          <div class="inp-label">Pilihan A</div>
-          <input class="inp" id="new-q-a" placeholder="Opsi A..." maxlength="80">
-        </div>
-        <div style="flex:1">
-          <div class="inp-label">Pilihan B</div>
-          <input class="inp" id="new-q-b" placeholder="Opsi B..." maxlength="80">
-        </div>
-      </div>
-      <button class="btn btn-sun btn-sm" style="width:auto;padding:10px 18px;font-size:.95rem" onclick="addCustomQ()">+ Tambah Soal</button>
+  <div class="card">
+    <div class="card-title">🚀 Buat Room Baru</div>
+    <div style="margin-bottom:10px">
+      <input type="text" id="inp-name-c" placeholder="Nama kamu..." maxlength="16">
     </div>
+    <button class="btn btn-coral" onclick="createRoom()">Bikin Room!</button>
+  </div>
 
-    <div class="card" id="custom-q-card" style="display:none">
-      <div class="card-title">🎯 Soal Custom Kamu (<span id="cq-count">0</span>)</div>
-      <div class="custom-q-list" id="cq-list"></div>
+  <div style="font-weight:900;color:#ccc;font-size:.85rem;letter-spacing:2px;">— atau —</div>
+
+  <div class="card">
+    <div class="card-title">🔗 Join Room Teman</div>
+    <div style="margin-bottom:8px"><input type="text" id="inp-name-j" placeholder="Nama kamu..." maxlength="16"></div>
+    <div style="margin-bottom:10px">
+      <input type="text" id="inp-code" placeholder="Kode room (4 huruf)" maxlength="4" style="text-transform:uppercase;letter-spacing:4px;font-size:1.1rem;text-align:center;">
     </div>
-
-    <button class="btn btn-coral" onclick="createRoom()">Bikin Room! 🚀</button>
+    <button class="btn btn-sky" onclick="joinRoom()">Join! 🙋</button>
   </div>
 
-  <!-- JOIN TAB -->
-  <div id="tab-content-join" style="width:100%;display:none">
-    <div class="card">
-      <div class="card-title">🔗 Join Room Teman</div>
-      <input class="inp" id="inp-name-join" placeholder="Nama kamu..." maxlength="16">
-      <input class="inp" id="inp-code" placeholder="Kode Room (4 huruf)"
-        maxlength="4" style="text-transform:uppercase;letter-spacing:4px;font-size:1.2rem;text-align:center">
-      <button class="btn btn-sky" onclick="joinRoom()">Join! 🙋</button>
-    </div>
-  </div>
+  <button class="btn btn-ghost" onclick="openHistoryBrowser()" style="width:100%">📖 Lihat History Game</button>
 
-  <!-- HISTORY TAB -->
-  <div id="tab-content-history" style="width:100%;display:none">
-    <div class="card">
-      <div class="card-title">📜 Riwayat Game</div>
-      <div id="hist-lobby-list"></div>
-    </div>
-  </div>
-
-  <div style="font-size:.75rem;color:#ccc;font-weight:700;text-align:center">
-    <span class="conn" id="conn-dot"></span>
-    <span id="conn-txt">Gunakan 2 tab/device browser yang sama</span>
-  </div>
+  <div class="conn-wrap"><span class="conn-dot" id="cdot"></span><span id="ctxt">Menghubungkan...</span></div>
 </div>
 
-<!-- ===== WAITING ROOM ===== -->
+<!-- ═══════════════════════════════════════ WAITING -->
 <div class="screen" id="s-wait">
-  <div style="text-align:center">
-    <span class="mascot">⏳</span>
-    <div class="logo" style="font-size:2.2rem">Waiting Room</div>
-  </div>
+  <div class="logo">Room <span id="w-code">----</span></div>
+  <div class="logo-sub">Menunggu teman...</div>
 
-  <div class="room-code-display">
+  <div class="room-code-box">
     <div class="rc-label">Kode Room</div>
-    <div class="rc-code" id="display-code">----</div>
-    <div class="rc-hint">Kirim kode ini ke teman kamu!</div>
+    <div class="rc-code" id="w-bigcode">----</div>
+    <div class="rc-hint">Kirim ke teman kamu!</div>
   </div>
 
-  <div class="players-row">
-    <div class="player-slot filled" id="slot-1">
-      <div class="slot-avatar">🧑</div>
-      <div class="slot-name" id="slot-1-name">Player 1</div>
+  <div class="slots">
+    <div class="slot filled" id="slot1">
+      <div class="slot-icon">🧑</div>
+      <div class="slot-name" id="sn1">Player 1</div>
       <div class="slot-status ok">✓ Siap</div>
     </div>
-    <div class="player-slot" id="slot-2">
-      <div class="slot-avatar">👤</div>
+    <div class="slot" id="slot2">
+      <div class="slot-icon">👤</div>
       <div class="slot-name">Menunggu...</div>
       <div class="slot-status"><div class="wait-dots"><span></span><span></span><span></span></div></div>
     </div>
   </div>
 
-  <div id="btn-start-wrap" style="width:100%;display:none">
-    <button class="btn btn-lime" onclick="startGame()">Mulai Game! 🎉</button>
+  <div id="btn-setup-wrap" style="display:none;width:100%">
+    <button class="btn btn-lime" onclick="goSetup()">Lanjut ke Setup Pertanyaan ✏️</button>
+  </div>
+  <div id="p2-wait-msg" style="display:none;width:100%;text-align:center;font-weight:800;color:#aaa;font-size:.9rem;">
+    Menunggu Player 1 memulai game...
   </div>
 
   <div class="card" style="padding:14px 18px">
-    <div class="card-title" style="font-size:.95rem;margin-bottom:6px">📋 Cara Main</div>
-    <div style="font-size:.78rem;font-weight:700;color:#666;display:flex;flex-direction:column;gap:5px">
-      <div>🎯 3 Level, masing-masing 5 pertanyaan</div>
-      <div>🤝 Jawaban sama = <strong>+2 poin</strong> untuk berdua</div>
-      <div>🗳️ Antara level: <strong>vote lanjut atau pulang</strong></div>
-      <div>🔓 Jawab sama 3× berturut = <strong>Secret Mode!</strong></div>
-      <div>📜 History semua jawaban di akhir game</div>
+    <div class="card-title" style="font-size:.95rem;margin-bottom:8px;">📋 Cara Main</div>
+    <div style="font-size:.82rem;font-weight:700;color:#666;display:flex;flex-direction:column;gap:5px;">
+      <div>🎯 Jawab pertanyaan <strong>bersamaan</strong> — keliatan setelah keduanya submit!</div>
+      <div>🤝 Jawaban <strong>sama</strong> = +2 poin masing-masing!</div>
+      <div>😂 Jawaban <strong>beda</strong> = ada tantangan lucu!</div>
+      <div>🔐 Sama 3x berturut = muncul <strong>Secret Round!</strong></div>
+      <div>🏆 3 level, masing-masing 5 pertanyaan.</div>
     </div>
   </div>
 </div>
 
-<!-- ===== GAME ===== -->
+<!-- ═══════════════════════════════════════ SETUP (P1 only) -->
+<div class="screen" id="s-setup">
+  <div class="logo" style="font-size:2rem;">✏️ Buat <span>Pertanyaan</span></div>
+  <div class="logo-sub" style="margin-bottom:0">3 Level × 5 Pertanyaan</div>
+
+  <div class="level-tabs">
+    <div class="tab active" id="tab0" onclick="switchTab(0)">Level 1</div>
+    <div class="tab" id="tab1" onclick="switchTab(1)">Level 2</div>
+    <div class="tab" id="tab2" onclick="switchTab(2)">Level 3</div>
+  </div>
+
+  <!-- Level editors -->
+  <div id="editor0" class="q-editor"></div>
+  <div id="editor1" class="q-editor" style="display:none"></div>
+  <div id="editor2" class="q-editor" style="display:none"></div>
+
+  <button class="btn btn-lime" onclick="startGame()" style="margin-top:4px">Mulai Game! 🎮</button>
+  <button class="btn btn-ghost" onclick="useDefaults()">Pakai pertanyaan default aja</button>
+</div>
+
+<!-- ═══════════════════════════════════════ LEVEL TRANSITION -->
+<div class="screen" id="s-level">
+  <span style="font-size:5rem;text-align:center;animation:wobble 1s ease infinite;" id="lt-emoji">🎉</span>
+  <div class="logo" id="lt-title">Level 2 Dimulai!</div>
+  <div class="card" style="text-align:center">
+    <div style="font-size:.9rem;font-weight:800;color:#666;" id="lt-sub">Bersiap untuk ronde berikutnya...</div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════ GAME -->
 <div class="screen" id="s-game">
   <div class="topbar">
     <div class="score-pill">
-      <div>
-        <div class="score-name" id="g-name-1">P1</div>
-        <div class="score-pts" id="g-pts-1">0</div>
-      </div>
+      <div><div class="s-name" id="g-n1">P1</div><div class="s-pts" id="g-p1">0</div></div>
       <div style="font-size:1.1rem">🆚</div>
-      <div style="text-align:right">
-        <div class="score-name" id="g-name-2">P2</div>
-        <div class="score-pts" id="g-pts-2">0</div>
-      </div>
+      <div style="text-align:right"><div class="s-name" id="g-n2">P2</div><div class="s-pts" id="g-p2">0</div></div>
     </div>
-    <div>
-      <div class="lv-badge" id="g-level">LV1</div>
-      <div class="rnd-badge" id="g-round" style="margin-top:4px">1/5</div>
-    </div>
+    <div class="rnd-badge" id="g-rnd">1/5</div>
   </div>
 
-  <div class="prog-wrap">
-    <div class="prog-bar" id="g-prog" style="width:20%"></div>
+  <!-- Level progress pips -->
+  <div class="level-badge">
+    <div class="lv-pip" id="lvpip0"><div class="lv-fill" id="lvfill0" style="width:0%"></div></div>
+    <div class="lv-pip inactive" id="lvpip1"><div class="lv-fill" id="lvfill1" style="width:0%"></div></div>
+    <div class="lv-pip inactive" id="lvpip2"><div class="lv-fill" id="lvfill2" style="width:0%"></div></div>
+    <div class="lv-label" id="g-lvlabel">Level 1</div>
   </div>
 
-  <!-- Streak dots -->
-  <div class="streak-bar" id="streak-bar">
-    <div class="streak-dot" id="sd-0">🔥</div>
-    <div class="streak-dot" id="sd-1">🔥</div>
-    <div class="streak-dot" id="sd-2">🔥</div>
+  <!-- Streak -->
+  <div class="streak-bar">
+    <div class="streak-pip" id="sp0"></div>
+    <div class="streak-pip" id="sp1"></div>
+    <div class="streak-pip" id="sp2"></div>
+    <span class="streak-label" id="streak-lbl">Sama 0x berturut</span>
   </div>
 
-  <div class="q-card">
-    <div id="secret-q-badge" class="q-secret-badge" style="display:none">🔓 SECRET QUESTION</div>
+  <div class="q-card" id="g-qcard">
     <div class="q-cat" id="g-cat">KATEGORI</div>
-    <div class="q-text" id="g-q">Pertanyaan loading...</div>
+    <div class="q-text" id="g-q">...</div>
   </div>
 
   <div class="timer-wrap">
-    <svg viewBox="0 0 64 64" width="60" height="60">
-      <circle class="t-bg" cx="32" cy="32" r="27"/>
-      <circle class="t-fg" id="t-circle" cx="32" cy="32" r="27"/>
+    <svg viewBox="0 0 64 64" width="64" height="64">
+      <circle class="t-bg" cx="32" cy="32" r="26"/>
+      <circle class="t-fg" id="t-fg" cx="32" cy="32" r="26"/>
     </svg>
-    <div class="t-num" id="t-num">15</div>
+    <div class="t-num" id="t-num">20</div>
   </div>
 
   <div class="status-bar" id="g-status"><div class="dot"></div><span>Siap-siap...</span></div>
 
+  <!-- AB choices -->
   <div class="choices" id="g-choices">
-    <button class="btn-choice" id="btn-A" onclick="answer('A')">
-      <div class="c-letter">A</div><span id="g-choice-a">Option A</span>
+    <button class="btn-choice" id="btn-A" onclick="answerAB('A')">
+      <div class="c-letter">A</div><span id="g-ca">...</span>
     </button>
-    <button class="btn-choice" id="btn-B" onclick="answer('B')">
-      <div class="c-letter">B</div><span id="g-choice-b">Option B</span>
+    <button class="btn-choice" id="btn-B" onclick="answerAB('B')">
+      <div class="c-letter">B</div><span id="g-cb">...</span>
     </button>
+  </div>
+
+  <!-- Open-ended input -->
+  <div class="open-input-wrap" id="g-open-wrap" style="display:none">
+    <textarea id="g-open-input" placeholder="Tulis jawaban kamu di sini..." rows="3"></textarea>
+    <button class="btn btn-grape btn-submit-open" onclick="answerOpen()">Submit Jawaban 🔐</button>
   </div>
 </div>
 
-<!-- ===== FINAL ===== -->
-<div class="screen" id="s-final">
-  <div class="trophy-big">🏆</div>
-  <div class="final-title" id="f-title">Game Selesai!</div>
-
-  <div class="level-transition-bar" id="f-levels">
-    <div class="lt-dot done"></div>
-    <div class="lt-dot done"></div>
-    <div class="lt-dot done"></div>
+<!-- ═══════════════════════════════════════ VOTE -->
+<div class="screen" id="s-vote">
+  <span style="font-size:4rem;text-align:center;animation:wobble 1.5s ease infinite;">🎊</span>
+  <div class="logo" id="vote-title">Level 1 Selesai!</div>
+  <div class="card" style="text-align:center;gap:8px;display:flex;flex-direction:column;align-items:center">
+    <div style="font-size:.9rem;font-weight:800;color:#666;">Skor sementara:</div>
+    <div style="display:flex;gap:12px;width:100%">
+      <div style="flex:1;text-align:center;"><div style="font-size:.75rem;font-weight:900;color:#aaa;" id="vt-n1">P1</div><div style="font-family:'Boogaloo',cursive;font-size:2rem;" id="vt-p1">0</div></div>
+      <div style="flex:1;text-align:center;"><div style="font-size:.75rem;font-weight:900;color:#aaa;" id="vt-n2">P2</div><div style="font-family:'Boogaloo',cursive;font-size:2rem;" id="vt-p2">0</div></div>
+    </div>
+    <div style="font-size:.95rem;font-weight:800;color:var(--ink);margin-top:4px;">Lanjut ke level berikutnya?</div>
   </div>
+
+  <div class="vote-row">
+    <div class="vote-card" id="vc1"><div class="vote-name" id="vc-n1">P1</div><div class="vote-icon" id="vc-i1">⏳</div></div>
+    <div class="vote-card" id="vc2"><div class="vote-name" id="vc-n2">P2</div><div class="vote-icon" id="vc-i2">⏳</div></div>
+  </div>
+
+  <div id="my-vote-btns" style="width:100%;display:flex;gap:10px;">
+    <button class="btn btn-lime" style="flex:1" onclick="vote(true)">Lanjut! 🙌</button>
+    <button class="btn btn-coral" style="flex:1" onclick="vote(false)">Stop 🏠</button>
+  </div>
+  <div id="voted-msg" style="display:none;font-weight:800;color:#aaa;font-size:.9rem;text-align:center;">Kamu sudah vote! Menunggu yang lain...</div>
+</div>
+
+<!-- ═══════════════════════════════════════ FINAL -->
+<div class="screen" id="s-final">
+  <div class="trophy">🏆</div>
+  <div class="logo" id="f-title">Game Over!</div>
 
   <div class="final-scores">
-    <div class="fs-card" id="fs-1">
-      <div class="fs-name" id="fs-name-1">P1</div>
-      <div class="fs-pts" id="fs-pts-1">0</div>
-      <div class="fs-lbl">POIN</div>
-    </div>
-    <div class="fs-card" id="fs-2">
-      <div class="fs-name" id="fs-name-2">P2</div>
-      <div class="fs-pts" id="fs-pts-2">0</div>
-      <div class="fs-lbl">POIN</div>
-    </div>
+    <div class="fs-card" id="fsc1"><div class="fs-name" id="fn1">P1</div><div class="fs-pts" id="fp1">0</div><div style="font-size:.7rem;font-weight:800;color:#ccc;">POIN</div></div>
+    <div class="fs-card" id="fsc2"><div class="fs-name" id="fn2">P2</div><div class="fs-pts" id="fp2">0</div><div style="font-size:.7rem;font-weight:800;color:#ccc;">POIN</div></div>
   </div>
 
-  <!-- HISTORY -->
-  <div class="history-section" id="full-history"></div>
+  <div class="winner-msg" id="f-msg"></div>
 
-  <div id="f-btn-wrap" style="width:100%;display:none">
-    <button class="btn btn-coral" onclick="restartGame()">Main Lagi! 🔄</button>
-  </div>
-  <button class="btn btn-outline" onclick="goLobby()">Kembali ke Lobby 🏠</button>
+  <button class="btn btn-sun" onclick="showHistoryDetail(lastHistory)">📖 Lihat History Ronde Ini</button>
+  <button class="btn btn-coral" id="f-restart" style="display:none" onclick="restartGame()">Main Lagi! 🔄</button>
+  <button class="btn btn-ghost" onclick="goLobby()">Kembali ke Lobby 🏠</button>
 </div>
 
 </div><!-- /wrap -->
 
-<!-- ===== OVERLAYS ===== -->
+<!-- ── COPYRIGHT ── -->
+<div style="position:fixed;bottom:0;left:0;right:0;z-index:50;pointer-events:none;text-align:center;padding:8px 16px 10px;">
+  <span style="font-family:'Nunito',sans-serif;font-size:.72rem;font-weight:800;color:#FF85C0;letter-spacing:.5px;
+    text-shadow:0 1px 4px rgba(255,255,255,.8);background:rgba(255,240,247,.7);border-radius:50px;padding:4px 14px;backdrop-filter:blur(4px);border:1px solid rgba(255,182,217,.4);">
+    © Michael 2026 💕
+  </span>
+</div>
 
-<!-- RESULT OVERLAY -->
-<div class="overlay" id="ov-result">
+<!-- ═══════ OVERLAY: REVEAL ═══════ -->
+<div class="overlay" id="ov-reveal">
   <div class="popup">
     <span class="pop-emoji" id="ov-emoji">🎉</span>
     <div class="pop-title" id="ov-title">KOMPAK!</div>
-    <div class="pop-sub" id="ov-sub">Kalian sama-sama milih ini!</div>
-    <div class="answers-reveal" id="ov-answers"></div>
-    <div class="challenge-card" id="ov-challenge" style="display:none"></div>
-    <button class="btn btn-grape" id="ov-btn-next" onclick="nextRound()" style="display:none">
-      Soal Berikutnya ➡️
-    </button>
-    <div id="ov-waiting-next" style="font-weight:800;color:#aaa;font-size:.85rem;margin-top:4px"></div>
+    <div class="pop-sub" id="ov-sub">subtitle</div>
+    <div class="ans-row" id="ov-ans"></div>
+    <div class="challenge-box" id="ov-challenge" style="display:none"></div>
+    <button class="btn btn-grape" id="ov-next-btn" onclick="nextQuestion()" style="display:none;margin-bottom:6px">Lanjut! ➡️</button>
+    <div id="ov-wait-next" style="font-weight:800;color:#aaa;font-size:.85rem;">Menunggu Player 1...</div>
   </div>
 </div>
 
-<!-- VOTE OVERLAY (between levels) -->
-<div class="overlay" id="ov-vote">
-  <div class="popup">
-    <span class="pop-emoji" id="vote-emoji">🗳️</span>
-    <div class="pop-title" id="vote-title">Lanjut Level 2?</div>
-    <div class="pop-sub" id="vote-sub">Kalian berdua harus setuju buat lanjut!</div>
-    <div class="vote-result-row" id="vote-result-row">
-      <div class="vote-chip wait" id="vote-chip-1">P1: ?</div>
-      <div class="vote-chip wait" id="vote-chip-2">P2: ?</div>
+<!-- ═══════ OVERLAY: HISTORY BROWSER ═══════ -->
+<div class="overlay" id="ov-hist">
+  <div class="popup hist-detail">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">
+      <div style="font-family:'Boogaloo',cursive;font-size:1.4rem;color:var(--ink);">📖 History Game</div>
+      <button onclick="closeOverlay('ov-hist')" style="background:none;border:none;font-size:1.5rem;cursor:pointer;color:#aaa;">✕</button>
     </div>
-    <div class="vote-options">
-      <button class="vote-btn vote-yes" id="vote-yes-btn" onclick="castVote(true)">✅ Lanjut!</button>
-      <button class="vote-btn vote-no" id="vote-no-btn" onclick="castVote(false)">🏠 Pulang</button>
-    </div>
-    <div class="vote-status" id="vote-status">Pilih ya atau tidak!</div>
+    <div id="hist-list"></div>
   </div>
 </div>
 
-<!-- SECRET UNLOCK OVERLAY -->
-<div class="overlay" id="ov-secret">
-  <div class="popup" style="max-width:420px">
-    <span class="pop-emoji">🔓</span>
-    <div class="pop-title" style="background:linear-gradient(135deg,var(--grape),var(--pink));
-      -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text">
-      SECRET UNLOCKED!
+<!-- ═══════ OVERLAY: HISTORY DETAIL ═══════ -->
+<div class="overlay" id="ov-histdetail">
+  <div class="popup hist-detail">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">
+      <div style="font-family:'Boogaloo',cursive;font-size:1.3rem;color:var(--ink);" id="hd-title">Detail</div>
+      <button onclick="closeOverlay('ov-histdetail')" style="background:none;border:none;font-size:1.5rem;cursor:pointer;color:#aaa;">✕</button>
     </div>
-    <div class="pop-sub">Kalian kompak 3× berturut! Masing-masing bikin 1 soal custom sekarang!</div>
-
-    <div class="secret-form">
-      <div style="font-size:.8rem;font-weight:900;color:var(--grape);margin-bottom:8px">
-        ✏️ Soal dari <span id="secret-maker-name">Kamu</span>
-      </div>
-      <div class="inp-label">Pertanyaan</div>
-      <input class="inp" id="secret-q-input" placeholder="Lebih pilih mana?" maxlength="120">
-      <div class="inp-row">
-        <div style="flex:1"><div class="inp-label">Pilihan A</div>
-          <input class="inp" id="secret-a-input" placeholder="Opsi A..." maxlength="80"></div>
-        <div style="flex:1"><div class="inp-label">Pilihan B</div>
-          <input class="inp" id="secret-b-input" placeholder="Opsi B..." maxlength="80"></div>
-      </div>
-      <button class="btn btn-grape" onclick="submitSecretQ()">Simpan Soal Secret ✨</button>
-    </div>
-
-    <div class="secret-status" id="secret-status">Menunggu kamu buat soal...</div>
-  </div>
-</div>
-
-<!-- FULL HISTORY OVERLAY -->
-<div class="overlay" id="ov-saved-history">
-  <div class="popup" style="max-width:460px;max-height:90vh;overflow-y:auto;text-align:left">
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
-      <div class="pop-title" style="font-size:1.4rem">📜 Detail History</div>
-      <button style="border:none;background:none;font-size:1.4rem;cursor:pointer" onclick="closeSavedHistory()">✕</button>
-    </div>
-    <div id="saved-hist-detail"></div>
+    <div id="hd-content"></div>
   </div>
 </div>
 
 <div class="toast" id="toast"></div>
 
 <script>
-// ======================================================
-// STATE
-// ======================================================
-const CHANNEL_NAME = 'wyr-game';
-const STORAGE_KEY = 'wyr-room-state';
-const HISTORY_KEY = 'wyr-history';
+// ══════════════════════ CONFIG ══════════════════════
+const SERVER_URL = (location.hostname==='localhost'||location.hostname==='127.0.0.1')
+  ? 'ws://localhost:3001'
+  : 'wss://YOUR_SERVER_URL'; // ← ganti setelah deploy Railway
 
-let bc = null;
-let myNum = null;
-let myName = '';
-let roomCode = '';
-let currentAnswer = null;
-let timerInterval = null;
-let timeLeft = 15;
-let names = {};
-let scores = {};
-let customQuestions = []; // Created in lobby
-let gameHistory = []; // Full game history
-let currentLevel = 1;
-let levelHistory = {1:[],2:[],3:[]};
-let streak = 0; // consecutive same answers
-let secretPhase = null; // null | 'my-turn' | 'waiting' | 'done'
-let secretQuestions = []; // secret questions collected
-let mySecretSubmitted = false;
-let otherSecretSubmitted = false;
-let pendingSecretData = null;
-let voteState = {}; // {1: bool|null, 2: bool|null}
-let myVoteCast = false;
-let pollInterval = null;
+// ══════════════════════ STATE ══════════════════════
+let ws=null, myNum=null, myName='', roomCode='', names={}, scores={};
+let answered=false, voted=false;
+let timerInterval=null, timeLeft=20;
+let lastHistory=null;
 
-// ======================================================
-// QUESTION BANK
-// ======================================================
-const questionBank = {
-  1: [ // Level 1: Fun & Light
-    {cat:'🌴 LIBURAN',q:'Kalau liburan, lebih pilih mana?',a:'Pantai santai, rebahan, sunset 🌅',b:'Hiking gunung, dingin, view keren 🏔️',ch:'Yang beda: ceritain 1 tempat impian yang paling pengen dikunjungin!'},
-    {cat:'🍕 KULINER',q:'Kalau date makan malam, milih?',a:'Restoran fancy, lilin-lilin 🕯️',b:'Warung pinggir jalan, enak banget 🍜',ch:'Yang beda: rekomendasiin 1 tempat makan favorit sekarang!'},
-    {cat:'🎬 HIBURAN',q:'Weekend di rumah, lebih suka?',a:'Nonton film marathon seharian 🎬',b:'Main game atau board game 🎮',ch:'Yang beda: convince yang lain buat nyobain film/game favorit!'},
-    {cat:'🐾 PELIHARAAN',q:'Kalau boleh punya peliharaan, pilih?',a:'Kucing manja menggemaskan 🐱',b:'Anjing setia suka diajak main 🐶',ch:'Yang beda: peragakan suara atau tingkah hewan pilihan kamu! 😂'},
-    {cat:'⏰ RUTINITAS',q:'Soal waktu, kamu lebih tipe?',a:'Early bird, bangun pagi jam 5 🌅',b:'Night owl, hidup mulai malam 🌙',ch:'Yang beda: ceritain 1 hal yang sering dilakuin di waktu favorit kamu!'},
-    {cat:'🎵 MUSIK',q:'Kalau lagi santai, suka dengerin?',a:'Lo-fi chill, instrumental 🎧',b:'Lagu upbeat, nyanyi-nyanyi 🎤',ch:'Yang beda: nyanyi atau senandungin lagu favorit kalian sekarang!'},
-    {cat:'☀️ CUACA',q:'Cuaca favorit kamu?',a:'Panas cerah, jalan-jalan, es krim ☀️',b:'Hujan deras, di rumah, selimutan 🌧️',ch:'Yang beda: ceritain kenangan paling seru di cuaca favorit!'},
-    {cat:'🧁 MAKANAN MANIS',q:'Dessert favorit?',a:'Coklat dark yang intense 🍫',b:'Ice cream aneka rasa 🍦',ch:'Yang beda: describe dessert favorit kamu dengan penuh ekspresi!'},
-  ],
-  2: [ // Level 2: More Personal
-    {cat:'💝 HADIAH',q:'Kado yang paling berkesan?',a:'Hadiah kejutan mahal yang diinginkan 💎',b:'Sesuatu yang dibuat sendiri dengan hati 🎨',ch:'Yang beda: kasih tau kado impian yang paling diinginkan!'},
-    {cat:'🎉 SOSIAL',q:'Habiskan malam minggu dengan cara?',a:'Pesta rame-rame, banyak orang 🎉',b:'Dinner berdua yang quiet dan intimate 🕯️',ch:'Yang beda: act out gimana reaksi kamu kalau diajak ke pilihan lain!'},
-    {cat:'💼 KARIER',q:'Kalau bisa pilih pekerjaan impian?',a:'Kerja remote dari mana saja 💻',b:'Kerja di kantor, ketemu orang tiap hari 🏢',ch:'Yang beda: ceritain kenapa pilihan kamu lebih oke!'},
-    {cat:'🏠 TEMPAT TINGGAL',q:'Idealnya tinggal di mana?',a:'Apartemen di pusat kota, semua deket 🌆',b:'Rumah di pinggiran, tenang dan luas 🌳',ch:'Yang beda: describe rumah impian kamu dengan detail!'},
-    {cat:'📱 TEKNOLOGI',q:'Kalau harus pilih satu device?',a:'Smartphone terbaru canggih 📱',b:'Laptop powerful untuk kerja 💻',ch:'Yang beda: ceritain gimana hidup kamu tanpa device pilihan lain!'},
-    {cat:'🤝 PERSAHABATAN',q:'Teman yang kamu pilih?',a:'Banyak teman casual, seru-seruan 🎊',b:'Sedikit tapi deep dan loyal banget 💫',ch:'Yang beda: ceritain 1 memori paling berkesan sama teman!'},
-    {cat:'🌙 WEEKEND VIBES',q:'Weekend perfect menurutmu?',a:'Explore tempat baru, petualangan 🗺️',b:'Leyeh-leyeh total, recharge energy 😴',ch:'Yang beda: describe weekend perfect impian kamu!'},
-    {cat:'💪 OLAHRAGA',q:'Kalau harus olahraga, milih?',a:'Gym sendirian, fokus, earphones on 🎧',b:'Olahraga bareng teman, seru-seruan 🏃',ch:'Yang beda: pamer move olahraga favorit kamu sekarang!'},
-  ],
-  3: [ // Level 3: Deep & Meaningful
-    {cat:'🚀 SUPERPOWER',q:'Superpower yang pengen kamu punya?',a:'Bisa terbang ke mana aja ✈️',b:'Bisa baca pikiran orang 🧠',ch:'Yang beda: ceritain hal pertama yang bakal dilakuin kalau punya superpower itu!'},
-    {cat:'⏳ WAKTU',q:'Kalau bisa kembali ke masa lalu?',a:'Ubah 1 keputusan besar dalam hidup 🔄',b:'Vibes aja, nikmatin moment yang udah lewat ✨',ch:'Yang beda: ceritain momen apa yang paling pengen diulang!'},
-    {cat:'🌍 DUNIA LEBIH BAIK',q:'Kalau bisa ubah 1 hal di dunia?',a:'Hapus semua penyakit dan kelaparan 💊',b:'Buat semua orang bisa saling memahami 🌈',ch:'Yang beda: jelasin kenapa pilihan kamu lebih berdampak!'},
-    {cat:'💭 IMPIAN HIDUP',q:'Di akhir hidup, lebih pilih dikenang sebagai?',a:'Orang yang sukses dan berpengaruh 🏆',b:'Orang yang dicintai dan banyak teman 💕',ch:'Yang beda: share 1 hal yang paling pengen kamu capai dalam hidup!'},
-    {cat:'🔮 MASA DEPAN',q:'Kalau bisa tau tentang masa depan?',a:'Tau kapan kamu akan menemukan pasangan hidup 💑',b:'Tau path karier yang paling bikin bahagia 🛤️',ch:'Yang beda: ceritain 1 pertanyaan tentang masa depan yang paling ingin dijawab!'},
-    {cat:'❤️ CINTA',q:'Dalam hubungan, lebih pilih?',a:'Partner yang sangat mirip dan satu frekuensi 🧩',b:'Partner yang berbeda tapi saling melengkapi ☯️',ch:'Yang beda: describe partner ideal kamu dengan jujur!'},
-    {cat:'🌟 PRIORITAS',q:'Kalau harus pilih satu?',a:'Hidup bahagia tapi biasa-biasa aja 😊',b:'Hidup penuh tantangan tapi bermakna 🔥',ch:'Yang beda: defend pilihan kamu dengan argumen terbaik!'},
-    {cat:'🧭 PRINSIP HIDUP',q:'Motto hidup yang lebih cocok?',a:'"Seize the day" — hidup untuk hari ini 🌅',b:'"Play the long game" — investasi masa depan 📈',ch:'Yang beda: share 1 prinsip hidup yang kamu pegang!'},
-  ]
-};
+// Setup editor state: 3 levels × 5 questions
+let setupQuestions = buildDefaultSetup();
 
-// ======================================================
-// BROADCAST CHANNEL (real-time sync between tabs)
-// ======================================================
-function initBC() {
-  if (typeof BroadcastChannel === 'undefined') {
-    showToast('Browser ini tidak support multiplayer local. Coba Chrome/Firefox!');
-    return;
-  }
-  bc = new BroadcastChannel(CHANNEL_NAME);
-  bc.onmessage = (e) => handleMsg(e.data);
+function buildDefaultSetup() {
+  return [
+    Array.from({length:5},()=>({type:'ab',question:'',a:'',b:''})),
+    Array.from({length:5},()=>({type:'ab',question:'',a:'',b:''})),
+    Array.from({length:5},()=>({type:'ab',question:'',a:'',b:''})),
+  ];
 }
 
+// ══════════════════════ WEBSOCKET ══════════════════════
+function connect() {
+  try {
+    ws = new WebSocket(SERVER_URL);
+    ws.onopen = () => setConn(true);
+    ws.onmessage = e => { let d; try{d=JSON.parse(e.data);}catch{return;} handleMsg(d); };
+    ws.onclose = () => { setConn(false); setTimeout(connect,3000); };
+    ws.onerror = () => setConn(false);
+  } catch { setConn(false); }
+}
+function setConn(ok) {
+  document.getElementById('cdot').className='conn-dot '+(ok?'ok':'bad');
+  document.getElementById('ctxt').textContent=ok?'Terhubung ✓':'Mencoba terhubung...';
+}
 function send(obj) {
-  if (!bc) { showToast('Koneksi error!'); return; }
-  // Also save to storage for late-join sync
-  bc.postMessage(obj);
+  if(ws&&ws.readyState===WebSocket.OPEN) ws.send(JSON.stringify(obj));
+  else showToast('Koneksi terputus! Coba refresh 😅');
 }
 
-function sendWithStore(obj) {
-  const state = getRoomState();
-  if (state) saveRoomState(state);
-  send(obj);
-}
-
-// ======================================================
-// ROOM STATE IN LOCALSTORAGE
-// ======================================================
-function getRoomState() {
-  try { return JSON.parse(localStorage.getItem(STORAGE_KEY)); } catch { return null; }
-}
-function saveRoomState(state) {
-  try { localStorage.setItem(STORAGE_KEY, JSON.stringify({...state, ts: Date.now()})); } catch {}
-}
-function clearRoomState() {
-  try { localStorage.removeItem(STORAGE_KEY); } catch {}
-}
-
-// ======================================================
-// HANDLE INCOMING MESSAGES
-// ======================================================
+// ══════════════════════ MESSAGE HANDLER ══════════════════════
 function handleMsg(d) {
-  // Only process messages for our room
-  if (d.room && roomCode && d.room !== roomCode) return;
-
   switch(d.type) {
     case 'room_created':
-      if (myNum !== '1') return; // already handled
+      myNum='1'; myName=d.name; roomCode=d.code;
+      names['1']=d.name;
+      showWaiting();
       break;
 
-    case 'player_joined':
-      if (!roomCode || d.code !== roomCode) return;
-      names = d.names;
-      document.getElementById('slot-1-name').textContent = names['1'];
-      document.getElementById('slot-2').classList.add('filled');
-      document.getElementById('slot-2').innerHTML = `
-        <div class="slot-avatar">👩</div>
-        <div class="slot-name">${names['2']}</div>
-        <div class="slot-status ok">✓ Siap</div>`;
-      if (myNum === '1') document.getElementById('btn-start-wrap').style.display = 'block';
-      if (myNum === '2') {
-        // P2 sees own slot already
+    case 'joined':
+      myNum='2'; myName=d.name; roomCode=d.code;
+      names['2']=d.name; names['1']=d.opponentName;
+      showWaiting();
+      break;
+
+    case 'both_joined':
+      names=d.names;
+      document.getElementById('sn1').textContent=names['1'];
+      document.getElementById('slot2').classList.add('filled');
+      document.getElementById('slot2').innerHTML=`<div class="slot-icon">👩</div><div class="slot-name">${names['2']}</div><div class="slot-status ok">✓ Siap</div>`;
+      if(myNum==='1'){
+        document.getElementById('btn-setup-wrap').style.display='block';
+      } else {
+        document.getElementById('p2-wait-msg').style.display='block';
       }
       break;
 
-    case 'game_start':
-      if (!roomCode || d.room !== roomCode) return;
-      names = d.names;
-      scores = d.scores;
-      currentLevel = 1;
-      levelHistory = {1:[],2:[],3:[]};
-      streak = 0;
-      gameHistory = [];
-      secretQuestions = [];
-      showRound(d);
+    case 'game_starting':
+      names=d.names;
+      showScreen('s-level');
+      document.getElementById('lt-emoji').textContent='🎮';
+      document.getElementById('lt-title').textContent='Game Dimulai!';
+      document.getElementById('lt-sub').textContent='Bersiap untuk Level 1...';
       break;
 
-    case 'round_data':
-      if (!roomCode || d.room !== roomCode) return;
-      names = d.names || names;
-      scores = d.scores;
-      currentLevel = d.level;
-      streak = d.streak || 0;
-      updateStreakUI();
-      showRound(d);
+    case 'question':
+      scores=d.scores;
+      showQuestion(d);
       break;
 
     case 'player_answered':
-      if (!roomCode || d.room !== roomCode) return;
-      if (d.player !== myNum) {
-        setStatus(`${names[d.player]||'Teman'} sudah jawab! ✅`);
-      }
+      if(d.player!==myNum) setStatus(`${names[d.player]||'Teman'} sudah jawab! ✅`);
       break;
 
     case 'reveal':
-      if (!roomCode || d.room !== roomCode) return;
-      scores = d.scores;
-      streak = d.streak;
-      secretQuestions = d.secretQuestions || secretQuestions;
-      clearTimerInterval();
-      // Record to history
-      levelHistory[d.level] = levelHistory[d.level] || [];
-      levelHistory[d.level].push({
-        q: d.question,
-        ans1: d.answers['1'],
-        ans2: d.answers['2'],
-        same: d.same,
-        isSecret: d.isSecret
-      });
-      updateStreakUI();
+      scores=d.scores;
+      clearTimerTick();
       showReveal(d);
       break;
 
-    case 'level_vote_start':
-      if (!roomCode || d.room !== roomCode) return;
-      voteState = {'1': null, '2': null};
-      myVoteCast = false;
-      showVoteOverlay(d.nextLevel);
+    case 'vote_start':
+      scores=d.scores;
+      names=d.names||names;
+      showVote(d);
       break;
 
-    case 'vote_cast':
-      if (!roomCode || d.room !== roomCode) return;
-      voteState[d.player] = d.vote;
-      updateVoteUI();
+    case 'vote_update':
+      updateVoteUI(d.votes,d.names||names);
       break;
 
-    case 'vote_result':
-      if (!roomCode || d.room !== roomCode) return;
-      handleVoteResult(d);
-      break;
-
-    case 'secret_start':
-      if (!roomCode || d.room !== roomCode) return;
-      mySecretSubmitted = false;
-      otherSecretSubmitted = false;
-      showSecretOverlay();
-      break;
-
-    case 'secret_submitted':
-      if (!roomCode || d.room !== roomCode) return;
-      if (d.player !== myNum) {
-        otherSecretSubmitted = true;
-        updateSecretStatus();
-      }
-      break;
-
-    case 'secret_ready':
-      if (!roomCode || d.room !== roomCode) return;
-      // Both submitted, game continues
-      secretQuestions = d.secretQuestions;
-      document.getElementById('ov-secret').classList.remove('on');
-      showToast('Soal secret siap! Lanjut main! 🔓', true);
-      setTimeout(() => send({type:'round_data', room: roomCode, ...d.roundData}), 800);
+    case 'level_start':
+      scores=d.scores;
+      closeOverlay('ov-reveal');
+      showScreen('s-level');
+      document.getElementById('lt-emoji').textContent=['🔥','⚡','💥'][d.level-1]||'🎯';
+      document.getElementById('lt-title').textContent=`Level ${d.level} Dimulai!`;
+      document.getElementById('lt-sub').textContent='Pertanyaan makin seru nih!';
       break;
 
     case 'game_over':
-      if (!roomCode || d.room !== roomCode) return;
-      names = d.names || names;
-      scores = d.scores;
-      levelHistory = d.levelHistory || levelHistory;
-      hideAllOverlays();
-      showFinal();
+      lastHistory=d.history;
+      showFinal(d);
+      break;
+
+    case 'history_data':
+      renderHistoryList(d.data);
+      break;
+
+    case 'player_left':
+      showToast(`${names[d.player]||'Teman'} keluar dari game 😢`);
       break;
 
     case 'restart':
-      if (!roomCode || d.room !== roomCode) return;
-      scores = d.scores;
-      names = d.names;
-      currentLevel = 1;
-      levelHistory = {1:[],2:[],3:[]};
-      streak = 0;
-      secretQuestions = [];
-      gameHistory = [];
-      showRound(d);
+      names=d.names||names;
+      setupQuestions=buildDefaultSetup();
+      showWaiting();
+      break;
+
+    case 'error':
+      showToast(d.msg);
       break;
   }
 }
 
-// ======================================================
-// CUSTOM QUESTIONS (LOBBY)
-// ======================================================
-function addCustomQ() {
-  const q = document.getElementById('new-q-text').value.trim();
-  const a = document.getElementById('new-q-a').value.trim();
-  const b = document.getElementById('new-q-b').value.trim();
-  if (!q || !a || !b) { showToast('Isi semua field ya! 🙏'); return; }
-  customQuestions.push({cat:'✨ CUSTOM', q, a, b, ch:'Soal buatan sendiri!'});
-  document.getElementById('new-q-text').value = '';
-  document.getElementById('new-q-a').value = '';
-  document.getElementById('new-q-b').value = '';
-  renderCustomQList();
-  showToast('Soal ditambahkan! ✅', true);
-}
-
-function renderCustomQList() {
-  const list = document.getElementById('cq-list');
-  const card = document.getElementById('custom-q-card');
-  document.getElementById('cq-count').textContent = customQuestions.length;
-  if (customQuestions.length === 0) { card.style.display = 'none'; return; }
-  card.style.display = 'block';
-  list.innerHTML = customQuestions.map((q, i) => `
-    <div class="cq-item">
-      <div class="cq-q">${q.q}</div>
-      <div class="cq-opts">
-        <div class="cq-opt a">A: ${q.a}</div>
-        <div class="cq-opt b">B: ${q.b}</div>
-      </div>
-      <button class="cq-del" onclick="deleteCustomQ(${i})">✕</button>
-    </div>`).join('');
-}
-
-function deleteCustomQ(i) {
-  customQuestions.splice(i, 1);
-  renderCustomQList();
-}
-
-function switchTab(tab) {
-  ['new','join','history'].forEach(t => {
-    document.getElementById('tab-'+t).classList.toggle('active', t === tab);
-    document.getElementById('tab-content-'+t).style.display = t === tab ? 'flex' : 'none';
-    if (t !== 'new') document.getElementById('tab-content-'+t).style.flexDirection = 'column';
-  });
-  if (tab === 'history') renderLobbyHistory();
-}
-
-// ======================================================
-// ROOM MANAGEMENT
-// ======================================================
+// ══════════════════════ LOBBY ══════════════════════
 function createRoom() {
-  const name = document.getElementById('inp-name-create').value.trim() || 'Player 1';
-  let code = '';
-  const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
-  for (let i = 0; i < 4; i++) code += chars[Math.floor(Math.random() * chars.length)];
-
-  myNum = '1'; myName = name; roomCode = code;
-  names['1'] = name;
-  scores = {'1': 0, '2': 0};
-
-  // Save room to localStorage for joining
-  const questionPool = buildQuestionPool();
-  saveRoomState({
-    code, names: {'1': name, '2': null}, scores: {'1': 0, '2': 0},
-    customQuestions, questionPool,
-    phase: 'waiting', level: 1, round: 0, streak: 0,
-    secretQuestions: [], answers: {}, votes: {}
-  });
-
-  showWaiting();
-  // Start polling for P2 join
-  startPoll();
+  const name=document.getElementById('inp-name-c').value.trim()||'Player 1';
+  send({type:'create_room',name});
 }
-
 function joinRoom() {
-  const name = document.getElementById('inp-name-join').value.trim() || 'Player 2';
-  const code = document.getElementById('inp-code').value.trim().toUpperCase();
-  if (!code || code.length !== 4) { showToast('Kode harus 4 huruf ya! 👀'); return; }
-
-  const state = getRoomState();
-  if (!state || state.code !== code) { showToast('Room tidak ditemukan! Cek kode lagi 👀'); return; }
-  if (state.names['2']) { showToast('Room sudah penuh! 😅'); return; }
-
-  myNum = '2'; myName = name; roomCode = code;
-  names = {...state.names, '2': name};
-  scores = state.scores || {'1': 0, '2': 0};
-  customQuestions = state.customQuestions || [];
-
-  // Update state
-  state.names['2'] = name;
-  saveRoomState(state);
-
-  send({type: 'player_joined', code, names, room: code});
-  showWaiting();
-  // P2 sees own slot
-  document.getElementById('slot-1-name').textContent = names['1'];
-  document.getElementById('slot-2').classList.add('filled');
-  document.getElementById('slot-2').innerHTML = `
-    <div class="slot-avatar">👩</div>
-    <div class="slot-name">${name}</div>
-    <div class="slot-status ok">✓ Siap</div>`;
+  const name=document.getElementById('inp-name-j').value.trim()||'Player 2';
+  const code=document.getElementById('inp-code').value.trim().toUpperCase();
+  if(!code||code.length!==4){showToast('Kode harus 4 huruf! 👀');return;}
+  send({type:'join_room',name,code});
 }
 
-function buildQuestionPool() {
-  const pool = {};
-  [1,2,3].forEach(lv => {
-    const bank = [...questionBank[lv]].sort(() => Math.random() - 0.5);
-    pool[lv] = bank.slice(0, 5).map(q => ({cat: q.cat, q: q.q, a: q.a, b: q.b, ch: q.ch, isSecret: false}));
-  });
-  // Inject custom questions into level 1 (replace random ones)
-  if (customQuestions.length > 0) {
-    const toInject = customQuestions.slice(0, 5).map(q => ({
-      cat: q.cat, q: q.q, a: q.a, b: q.b, ch: q.ch || '', isSecret: false, isCustom: true
-    }));
-    pool[1] = [...toInject, ...pool[1]].slice(0, 5 + toInject.length);
-  }
-  return pool;
-}
-
-function startPoll() {
-  clearPoll();
-  pollInterval = setInterval(() => {
-    const state = getRoomState();
-    if (!state) return;
-    if (myNum === '1' && state.names['2'] && !names['2']) {
-      names['2'] = state.names['2'];
-      send({type: 'player_joined', code: roomCode, names, room: roomCode});
-      handleMsg({type: 'player_joined', code: roomCode, names, room: roomCode});
-      clearPoll();
-    }
-  }, 500);
-}
-
-function clearPoll() {
-  if (pollInterval) { clearInterval(pollInterval); pollInterval = null; }
-}
-
-// ======================================================
-// WAITING ROOM
-// ======================================================
+// ══════════════════════ WAITING ══════════════════════
 function showWaiting() {
   showScreen('s-wait');
-  document.getElementById('display-code').textContent = roomCode;
-  document.getElementById('slot-1-name').textContent = names['1'] || myName;
-  document.getElementById('conn-dot').className = 'conn ok';
-  document.getElementById('conn-txt').textContent = 'Terhubung ✓ Buka tab baru → join room';
+  document.getElementById('w-code').textContent=roomCode;
+  document.getElementById('w-bigcode').textContent=roomCode;
+  document.getElementById('sn1').textContent=names['1']||myName;
+  document.getElementById('btn-setup-wrap').style.display='none';
+  document.getElementById('p2-wait-msg').style.display='none';
+  if(myNum==='2') {
+    // P2 - show both slots filled immediately
+    document.getElementById('slot2').classList.add('filled');
+    document.getElementById('slot2').innerHTML=`<div class="slot-icon">👩</div><div class="slot-name">${names['2']}</div><div class="slot-status ok">✓ Siap</div>`;
+    document.getElementById('p2-wait-msg').style.display='block';
+  }
 }
+
+// ══════════════════════ SETUP ══════════════════════
+let activeTab=0;
+
+function goSetup() {
+  showScreen('s-setup');
+  renderAllEditors();
+}
+
+function renderAllEditors() {
+  for(let lvl=0;lvl<3;lvl++) renderEditor(lvl);
+}
+
+function renderEditor(lvl) {
+  const wrap=document.getElementById('editor'+lvl);
+  wrap.innerHTML='';
+  for(let qi=0;qi<5;qi++) {
+    const q=setupQuestions[lvl][qi];
+    const isAB=q.type==='ab';
+    const div=document.createElement('div');
+    div.className='q-item';
+    div.innerHTML=`
+      <div class="q-item-header">
+        <div class="q-num">Q${qi+1}</div>
+        <div class="q-type-toggle">
+          <button class="type-btn ${isAB?'active':''}" onclick="setQType(${lvl},${qi},'ab')">A/B Pilihan</button>
+          <button class="type-btn ${!isAB?'active':''}" onclick="setQType(${lvl},${qi},'open')">Isian Bebas</button>
+        </div>
+      </div>
+      <input type="text" placeholder="Tulis pertanyaan..." value="${esc(q.question)}"
+        oninput="setupQuestions[${lvl}][${qi}].question=this.value">
+      ${isAB?`<div class="ab-fields" style="margin-top:8px">
+        <div class="ab-row"><div class="ab-label">A</div><input type="text" placeholder="Pilihan A..." value="${esc(q.a||'')}" oninput="setupQuestions[${lvl}][${qi}].a=this.value"></div>
+        <div class="ab-row"><div class="ab-label">B</div><input type="text" placeholder="Pilihan B..." value="${esc(q.b||'')}" oninput="setupQuestions[${lvl}][${qi}].b=this.value"></div>
+      </div>`:'<div style="margin-top:6px;font-size:.78rem;font-weight:800;color:#aaa;">Pemain akan menulis jawaban bebas</div>'}`;
+    wrap.appendChild(div);
+  }
+}
+
+function setQType(lvl,qi,type) {
+  setupQuestions[lvl][qi].type=type;
+  if(type==='open'){setupQuestions[lvl][qi].a='';setupQuestions[lvl][qi].b='';}
+  renderEditor(lvl);
+}
+
+function switchTab(i) {
+  activeTab=i;
+  for(let j=0;j<3;j++){
+    document.getElementById('tab'+j).className='tab'+(j===i?' active':'');
+    document.getElementById('editor'+j).style.display=j===i?'flex':'none';
+  }
+}
+
+function useDefaults() { send({type:'setup_done'}); }
 
 function startGame() {
-  if (myNum !== '1') return;
-  const state = getRoomState();
-  if (!state) return;
-  const questionPool = state.questionPool || buildQuestionPool();
-  scores = {'1': 0, '2': 0};
-
-  const firstQ = questionPool[1][0];
-  const roundData = {
-    type: 'game_start', room: roomCode, names, scores,
-    level: 1, round: 1, total: questionPool[1].length,
-    question: firstQ, questionPool,
-    streak: 0, secretQuestions: []
-  };
-  state.phase = 'playing';
-  state.questionPool = questionPool;
-  state.currentLevel = 1;
-  state.currentRound = 0;
-  state.scores = scores;
-  state.streak = 0;
-  saveRoomState(state);
-
-  send(roundData);
-  handleMsg(roundData);
+  // Validate - fill blanks with defaults
+  const DEFAULT=[
+    [{type:'ab',question:'Liburan impian kamu?',a:'Pantai santai 🌅',b:'Hiking gunung 🏔️'},
+     {type:'ab',question:'Date makan malam?',a:'Restoran fancy 🕯️',b:'Warung pinggir jalan 🍜'},
+     {type:'ab',question:'Weekend di rumah?',a:'Nonton film 🎬',b:'Main game 🎮'},
+     {type:'ab',question:'Cuaca favorit?',a:'Panas cerah ☀️',b:'Hujan deras 🌧️'},
+     {type:'ab',question:'Peliharaan impian?',a:'Kucing 🐱',b:'Anjing 🐶'}],
+    [{type:'ab',question:'Superpower?',a:'Terbang ✈️',b:'Baca pikiran 🧠'},
+     {type:'ab',question:'Kado terbaik?',a:'Hadiah mahal 💎',b:'Buatan sendiri 🎨'},
+     {type:'ab',question:'Malam minggu?',a:'Pesta rame 🎉',b:'Dinner berdua 🕯️'},
+     {type:'ab',question:'Tipe waktu?',a:'Early bird 🌅',b:'Night owl 🌙'},
+     {type:'ab',question:'Musik santai?',a:'Lo-fi chill 🎧',b:'Lagu upbeat 🎤'}],
+    [{type:'ab',question:'Time travel?',a:'Ke masa lalu ⏪',b:'Ke masa depan ⏩'},
+     {type:'ab',question:'Kaya raya?',a:'Keliling dunia 🌍',b:'Rumah impian 🏡'},
+     {type:'ab',question:'Kerja ideal?',a:'Remote bebas 💻',b:'Kantor seru 🏢'},
+     {type:'ab',question:'Film favorit?',a:'Komedi 😂',b:'Drama 😭'},
+     {type:'ab',question:'Cara healing?',a:'Me-time 🔋',b:'Jalan bareng teman 👥'}],
+  ];
+  const finalQ=setupQuestions.map((lvl,li)=>lvl.map((q,qi)=>{
+    const def=DEFAULT[li][qi];
+    return {
+      type:q.type||'ab',
+      question:q.question.trim()||def.question,
+      a:q.type==='open'?undefined:(q.a||'').trim()||def.a,
+      b:q.type==='open'?undefined:(q.b||'').trim()||def.b,
+    };
+  }));
+  send({type:'setup_done',questions:finalQ});
 }
 
-// ======================================================
-// GAME - SHOW ROUND
-// ======================================================
-function showRound(d) {
+function esc(s){return (s||'').replace(/"/g,'&quot;');}
+
+// ══════════════════════ GAME ══════════════════════
+function showQuestion(d) {
   showScreen('s-game');
-  currentAnswer = null;
-  currentLevel = d.level || currentLevel;
+  answered=false;
+  closeOverlay('ov-reveal');
 
-  const q = d.question;
-  document.getElementById('g-cat').textContent = q.cat;
-  document.getElementById('g-q').textContent = q.q;
-  document.getElementById('g-choice-a').textContent = q.a;
-  document.getElementById('g-choice-b').textContent = q.b;
-  document.getElementById('g-round').textContent = `${d.round}/${d.total}`;
-  document.getElementById('g-level').textContent = `LV${d.level}`;
-  document.getElementById('g-prog').style.width = `${(d.round / d.total) * 100}%`;
-  document.getElementById('g-name-1').textContent = names['1'] || 'P1';
-  document.getElementById('g-name-2').textContent = names['2'] || 'P2';
-  document.getElementById('g-pts-1').textContent = d.scores['1'];
-  document.getElementById('g-pts-2').textContent = d.scores['2'];
+  const q=d.question;
+  const isSecret=q.type==='secret';
+  const isOpen=q.type==='open';
+  const lvl=d.level-1;
+  const qNum=d.qNum;
+  const total=d.total;
 
-  // Secret badge
-  document.getElementById('secret-q-badge').style.display = q.isSecret ? 'inline-block' : 'none';
+  // Scores
+  document.getElementById('g-n1').textContent=names['1']||'P1';
+  document.getElementById('g-n2').textContent=names['2']||'P2';
+  document.getElementById('g-p1').textContent=d.scores['1'];
+  document.getElementById('g-p2').textContent=d.scores['2'];
+  document.getElementById('g-rnd').textContent=`${qNum}/${total}`;
 
-  ['btn-A','btn-B'].forEach(id => {
-    const b = document.getElementById(id);
-    b.className = 'btn-choice'; b.disabled = false;
-  });
-
-  setStatus('Pilih jawaban kamu!', true);
-  startTimer();
-  hideAllOverlays();
-}
-
-// ======================================================
-// ANSWER
-// ======================================================
-function answer(choice) {
-  if (currentAnswer) return;
-  currentAnswer = choice;
-  document.getElementById('btn-A').disabled = true;
-  document.getElementById('btn-B').disabled = true;
-  document.getElementById('btn-' + choice).classList.add('picked-me');
-
-  // Save answer to state
-  const state = getRoomState();
-  if (state) {
-    state.answers = state.answers || {};
-    state.answers[myNum] = choice;
-    saveRoomState(state);
-    send({type: 'player_answered', room: roomCode, player: myNum, choice});
-
-    // Check if both answered
-    checkBothAnswered(state);
+  // Level pips
+  for(let i=0;i<3;i++){
+    const pip=document.getElementById('lvpip'+i);
+    const fill=document.getElementById('lvfill'+i);
+    pip.className='lv-pip';
+    if(i<lvl){pip.classList.add('done'); fill.style.width='100%';}
+    else if(i===lvl){pip.classList.add('active'); fill.style.width=`${(qNum/total)*100}%`;}
+    else pip.classList.add('inactive');
   }
-  setStatus(`Kamu pilih ${choice}! Menunggu ${names[myNum==='1'?'2':'1']||'teman'}...`);
-}
+  document.getElementById('g-lvlabel').textContent=`Level ${d.level}`;
 
-function checkBothAnswered(state) {
-  const ans = state.answers || {};
-  if (ans['1'] && ans['2'] && myNum === '1') {
-    // P1 resolves
-    setTimeout(() => resolveRound(state), 600);
-  } else if (!ans[myNum === '1' ? '2' : '1']) {
-    // Start polling for other answer
-    const pollId = setInterval(() => {
-      const s = getRoomState();
-      if (!s) { clearInterval(pollId); return; }
-      const otherAns = s.answers[myNum === '1' ? '2' : '1'];
-      if (otherAns) {
-        clearInterval(pollId);
-        if (myNum === '1') resolveRound(s);
-      }
-    }, 300);
+  // Streak
+  const cs=d.consecutiveSame||0;
+  for(let i=0;i<3;i++) document.getElementById('sp'+i).className='streak-pip'+(i<cs?' lit':'');
+  document.getElementById('streak-lbl').textContent=`Sama ${cs}x berturut`;
+
+  // Question card
+  const qcard=document.getElementById('g-qcard');
+  qcard.className='q-card'+(isSecret?' secret-glow':'');
+  document.getElementById('g-cat').textContent=isSecret?'🔐 SECRET ROUND':(q.category||`Level ${d.level}`);
+  document.getElementById('g-q').textContent=q.question;
+
+  // Choices
+  const choicesEl=document.getElementById('g-choices');
+  const openWrap=document.getElementById('g-open-wrap');
+  const openInput=document.getElementById('g-open-input');
+
+  if(isSecret||isOpen) {
+    choicesEl.style.display='none';
+    openWrap.style.display='block';
+    openInput.value='';
+    openInput.disabled=false;
+    document.querySelector('.btn-submit-open').disabled=false;
+  } else {
+    choicesEl.style.display='flex';
+    openWrap.style.display='none';
+    ['A','B'].forEach(c=>{
+      const btn=document.getElementById('btn-'+c);
+      btn.className='btn-choice';
+      btn.disabled=false;
+    });
+    document.getElementById('g-ca').textContent=q.a||'Pilihan A';
+    document.getElementById('g-cb').textContent=q.b||'Pilihan B';
   }
+
+  setStatus('Pilih jawaban kamu!',true);
+  const secs=isSecret||isOpen?30:20;
+  startTimerTick(secs);
 }
 
-function resolveRound(state) {
-  if (myNum !== '1') return; // only P1 resolves
-  const ans = state.answers;
-  const q = state.questionPool[state.currentLevel][state.currentRound];
-  const same = ans['1'] && ans['2'] && ans['1'] === ans['2'];
-  
-  if (same) { state.scores['1'] += 2; state.scores['2'] += 2; state.streak = (state.streak || 0) + 1; }
-  else { state.streak = 0; }
-
-  const triggerSecret = state.streak === 3;
-
-  // Build reveal message
-  const revealMsg = {
-    type: 'reveal', room: roomCode,
-    answers: ans, same,
-    question: q,
-    challenge: same ? null : (q.ch || null),
-    scores: state.scores,
-    streak: state.streak,
-    level: state.currentLevel,
-    round: state.currentRound + 1,
-    total: state.questionPool[state.currentLevel].length,
-    isSecret: q.isSecret || false,
-    secretQuestions: state.secretQuestions || [],
-    triggerSecret
-  };
-
-  state.answers = {};
-  saveRoomState(state);
-  send(revealMsg);
-  handleMsg(revealMsg);
+function answerAB(choice) {
+  if(answered)return;
+  answered=true;
+  document.getElementById('btn-A').disabled=true;
+  document.getElementById('btn-B').disabled=true;
+  document.getElementById('btn-'+choice).classList.add('picked');
+  send({type:'answer',answer:choice});
+  setStatus(`Pilih ${choice}! Menunggu ${names[myNum==='1'?'2':'1']||'teman'}...`);
 }
 
-// ======================================================
-// TIMER
-// ======================================================
-function startTimer() {
-  clearTimerInterval();
-  timeLeft = 15;
-  updateTimerUI();
-  timerInterval = setInterval(() => {
+function answerOpen() {
+  if(answered)return;
+  const val=document.getElementById('g-open-input').value.trim();
+  if(!val){showToast('Tulis jawaban dulu ya! ✏️');return;}
+  answered=true;
+  document.getElementById('g-open-input').disabled=true;
+  document.querySelector('.btn-submit-open').disabled=true;
+  send({type:'answer',answer:val});
+  setStatus('Jawaban terkirim! Menunggu yang lain...');
+}
+
+// ══════════════════════ TIMER ══════════════════════
+function startTimerTick(secs) {
+  clearTimerTick();
+  timeLeft=secs;
+  updateTimerUI(secs,secs);
+  timerInterval=setInterval(()=>{
     timeLeft--;
-    updateTimerUI();
-    if (timeLeft <= 0) {
-      clearTimerInterval();
-      if (!currentAnswer) {
-        // Auto-pick nothing but still save null
-        const state = getRoomState();
-        if (state) { state.answers = state.answers || {}; state.answers[myNum] = null; saveRoomState(state); }
-        if (myNum === '1') {
-          setTimeout(() => {
-            const s = getRoomState();
-            if (s) resolveRound(s);
-          }, 600);
-        }
-      }
-    }
-  }, 1000);
+    updateTimerUI(timeLeft,secs);
+    if(timeLeft<=0) clearTimerTick();
+  },1000);
+}
+function clearTimerTick(){clearInterval(timerInterval);timerInterval=null;}
+function updateTimerUI(t,total) {
+  const circ=document.getElementById('t-fg');
+  const num=document.getElementById('t-num');
+  const C=2*Math.PI*26;
+  circ.style.strokeDasharray=C;
+  circ.style.strokeDashoffset=C*(1-t/total);
+  num.textContent=t;
+  circ.style.stroke=t<=5?'var(--coral)':t<=10?'var(--sun)':'var(--sky)';
 }
 
-function clearTimerInterval() { if (timerInterval) { clearInterval(timerInterval); timerInterval = null; } }
-
-function updateTimerUI() {
-  const circ = document.getElementById('t-circle');
-  const num = document.getElementById('t-num');
-  const c = 2 * Math.PI * 27;
-  circ.style.strokeDasharray = c;
-  circ.style.strokeDashoffset = c * (1 - timeLeft / 15);
-  num.textContent = timeLeft;
-  circ.style.stroke = timeLeft <= 5 ? 'var(--coral)' : timeLeft <= 10 ? 'var(--sun)' : 'var(--sky)';
-}
-
-// ======================================================
-// STREAK UI
-// ======================================================
-function updateStreakUI() {
-  [0,1,2].forEach(i => {
-    document.getElementById('sd-'+i).classList.toggle('lit', i < streak);
-  });
-}
-
-// ======================================================
-// REVEAL
-// ======================================================
+// ══════════════════════ REVEAL ══════════════════════
 function showReveal(d) {
-  const same = d.same;
-  const ans1 = d.answers['1'], ans2 = d.answers['2'];
-  const myAns = d.answers[myNum], oppAns = d.answers[myNum==='1'?'2':'1'];
+  const same=d.same;
+  const isSecret=d.isSecret;
+  const a1=d.answers['1'];
+  const a2=d.answers['2'];
+  const myAns=d.answers[myNum];
+  const oppAns=d.answers[myNum==='1'?'2':'1'];
 
-  if (same && myAns) document.getElementById('btn-'+myAns).classList.add('reveal-same');
-  else {
-    if (myAns) document.getElementById('btn-'+myAns).classList.add('reveal-diff-me');
-    if (oppAns) document.getElementById('btn-'+oppAns).classList.add('reveal-diff-opp');
+  // Highlight buttons
+  if(!isSecret && (d.question?.type==='ab'||!d.question?.type)) {
+    if(same&&myAns) {
+      document.getElementById('btn-'+myAns)?.classList.add('reveal-same');
+    } else {
+      if(myAns) document.getElementById('btn-'+myAns)?.classList.add('reveal-me');
+      if(oppAns) document.getElementById('btn-'+oppAns)?.classList.add('reveal-opp');
+    }
   }
 
-  document.getElementById('ov-emoji').textContent = same
-    ? ['🤝','🥳','💯','🎉','🙌'][Math.floor(Math.random()*5)]
-    : ['😱','👀','🫢','😂','🤔'][Math.floor(Math.random()*5)];
-  document.getElementById('ov-title').textContent = same ? 'KOMPAK BANGET!' : 'BEDA PILIHAN!';
-  document.getElementById('ov-sub').textContent = same
-    ? `Kalian berdua milih "${d.question.a.split(' ')[0]}..."! +2 poin masing-masing 🎊`
-    : `${names['1']||'P1'}: ${ans1||'⏱'} — ${names['2']||'P2'}: ${ans2||'⏱'}`;
+  // Popup
+  document.getElementById('ov-emoji').textContent=isSecret
+    ?'🔐'
+    :same?['🤝','🥳','💯','🎉','🙌'][Math.floor(Math.random()*5)]
+    :['😱','👀','🫢','😂','🤔'][Math.floor(Math.random()*5)];
+  document.getElementById('ov-title').textContent=isSecret?'SECRET REVEALED!':same?'KOMPAK BANGET!':'BEDA PILIHAN!';
+  document.getElementById('ov-sub').textContent=isSecret
+    ?'Ini jawaban jujur kalian berdua 👀'
+    :same?`Kalian berdua pilih ${myAns}! +2 poin 🎊`:`${names['1']||'P1'} pilih ${a1||'?'}, ${names['2']||'P2'} pilih ${a2||'?'}`;
 
-  const aWrap = document.getElementById('ov-answers');
-  aWrap.innerHTML = `
-    <div class="ans-box ${same?'same':'diff'}">
-      <div class="ans-player">${names['1']||'P1'}</div>
-      <div class="ans-choice">${ans1||'⏱️'}</div>
+  // Answers boxes
+  const isOpenAns=isSecret||(a1&&a1!=='A'&&a1!=='B'&&a1?.length>1);
+  document.getElementById('ov-ans').innerHTML=`
+    <div class="ans-box ${isSecret?'secret':same?'same':'diff1'}">
+      <div class="an-player">${names['1']||'P1'}</div>
+      ${isOpenAns?`<div class="an-open">${a1||'(tidak jawab)'}</div>`:`<div class="an-val">${a1||'⏱️'}</div>`}
     </div>
-    <div class="ans-box ${same?'same':'diff'}">
-      <div class="ans-player">${names['2']||'P2'}</div>
-      <div class="ans-choice">${ans2||'⏱️'}</div>
+    <div class="ans-box ${isSecret?'secret':same?'same':'diff2'}">
+      <div class="an-player">${names['2']||'P2'}</div>
+      ${isOpenAns?`<div class="an-open">${a2||'(tidak jawab)'}</div>`:`<div class="an-val">${a2||'⏱️'}</div>`}
     </div>`;
 
-  const cBox = document.getElementById('ov-challenge');
-  if (!same && d.challenge) { cBox.style.display='block'; cBox.textContent='🎯 Tantangan: '+d.challenge; }
-  else { cBox.style.display='none'; }
+  const cbox=document.getElementById('ov-challenge');
+  if(!isSecret&&!same&&d.challenge){
+    cbox.style.display='block';cbox.textContent='🎯 '+d.challenge;
+  } else cbox.style.display='none';
 
-  document.getElementById('ov-btn-next').style.display = myNum==='1' ? 'block' : 'none';
-  document.getElementById('ov-waiting-next').textContent = myNum==='1' ? '' :
-    `Menunggu ${names['1']||'Player 1'} lanjutkan...`;
+  document.getElementById('ov-next-btn').style.display=myNum==='1'?'block':'none';
+  document.getElementById('ov-wait-next').style.display=myNum==='1'?'none':'block';
 
-  document.getElementById('ov-result').classList.add('on');
+  showOverlay('ov-reveal');
 }
 
-function nextRound() {
-  if (myNum !== '1') return;
-  const state = getRoomState();
-  if (!state) return;
+function nextQuestion(){send({type:'next_question'});}
 
-  // Check secret trigger
-  if (state.streak === 3 && (state.secretQuestions||[]).length < 2) {
-    // Trigger secret mode
-    state.streak = 0; // reset streak after secret trigger
-    saveRoomState(state);
-    const secretMsg = {type:'secret_start', room: roomCode};
-    send(secretMsg);
-    handleMsg(secretMsg);
-    return;
-  }
-
-  state.currentRound = (state.currentRound || 0) + 1;
-  const lvQs = state.questionPool[state.currentLevel];
-  
-  if (state.currentRound >= lvQs.length) {
-    // Level done
-    if (state.currentLevel >= 3) {
-      // Game over
-      gameOverMsg(state);
-    } else {
-      // Vote to continue
-      state.answers = {};
-      saveRoomState(state);
-      const voteMsg = {type:'level_vote_start', room: roomCode, nextLevel: state.currentLevel + 1};
-      send(voteMsg);
-      handleMsg(voteMsg);
-    }
-  } else {
-    // Next question same level
-    const q = lvQs[state.currentRound];
-    const roundMsg = {
-      type: 'round_data', room: roomCode,
-      level: state.currentLevel, round: state.currentRound + 1,
-      total: lvQs.length, question: q,
-      scores: state.scores, names, streak: state.streak,
-      secretQuestions: state.secretQuestions || []
-    };
-    state.answers = {};
-    saveRoomState(state);
-    send(roundMsg);
-    handleMsg(roundMsg);
-  }
+// ══════════════════════ VOTE ══════════════════════
+function showVote(d) {
+  voted=false;
+  showScreen('s-vote');
+  document.getElementById('vote-title').textContent=`Level ${d.level} Selesai! 🎊`;
+  document.getElementById('vt-n1').textContent=names['1']||'P1';
+  document.getElementById('vt-n2').textContent=names['2']||'P2';
+  document.getElementById('vt-p1').textContent=d.scores['1'];
+  document.getElementById('vt-p2').textContent=d.scores['2'];
+  document.getElementById('vc-n1').textContent=names['1']||'P1';
+  document.getElementById('vc-n2').textContent=names['2']||'P2';
+  document.getElementById('vc-i1').textContent='⏳';
+  document.getElementById('vc-i2').textContent='⏳';
+  document.getElementById('my-vote-btns').style.display='flex';
+  document.getElementById('voted-msg').style.display='none';
 }
 
-// ======================================================
-// VOTE BETWEEN LEVELS
-// ======================================================
-function showVoteOverlay(nextLevel) {
-  const levelNames = {2: 'Level 2 — Personal', 3: 'Level 3 — Deep Talk'};
-  document.getElementById('vote-emoji').textContent = ['🗳️','🎯','🔥'][nextLevel-1] || '🗳️';
-  document.getElementById('vote-title').textContent = `Lanjut ${levelNames[nextLevel]||'Level '+nextLevel}?`;
-  document.getElementById('vote-sub').textContent = 'Berdua harus setuju! Kalau salah satu no → balik home 🏠';
-  document.getElementById('vote-chip-1').textContent = `${names['1']||'P1'}: ?`;
-  document.getElementById('vote-chip-2').textContent = `${names['2']||'P2'}: ?`;
-  document.getElementById('vote-chip-1').className = 'vote-chip wait';
-  document.getElementById('vote-chip-2').className = 'vote-chip wait';
-  document.getElementById('vote-yes-btn').disabled = false;
-  document.getElementById('vote-no-btn').disabled = false;
-  document.getElementById('vote-status').textContent = 'Pilih ya atau tidak!';
-  document.getElementById('ov-result').classList.remove('on');
-  document.getElementById('ov-vote').classList.add('on');
+function vote(yes) {
+  if(voted)return;
+  voted=true;
+  document.getElementById('my-vote-btns').style.display='none';
+  document.getElementById('voted-msg').style.display='block';
+  send({type:'vote',yes});
 }
 
-function castVote(yes) {
-  if (myVoteCast) return;
-  myVoteCast = true;
-  voteState[myNum] = yes;
-  document.getElementById('vote-yes-btn').disabled = true;
-  document.getElementById('vote-no-btn').disabled = true;
-  document.getElementById('vote-status').textContent = yes ? 'Kamu mau lanjut! ✅ Menunggu...' : 'Kamu mau pulang! 🏠 Menunggu...';
-
-  const state = getRoomState();
-  if (state) { state.votes = state.votes || {}; state.votes[myNum] = yes; saveRoomState(state); }
-
-  const voteMsg = {type:'vote_cast', room: roomCode, player: myNum, vote: yes};
-  send(voteMsg);
-  updateVoteUI();
-
-  // Poll for other vote
-  const pollId = setInterval(() => {
-    const s = getRoomState();
-    if (!s || !s.votes) { clearInterval(pollId); return; }
-    const otherVote = s.votes[myNum === '1' ? '2' : '1'];
-    if (otherVote !== undefined && otherVote !== null) {
-      clearInterval(pollId);
-      voteState[myNum === '1' ? '2' : '1'] = otherVote;
-      updateVoteUI();
-      if (myNum === '1') resolveVote(s);
-    }
-  }, 300);
-}
-
-function updateVoteUI() {
-  ['1','2'].forEach(p => {
-    const chip = document.getElementById('vote-chip-'+p);
-    const v = voteState[p];
-    if (v === null || v === undefined) { chip.className='vote-chip wait'; chip.textContent=`${names[p]||'P'+p}: ?`; }
-    else if (v) { chip.className='vote-chip yes'; chip.textContent=`${names[p]||'P'+p}: ✅ Lanjut`; }
-    else { chip.className='vote-chip no'; chip.textContent=`${names[p]||'P'+p}: 🏠 Pulang`; }
+function updateVoteUI(votes,ns) {
+  ['1','2'].forEach(n=>{
+    const el=document.getElementById('vc-i'+n);
+    if(votes[n]===true) el.textContent='✅';
+    else if(votes[n]===false) el.textContent='❌';
+    else el.textContent='⏳';
   });
 }
 
-function resolveVote(state) {
-  if (myNum !== '1') return;
-  const v1 = voteState['1'], v2 = voteState['2'];
-  const bothYes = v1 && v2;
-  const resultMsg = {type:'vote_result', room: roomCode, result: bothYes, nextLevel: state.currentLevel + 1, state};
-  state.votes = {};
-  if (bothYes) {
-    state.currentLevel += 1;
-    state.currentRound = 0;
-    state.answers = {};
-  }
-  saveRoomState(state);
-  send(resultMsg);
-  handleMsg(resultMsg);
-}
-
-function handleVoteResult(d) {
-  if (d.result) {
-    // Continue to next level
-    showToast(`Level ${d.nextLevel} dimulai! 🔥`, true);
-    document.getElementById('ov-vote').classList.remove('on');
-    const state = getRoomState();
-    if (!state) return;
-    const lvQs = state.questionPool[d.nextLevel];
-    if (!lvQs) return;
-    const q = lvQs[0];
-    setTimeout(() => {
-      const roundMsg = {
-        type: 'round_data', room: roomCode,
-        level: d.nextLevel, round: 1, total: lvQs.length, question: q,
-        scores: state.scores, names, streak: state.streak || 0,
-        secretQuestions: state.secretQuestions || []
-      };
-      send(roundMsg);
-      handleMsg(roundMsg);
-    }, 600);
-  } else {
-    // Somebody said no
-    document.getElementById('ov-vote').classList.remove('on');
-    showToast('Salah satu mau pulang... game selesai! 🏠');
-    setTimeout(() => {
-      const state = getRoomState();
-      gameOverMsg(state || {scores, names: names, levelHistory});
-    }, 1500);
-  }
-}
-
-function gameOverMsg(state) {
-  const goMsg = {
-    type: 'game_over', room: roomCode,
-    scores: state.scores || scores,
-    names: state.names || names,
-    levelHistory
-  };
-  send(goMsg);
-  handleMsg(goMsg);
-}
-
-// ======================================================
-// SECRET MODE
-// ======================================================
-function showSecretOverlay() {
-  mySecretSubmitted = false;
-  otherSecretSubmitted = false;
-  document.getElementById('secret-maker-name').textContent = myName || 'Kamu';
-  document.getElementById('secret-q-input').value = '';
-  document.getElementById('secret-a-input').value = '';
-  document.getElementById('secret-b-input').value = '';
-  document.getElementById('ov-result').classList.remove('on');
-  document.getElementById('ov-secret').classList.add('on');
-  updateSecretStatus();
-}
-
-function updateSecretStatus() {
-  const mine = mySecretSubmitted, other = otherSecretSubmitted;
-  let txt = '';
-  if (!mine && !other) txt = '⏳ Keduanya belum submit soal';
-  else if (mine && !other) txt = `✅ Soal kamu tersimpan! Menunggu ${names[myNum==='1'?'2':'1']||'teman'}...`;
-  else if (!mine && other) txt = `${names[myNum==='1'?'2':'1']||'Teman'} sudah submit! Giliran kamu!`;
-  else txt = '🎉 Semua soal siap!';
-  document.getElementById('secret-status').textContent = txt;
-}
-
-function submitSecretQ() {
-  const q = document.getElementById('secret-q-input').value.trim();
-  const a = document.getElementById('secret-a-input').value.trim();
-  const b = document.getElementById('secret-b-input').value.trim();
-  if (!q || !a || !b) { showToast('Isi semua field ya! 🙏'); return; }
-
-  mySecretSubmitted = true;
-  updateSecretStatus();
-
-  const state = getRoomState();
-  if (state) {
-    state.secretQ = state.secretQ || {};
-    state.secretQ[myNum] = {cat:'🔓 SECRET', q, a, b, ch:'Soal secret buatan sendiri!', isSecret:true};
-    saveRoomState(state);
-  }
-
-  send({type:'secret_submitted', room: roomCode, player: myNum, q: {cat:'🔓 SECRET', q, a, b, ch:'', isSecret:true}});
-
-  // Poll for both submitted
-  if (myNum === '1') {
-    const pollId = setInterval(() => {
-      const s = getRoomState();
-      if (!s || !s.secretQ) { clearInterval(pollId); return; }
-      if (s.secretQ['1'] && s.secretQ['2']) {
-        clearInterval(pollId);
-        const sq = [s.secretQ['1'], s.secretQ['2']];
-        s.secretQuestions = [...(s.secretQuestions||[]), ...sq];
-        // Inject secret Qs into current level pool
-        s.questionPool[s.currentLevel] = [...s.questionPool[s.currentLevel], ...sq];
-        s.currentRound += 1;
-        const q2 = s.questionPool[s.currentLevel][s.currentRound];
-        s.answers = {};
-        saveRoomState(s);
-        const readyMsg = {
-          type: 'secret_ready', room: roomCode,
-          secretQuestions: s.secretQuestions,
-          roundData: {
-            type: 'round_data', room: roomCode,
-            level: s.currentLevel, round: s.currentRound+1,
-            total: s.questionPool[s.currentLevel].length, question: q2,
-            scores: s.scores, names, streak: 0, secretQuestions: s.secretQuestions
-          }
-        };
-        send(readyMsg);
-        handleMsg(readyMsg);
-      }
-    }, 400);
-  }
-}
-
-// ======================================================
-// FINAL SCREEN
-// ======================================================
-function showFinal() {
+// ══════════════════════ FINAL ══════════════════════
+function showFinal(d) {
   showScreen('s-final');
-  const s1 = scores['1'], s2 = scores['2'];
-  const n1 = names['1']||'Player 1', n2 = names['2']||'Player 2';
+  const s1=d.scores['1'],s2=d.scores['2'];
+  const n1=d.names['1']||'P1',n2=d.names['2']||'P2';
+  document.getElementById('fn1').textContent=n1;
+  document.getElementById('fn2').textContent=n2;
+  document.getElementById('fp1').textContent=s1;
+  document.getElementById('fp2').textContent=s2;
+  document.getElementById('fsc1').classList.remove('winner');
+  document.getElementById('fsc2').classList.remove('winner');
+  let title,msg;
+  if(s1>s2){document.getElementById('fsc1').classList.add('winner');title=`${n1} Menang! 🏆`;msg=`🎉 <strong>${n1}</strong> jadi juaranya! Tapi yang paling penting kalian udah lebih kenal satu sama lain 💕<br><br>Hadiahnya: ${n2} harus traktir! 🍦`;}
+  else if(s2>s1){document.getElementById('fsc2').classList.add('winner');title=`${n2} Menang! 🏆`;msg=`🎉 <strong>${n2}</strong> jadi juaranya! Tapi yang paling penting kalian udah lebih kenal satu sama lain 💕<br><br>Hadiahnya: ${n1} harus traktir! 🍦`;}
+  else{title='SERI! 🤝';msg=`🤝 Sama-sama menang! Kalian <strong>setara dan cocok banget!</strong> 💕<br><br>Karena seri: kalian harus pergi makan bareng! 🍜`;}
+  document.getElementById('f-title').textContent=title;
+  document.getElementById('f-msg').innerHTML=msg;
+  document.getElementById('f-restart').style.display=myNum==='1'?'block':'none';
 
-  document.getElementById('fs-name-1').textContent = n1;
-  document.getElementById('fs-name-2').textContent = n2;
-  document.getElementById('fs-pts-1').textContent = s1;
-  document.getElementById('fs-pts-2').textContent = s2;
-
-  document.getElementById('fs-1').classList.remove('winner');
-  document.getElementById('fs-2').classList.remove('winner');
-
-  let title;
-  if (s1 > s2) { document.getElementById('fs-1').classList.add('winner'); title = `${n1} Menang! 🏆`; }
-  else if (s2 > s1) { document.getElementById('fs-2').classList.add('winner'); title = `${n2} Menang! 🏆`; }
-  else { title = 'SERI! 🤝'; }
-
-  document.getElementById('f-title').textContent = title;
-  document.getElementById('f-btn-wrap').style.display = myNum==='1' ? 'block' : 'none';
-
-  renderFullHistory();
-  saveToHistory();
+  if(d.allHistory) renderHistoryList(d.allHistory,true);
   launchConfetti();
 }
 
-function renderFullHistory() {
-  const container = document.getElementById('full-history');
-  container.innerHTML = '<div class="history-section-title">📖 Semua Jawaban</div>';
+function restartGame(){send({type:'restart'});}
+function goLobby(){showScreen('s-lobby');}
 
-  [1,2,3].forEach(lv => {
-    const items = levelHistory[lv] || [];
-    if (!items.length) return;
-    const lvNames = {1:'🌟 Level 1 — Fun', 2:'💫 Level 2 — Personal', 3:'🔮 Level 3 — Deep Talk'};
-    container.innerHTML += `<div class="history-lv-header">${lvNames[lv]}</div>`;
-    items.forEach((item, idx) => {
-      const a1 = item.ans1 || '⏱', a2 = item.ans2 || '⏱';
-      const ansText1 = a1 === 'A' ? item.q?.a : a1 === 'B' ? item.q?.b : a1;
-      const ansText2 = a2 === 'A' ? item.q?.a : a2 === 'B' ? item.q?.b : a2;
-      const isSecret = item.isSecret;
-      container.innerHTML += `
-        <div class="hist-item">
-          <div class="hist-q">
-            ${isSecret ? '<span class="hist-secret-badge">🔓 SECRET</span> ' : ''}
-            ${item.q?.q || 'Pertanyaan #'+(idx+1)}
-          </div>
-          <div class="hist-answers">
-            <div class="hist-ans ${item.same?'same-ans':'diff-ans-1'} ${isSecret?'secret':''}">
-              <div class="player-n">${names['1']||'P1'}</div>
-              <div class="ans-val">${ansText1}</div>
+// ══════════════════════ HISTORY ══════════════════════
+function openHistoryBrowser(){send({type:'get_history'});showOverlay('ov-hist');}
+
+function renderHistoryList(data,silent=false) {
+  const el=document.getElementById('hist-list');
+  if(!data||!data.length){el.innerHTML='<div style="text-align:center;color:#aaa;font-weight:800;padding:20px;">Belum ada history 🙈</div>';return;}
+  el.innerHTML=data.map((h,i)=>{
+    const lvls=h.levels||[];
+    const date=new Date(h.played_at).toLocaleDateString('id-ID',{day:'numeric',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'});
+    return `<div class="history-entry" onclick="showHistoryDetail(${i==='ovHist'?'null':JSON.stringify(h.levels||[])},${JSON.stringify(h.player1_name)},${JSON.stringify(h.player2_name)})">
+      <div class="he-header">
+        <div class="he-players">👥 ${h.player1_name||'?'} & ${h.player2_name||'?'}</div>
+        <div class="he-badge">${lvls.length} level</div>
+      </div>
+      <div class="he-date">📅 ${date} · Room: ${h.room_code}</div>
+    </div>`;
+  }).join('');
+  if(!silent) showOverlay('ov-hist');
+}
+
+function showHistoryDetail(levelsOrHistory,p1name,p2name) {
+  // Accept either array of levels or history object
+  let levels=levelsOrHistory;
+  let n1=p1name||names['1']||'P1';
+  let n2=p2name||names['2']||'P2';
+
+  if(!levels||!levels.length){showToast('Tidak ada data history');return;}
+  document.getElementById('hd-title').textContent=`📖 ${n1} & ${n2}`;
+  const wrap=document.getElementById('hd-content');
+  wrap.innerHTML=levels.map(lv=>`
+    <div class="hd-level">
+      <div class="hd-lv-title">Level ${lv.level}</div>
+      ${(lv.questions||[]).map(q=>{
+        const a1=q.answers?.['1'];
+        const a2=q.answers?.['2'];
+        const isOpen=q.isSecret||(q.question?.type==='open'||q.question?.type==='secret');
+        const same=q.same;
+        return `<div class="hd-q">
+          <div class="hd-q-text">${q.isSecret?'🔐 Secret Round':q.question?.question||'?'}</div>
+          <div class="hd-ans">
+            <div class="hd-a ${q.isSecret?'secret':same?'same':'s1'}">
+              <div class="hda-name">${n1}</div>
+              <div class="hda-val">${a1||'(waktu habis)'}</div>
             </div>
-            <div class="hist-ans ${item.same?'same-ans':'diff-ans-2'} ${isSecret?'secret':''}">
-              <div class="player-n">${names['2']||'P2'}</div>
-              <div class="ans-val">${ansText2}</div>
+            <div class="hd-a ${q.isSecret?'secret':same?'same':'s2'}">
+              <div class="hda-name">${n2}</div>
+              <div class="hda-val">${a2||'(waktu habis)'}</div>
             </div>
           </div>
         </div>`;
-    });
-  });
+      }).join('')}
+    </div>`).join('');
+  closeOverlay('ov-hist');
+  showOverlay('ov-histdetail');
 }
 
-// ======================================================
-// HISTORY PERSISTENCE
-// ======================================================
-function saveToHistory() {
-  const hist = getHistory();
-  hist.unshift({
-    id: Date.now(), date: new Date().toLocaleDateString('id-ID'),
-    players: [names['1']||'P1', names['2']||'P2'],
-    scores: {...scores},
-    levelHistory: JSON.parse(JSON.stringify(levelHistory)),
-    names: {...names}
-  });
-  if (hist.length > 20) hist.splice(20);
-  try { localStorage.setItem(HISTORY_KEY, JSON.stringify(hist)); } catch {}
-}
-
-function getHistory() {
-  try { return JSON.parse(localStorage.getItem(HISTORY_KEY)) || []; } catch { return []; }
-}
-
-function renderLobbyHistory() {
-  const hist = getHistory();
-  const container = document.getElementById('hist-lobby-list');
-  if (!hist.length) { container.innerHTML='<div class="empty-state">Belum ada history game 🎮</div>'; return; }
-  container.innerHTML = `<div class="saved-hist-list">${hist.map((h,i) => `
-    <div class="saved-hist-item" onclick="viewHistoryDetail(${i})">
-      <div class="shi-date">${h.date}</div>
-      <div class="shi-players">${h.players.join(' vs ')}</div>
-      <div class="shi-score">${h.scores['1']} : ${h.scores['2']}</div>
-    </div>`).join('')}</div>`;
-}
-
-function viewHistoryDetail(idx) {
-  const h = getHistory()[idx];
-  if (!h) return;
-  const detail = document.getElementById('saved-hist-detail');
-  let html = `<div style="display:flex;gap:10px;margin-bottom:12px">
-    <div style="flex:1;text-align:center;background:#fff;border-radius:12px;padding:12px;border:2px solid #eee">
-      <div style="font-size:.72rem;font-weight:800;color:#aaa;text-transform:uppercase;letter-spacing:1px">${h.players[0]}</div>
-      <div style="font-family:'Boogaloo',cursive;font-size:2.2rem;color:var(--dark)">${h.scores['1']}</div>
-    </div>
-    <div style="flex:1;text-align:center;background:#fff;border-radius:12px;padding:12px;border:2px solid #eee">
-      <div style="font-size:.72rem;font-weight:800;color:#aaa;text-transform:uppercase;letter-spacing:1px">${h.players[1]}</div>
-      <div style="font-family:'Boogaloo',cursive;font-size:2.2rem;color:var(--dark)">${h.scores['2']}</div>
-    </div>
-  </div>`;
-
-  [1,2,3].forEach(lv => {
-    const items = (h.levelHistory||{})[lv] || [];
-    if (!items.length) return;
-    const lvNames = {1:'🌟 Level 1',2:'💫 Level 2',3:'🔮 Level 3'};
-    html += `<div class="history-lv-header">${lvNames[lv]}</div>`;
-    items.forEach((item, idx) => {
-      const a1 = item.ans1||'⏱', a2 = item.ans2||'⏱';
-      const ansText1 = a1==='A'?item.q?.a:a1==='B'?item.q?.b:a1;
-      const ansText2 = a2==='A'?item.q?.a:a2==='B'?item.q?.b:a2;
-      html += `<div class="hist-item">
-        <div class="hist-q">${item.isSecret?'<span class="hist-secret-badge">🔓 SECRET</span> ':''}${item.q?.q||'Q'+(idx+1)}</div>
-        <div class="hist-answers">
-          <div class="hist-ans ${item.same?'same-ans':'diff-ans-1'}">
-            <div class="player-n">${h.players[0]}</div><div class="ans-val">${ansText1}</div>
-          </div>
-          <div class="hist-ans ${item.same?'same-ans':'diff-ans-2'}">
-            <div class="player-n">${h.players[1]}</div><div class="ans-val">${ansText2}</div>
-          </div>
-        </div>
-      </div>`;
-    });
-  });
-  detail.innerHTML = html;
-  document.getElementById('ov-saved-history').classList.add('on');
-}
-
-function closeSavedHistory() { document.getElementById('ov-saved-history').classList.remove('on'); }
-
-// ======================================================
-// RESTART / LOBBY
-// ======================================================
-function restartGame() {
-  if (myNum !== '1') return;
-  const state = getRoomState();
-  if (!state) return;
-  const newPool = buildQuestionPool();
-  state.questionPool = newPool;
-  state.currentLevel = 1;
-  state.currentRound = 0;
-  state.scores = {'1':0,'2':0};
-  state.answers = {};
-  state.streak = 0;
-  state.secretQuestions = [];
-  state.secretQ = {};
-  saveRoomState(state);
-
-  currentLevel = 1;
-  levelHistory = {1:[],2:[],3:[]};
-  scores = {'1':0,'2':0};
-  streak = 0;
-  secretQuestions = [];
-
-  const q = newPool[1][0];
-  const roundMsg = {
-    type:'round_data', room:roomCode, level:1, round:1,
-    total:newPool[1].length, question:q, scores:state.scores, names, streak:0, secretQuestions:[]
-  };
-  send(roundMsg);
-  handleMsg(roundMsg);
-}
-
-function goLobby() {
-  clearPoll();
-  clearTimerInterval();
-  myNum = null; myName = ''; roomCode = '';
-  names = {}; scores = {};
-  showScreen('s-lobby');
-  hideAllOverlays();
-}
-
-// ======================================================
-// HELPERS
-// ======================================================
-function showScreen(id) {
-  document.querySelectorAll('.screen').forEach(s => s.classList.remove('on'));
+// ══════════════════════ HELPERS ══════════════════════
+function showScreen(id){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('on'));
   document.getElementById(id).classList.add('on');
 }
+function showOverlay(id){document.getElementById(id).classList.add('on');}
+function closeOverlay(id){document.getElementById(id).classList.remove('on');}
 
-function hideAllOverlays() {
-  ['ov-result','ov-vote','ov-secret','ov-saved-history'].forEach(id => {
-    document.getElementById(id).classList.remove('on');
-  });
+function setStatus(txt,pulse=false){
+  const el=document.getElementById('g-status');
+  el.innerHTML=pulse?`<div class="dot"></div><span>${txt}</span>`:`<span>${txt}</span>`;
 }
 
-function setStatus(txt, pulse=false) {
-  const el = document.getElementById('g-status');
-  el.innerHTML = pulse ? `<div class="dot"></div><span>${txt}</span>` : `<span>${txt}</span>`;
+function showToast(msg){
+  const t=document.getElementById('toast');
+  t.textContent=msg;t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),3000);
 }
 
-function showToast(msg, green=false) {
-  const t = document.getElementById('toast');
-  t.textContent = msg;
-  t.className = 'toast show' + (green ? ' green' : '');
-  setTimeout(() => t.className='toast', 3000);
-}
-
-function launchConfetti() {
-  const colors=['#FFD93D','#FF6B6B','#4ECDC4','#A855F7','#6BCB77','#FF9F43'];
-  for (let i=0;i<60;i++) {
-    setTimeout(() => {
+function launchConfetti(){
+  const colors=['#FF69B4','#FFB6D9','#FF1493','#E040A0','#FF85C0','#FFD6EE','#FF4DA0','#FFAAD0'];
+  for(let i=0;i<70;i++){
+    setTimeout(()=>{
       const p=document.createElement('div');
       p.className='conf';
       p.style.cssText=`left:${Math.random()*100}vw;width:${6+Math.random()*10}px;height:${6+Math.random()*10}px;background:${colors[Math.floor(Math.random()*colors.length)]};animation-duration:${2+Math.random()*2}s;`;
       document.body.appendChild(p);
       setTimeout(()=>p.remove(),4000);
-    }, i*50);
+    },i*40);
   }
 }
 
-// ======================================================
-// INIT
-// ======================================================
-initBC();
-switchTab('new');
-
-// Enter keys
-['inp-code'].forEach(id => {
-  const el = document.getElementById(id);
-  if (el) el.addEventListener('keyup', e => { if(e.key==='Enter') joinRoom(); });
-});
-document.getElementById('inp-name-create').addEventListener('keyup', e => {
-  if(e.key==='Enter') createRoom();
-});
-document.getElementById('inp-name-join').addEventListener('keyup', e => {
-  if(e.key==='Enter') document.getElementById('inp-code').focus();
-});
+// ══════════════════════ INIT ══════════════════════
+connect();
+document.getElementById('inp-code').addEventListener('keyup',e=>{if(e.key==='Enter')joinRoom();});
+document.getElementById('inp-name-c').addEventListener('keyup',e=>{if(e.key==='Enter')createRoom();});
+document.getElementById('inp-name-j').addEventListener('keyup',e=>{if(e.key==='Enter')document.getElementById('inp-code').focus();});
 </script>
 </body>
 </html>
