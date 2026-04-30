@@ -86,6 +86,15 @@ textarea{resize:vertical;min-height:70px;}
 .wait-dots span:nth-child(3){animation-delay:.4s;}
 @keyframes bounce{0%,100%{transform:translateY(0);opacity:.4;}50%{transform:translateY(-6px);opacity:1;}}
 
+/* ── LOBBY TABS ── */
+.lobby-tabs{display:flex;gap:6px;width:100%;background:rgba(255,255,255,.7);border-radius:16px;padding:5px;border:2px solid #FFE4F2;}
+.lobby-tab{flex:1;padding:10px 6px;border-radius:12px;font-family:'Boogaloo',cursive;font-size:.95rem;
+  border:none;background:transparent;color:#FFAAD0;cursor:pointer;text-align:center;
+  transition:all .2s;font-weight:700;}
+.lobby-tab.active{background:linear-gradient(135deg,#FF69B4,#E040A0);color:#fff;box-shadow:0 3px 10px rgba(255,105,180,.35);}
+.lobby-tab:not(.active):hover{background:#FFF0F7;color:#FF69B4;}
+.lobby-panel{width:100%;display:flex;flex-direction:column;gap:12px;}
+
 /* ── SETUP SCREEN ── */
 .level-tabs{display:flex;gap:6px;width:100%;}
 .tab{flex:1;padding:10px 6px;border-radius:12px;font-family:'Boogaloo',cursive;font-size:1rem;
@@ -274,28 +283,55 @@ circle{fill:none;stroke-width:5;}
 <div class="screen on" id="s-lobby">
   <span class="mascot">🌸</span>
   <div class="logo">Would You <span>Rather?</span></div>
-  <div class="logo-sub">Game Seru Berdua 🎮</div>
+  <div class="logo-sub">Game Seru Berdua 💕</div>
 
-  <div class="card">
-    <div class="card-title">🚀 Buat Room Baru</div>
-    <div style="margin-bottom:10px">
-      <input type="text" id="inp-name-c" placeholder="Nama kamu..." maxlength="16">
-    </div>
-    <button class="btn btn-coral" onclick="createRoom()">Bikin Room!</button>
+  <!-- 3 TABS -->
+  <div class="lobby-tabs">
+    <button class="lobby-tab active" id="ltab-0" onclick="switchLobbyTab(0)">🚀 Buat Room</button>
+    <button class="lobby-tab" id="ltab-1" onclick="switchLobbyTab(1)">🔗 Join Room</button>
+    <button class="lobby-tab" id="ltab-2" onclick="switchLobbyTab(2)">📖 History</button>
   </div>
 
-  <div style="font-weight:900;color:#ccc;font-size:.85rem;letter-spacing:2px;">— atau —</div>
-
-  <div class="card">
-    <div class="card-title">🔗 Join Room Teman</div>
-    <div style="margin-bottom:8px"><input type="text" id="inp-name-j" placeholder="Nama kamu..." maxlength="16"></div>
-    <div style="margin-bottom:10px">
-      <input type="text" id="inp-code" placeholder="Kode room (4 huruf)" maxlength="4" style="text-transform:uppercase;letter-spacing:4px;font-size:1.1rem;text-align:center;">
+  <!-- TAB 0: Buat Room -->
+  <div class="lobby-panel" id="lpanel-0">
+    <div class="card">
+      <div class="card-title">🚀 Buat Room Baru</div>
+      <div style="margin-bottom:10px">
+        <input type="text" id="inp-name-c" placeholder="Nama kamu..." maxlength="16">
+      </div>
+      <button class="btn btn-coral" onclick="createRoom()">Bikin Room! 🎉</button>
     </div>
-    <button class="btn btn-sky" onclick="joinRoom()">Join! 🙋</button>
+    <div style="font-size:.82rem;font-weight:700;color:#FFAAD0;text-align:center;line-height:1.6;">
+      Kamu jadi <strong style="color:#FF69B4">Player 1</strong> dan bisa atur pertanyaannya.<br>Kasih kode room ke teman kamu!
+    </div>
   </div>
 
-  <button class="btn btn-ghost" onclick="openHistoryBrowser()" style="width:100%">📖 Lihat History Game</button>
+  <!-- TAB 1: Join Room -->
+  <div class="lobby-panel" id="lpanel-1" style="display:none">
+    <div class="card">
+      <div class="card-title">🔗 Join Room Teman</div>
+      <div style="margin-bottom:8px">
+        <input type="text" id="inp-name-j" placeholder="Nama kamu..." maxlength="16">
+      </div>
+      <div style="margin-bottom:10px">
+        <input type="text" id="inp-code" placeholder="Kode room (4 huruf)" maxlength="4" style="text-transform:uppercase;letter-spacing:4px;font-size:1.1rem;text-align:center;">
+      </div>
+      <button class="btn btn-sky" onclick="joinRoom()">Join! 🙋</button>
+    </div>
+    <div style="font-size:.82rem;font-weight:700;color:#FFAAD0;text-align:center;line-height:1.6;">
+      Minta kode 4 huruf dari teman yang bikin room.<br>Kamu jadi <strong style="color:#FF69B4">Player 2</strong>!
+    </div>
+  </div>
+
+  <!-- TAB 2: History -->
+  <div class="lobby-panel" id="lpanel-2" style="display:none">
+    <div class="card" style="padding:14px">
+      <div class="card-title">📖 History Game</div>
+      <div id="lobby-hist-list" style="display:flex;flex-direction:column;gap:8px;margin-top:4px;">
+        <div style="text-align:center;color:#FFAAD0;font-weight:800;padding:20px 0;">Memuat history... 🌸</div>
+      </div>
+    </div>
+  </div>
 
   <div class="conn-wrap"><span class="conn-dot" id="cdot"></span><span id="ctxt">Menghubungkan...</span></div>
 </div>
@@ -557,10 +593,20 @@ function connect() {
 function setConn(ok) {
   document.getElementById('cdot').className='conn-dot '+(ok?'ok':'bad');
   document.getElementById('ctxt').textContent=ok?'Terhubung ✓':'Mencoba terhubung...';
+  // Auto-load history tab if it's open when connection established
+  if(ok && document.getElementById('lpanel-2') && document.getElementById('lpanel-2').style.display!=='none') {
+    loadLobbyHistory();
+  }
 }
 function send(obj) {
-  if(ws&&ws.readyState===WebSocket.OPEN) ws.send(JSON.stringify(obj));
-  else showToast('Server belum jalan! Jalankan dulu: node server.js 🛠️');
+  if(ws&&ws.readyState===WebSocket.OPEN) {
+    ws.send(JSON.stringify(obj));
+  } else if(ws&&ws.readyState===WebSocket.CONNECTING) {
+    showToast('Masih konek ke server, coba lagi sebentar... ⏳');
+  } else {
+    showToast('Koneksi terputus, mencoba konek ulang... 🔄');
+    connect();
+  }
 }
 
 // ══════════════════════ MESSAGE HANDLER ══════════════════════
@@ -639,6 +685,7 @@ function handleMsg(d) {
 
     case 'history_data':
       renderHistoryList(d.data);
+      renderLobbyHistory(d.data);
       break;
 
     case 'player_left':
@@ -655,6 +702,44 @@ function handleMsg(d) {
       showToast(d.msg);
       break;
   }
+}
+
+// ══════════════════════ LOBBY TABS ══════════════════════
+function switchLobbyTab(i) {
+  for(let j=0;j<3;j++){
+    document.getElementById('ltab-'+j).className='lobby-tab'+(j===i?' active':'');
+    document.getElementById('lpanel-'+j).style.display=j===i?'flex':'none';
+  }
+  if(i===2) loadLobbyHistory();
+}
+
+function loadLobbyHistory() {
+  if(ws&&ws.readyState===WebSocket.OPEN) {
+    send({type:'get_history'});
+  } else {
+    document.getElementById('lobby-hist-list').innerHTML=
+      '<div style="text-align:center;color:#FFAAD0;font-weight:800;padding:16px 0;">Tidak bisa konek ke server 😢</div>';
+  }
+}
+
+function renderLobbyHistory(data) {
+  const el=document.getElementById('lobby-hist-list');
+  if(!el) return;
+  if(!data||!data.length){
+    el.innerHTML='<div style="text-align:center;color:#FFAAD0;font-weight:800;padding:20px 0;">Belum ada history game 🙈</div>';
+    return;
+  }
+  el.innerHTML=data.slice(0,15).map((h,i)=>{
+    const date=new Date(h.played_at).toLocaleDateString('id-ID',{day:'numeric',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'});
+    const lvls=h.levels||[];
+    return `<div class="history-entry" onclick="showHistoryDetail(${JSON.stringify(h.levels||[])},${JSON.stringify(h.player1_name)},${JSON.stringify(h.player2_name)})">
+      <div class="he-header">
+        <div class="he-players">💕 ${h.player1_name||'?'} & ${h.player2_name||'?'}</div>
+        <div class="he-badge">${lvls.length} level</div>
+      </div>
+      <div class="he-date">📅 ${date} · Room: ${h.room_code}</div>
+    </div>`;
+  }).join('');
 }
 
 // ══════════════════════ LOBBY ══════════════════════
