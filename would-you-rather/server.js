@@ -71,7 +71,13 @@ const server = http.createServer((req, res) => {
   res.end(JSON.stringify({ status: "ok", name: "Would You Rather Game Server v2" }));
 });
 
-const wss = new WebSocket.Server({ server });
+const wss = new WebSocket.Server({ noServer: true });
+
+server.on("upgrade", (req, socket, head) => {
+  wss.handleUpgrade(req, socket, head, (ws) => {
+    wss.emit("connection", ws, req);
+  });
+});
 
 // ─── DEFAULT QUESTIONS ────────────────────────────────────────────
 const DEFAULT_QUESTIONS = [
