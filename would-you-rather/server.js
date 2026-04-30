@@ -1,5 +1,6 @@
 const WebSocket = require("ws");
 const http = require("http");
+const fs = require("fs");
 const Database = require("better-sqlite3");
 const path = require("path");
 
@@ -37,6 +38,19 @@ function getAllHistory() {
 // ─── HTTP SERVER ───────────────────────────────────────────────────
 const server = http.createServer((req, res) => {
   res.setHeader("Access-Control-Allow-Origin", "*");
+
+  // Serve frontend HTML
+  if (req.method === "GET" && (req.url === "/" || req.url === "/index.html")) {
+    const filePath = path.join(__dirname, "public", "index.html");
+    fs.readFile(filePath, (err, data) => {
+      if (err) { res.writeHead(500); res.end("Error loading index.html"); return; }
+      res.setHeader("Content-Type", "text/html");
+      res.writeHead(200);
+      res.end(data);
+    });
+    return;
+  }
+
   res.setHeader("Content-Type", "application/json");
 
   if (req.method === "GET" && req.url === "/history") {
