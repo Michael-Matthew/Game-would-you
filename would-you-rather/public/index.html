@@ -360,6 +360,7 @@ circle{fill:none;stroke-width:5;}
   <div id="editor2" class="q-editor" style="display:none"></div>
 
   <button class="btn btn-lime" onclick="startGame()" style="margin-top:4px">Mulai Game! 🎮</button>
+  <button class="btn btn-sky" onclick="randomizeAll()" style="margin-top:0">🎲 Acak Semua Soal</button>
   <button class="btn btn-ghost" onclick="useDefaults()">Pakai pertanyaan default aja</button>
 </div>
 
@@ -559,7 +560,7 @@ function setConn(ok) {
 }
 function send(obj) {
   if(ws&&ws.readyState===WebSocket.OPEN) ws.send(JSON.stringify(obj));
-  else showToast('Koneksi terputus! Coba refresh 😅');
+  else showToast('Server belum jalan! Jalankan dulu: node server.js 🛠️');
 }
 
 // ══════════════════════ MESSAGE HANDLER ══════════════════════
@@ -707,6 +708,7 @@ function renderEditor(lvl) {
     div.innerHTML=`
       <div class="q-item-header">
         <div class="q-num">Q${qi+1}</div>
+        <button class="type-btn" onclick="randomizeQuestion(${lvl},${qi})" title="Acak soal" style="border-color:#FF69B4;color:#FF1493;background:#FFF0F7;">🎲 Acak</button>
         <div class="q-type-toggle">
           <button class="type-btn ${isAB?'active':''}" onclick="setQType(${lvl},${qi},'ab')">A/B Pilihan</button>
           <button class="type-btn ${!isAB?'active':''}" onclick="setQType(${lvl},${qi},'open')">Isian Bebas</button>
@@ -770,6 +772,72 @@ function startGame() {
 }
 
 function esc(s){return (s||'').replace(/"/g,'&quot;');}
+
+// ── RANDOM QUESTION POOLS ──
+const RANDOM_POOL = [
+  // Level 1 - santai
+  [{type:'ab',question:'Liburan impian kamu?',a:'Pantai santai 🌅',b:'Hiking gunung 🏔️'},
+   {type:'ab',question:'Date makan malam?',a:'Restoran fancy 🕯️',b:'Warung pinggir jalan 🍜'},
+   {type:'ab',question:'Weekend di rumah?',a:'Nonton film 🎬',b:'Main game 🎮'},
+   {type:'ab',question:'Cuaca favorit?',a:'Panas cerah ☀️',b:'Hujan deras 🌧️'},
+   {type:'ab',question:'Peliharaan impian?',a:'Kucing 🐱',b:'Anjing 🐶'},
+   {type:'ab',question:'Sarapan favorit?',a:'Nasi goreng 🍳',b:'Roti & selai 🍞'},
+   {type:'ab',question:'Cara isi waktu luang?',a:'Tidur siang 😴',b:'Scroll media sosial 📱'},
+   {type:'ab',question:'Minuman favorit?',a:'Kopi ☕',b:'Teh 🍵'},
+   {type:'ab',question:'Jalan-jalan ke?',a:'Mall 🛍️',b:'Taman / alam 🌿'},
+   {type:'ab',question:'Makan sendirian?',a:'Di kamar sambil nonton 🛏️',b:'Di meja makan 🍽️'},
+  ],
+  // Level 2 - seru
+  [{type:'ab',question:'Superpower?',a:'Terbang ✈️',b:'Baca pikiran 🧠'},
+   {type:'ab',question:'Kado terbaik?',a:'Hadiah mahal 💎',b:'Buatan sendiri 🎨'},
+   {type:'ab',question:'Malam minggu?',a:'Pesta rame 🎉',b:'Dinner berdua 🕯️'},
+   {type:'ab',question:'Tipe waktu?',a:'Early bird 🌅',b:'Night owl 🌙'},
+   {type:'ab',question:'Musik santai?',a:'Lo-fi chill 🎧',b:'Lagu upbeat 🎤'},
+   {type:'ab',question:'Kalau bisa invisible?',a:'Dengerin obrolan orang 👂',b:'Masuk konser gratis 🎸'},
+   {type:'ab',question:'Lebih suka?',a:'Banyak teman biasa 👥',b:'Sedikit teman dekat 💕'},
+   {type:'ab',question:'Aktivitas outdoor?',a:'Piknik di taman 🧺',b:'Main olahraga ⚽'},
+   {type:'open',question:'Hal apa yang paling bikin kamu ketawa belakangan ini?',a:'',b:''},
+   {type:'open',question:'Kalau besok libur tiba-tiba, kamu mau ngapain?',a:'',b:''},
+  ],
+  // Level 3 - deep
+  [{type:'ab',question:'Time travel?',a:'Ke masa lalu ⏪',b:'Ke masa depan ⏩'},
+   {type:'ab',question:'Kaya raya?',a:'Keliling dunia 🌍',b:'Rumah impian 🏡'},
+   {type:'ab',question:'Kerja ideal?',a:'Remote bebas 💻',b:'Kantor seru 🏢'},
+   {type:'ab',question:'Film favorit?',a:'Komedi 😂',b:'Drama 😭'},
+   {type:'ab',question:'Cara healing?',a:'Me-time 🔋',b:'Jalan bareng teman 👥'},
+   {type:'open',question:'Hal apa yang paling kamu syukuri sekarang?',a:'',b:''},
+   {type:'open',question:'Kalau bisa ngobrol sama diri kamu 5 tahun lalu, apa yang kamu bilang?',a:'',b:''},
+   {type:'open',question:'Apa mimpi kamu yang belum pernah diceritain ke siapa-siapa?',a:'',b:''},
+   {type:'ab',question:'Kalau hidup cuma sehari lagi?',a:'Habiskan bareng keluarga 👨‍👩‍👧',b:'Travelling ke tempat impian ✈️'},
+   {type:'ab',question:'Sukses menurut kamu?',a:'Punya banyak uang 💰',b:'Punya waktu bebas & bahagia 😊'},
+  ],
+];
+
+function randomizeAll() {
+  for(let lvl=0;lvl<3;lvl++){
+    // Shuffle pool for this level so no repeats
+    const pool=[...RANDOM_POOL[lvl]];
+    for(let qi=0;qi<5;qi++){
+      const idx=Math.floor(Math.random()*pool.length);
+      setupQuestions[lvl][qi]={...pool[idx]};
+      pool.splice(idx,1);
+      if(pool.length===0) pool.push(...RANDOM_POOL[lvl]);
+    }
+  }
+  renderAllEditors();
+  showToast('Semua soal sudah diacak! 🎲');
+}
+  const pool = RANDOM_POOL[lvl];
+  // Pick random from pool, avoid same as current
+  let pick;
+  let tries = 0;
+  do {
+    pick = pool[Math.floor(Math.random() * pool.length)];
+    tries++;
+  } while(tries < 10 && pick.question === setupQuestions[lvl][qi].question);
+  setupQuestions[lvl][qi] = { ...pick };
+  renderEditor(lvl);
+
 
 // ══════════════════════ GAME ══════════════════════
 function showQuestion(d) {
@@ -941,6 +1009,7 @@ function nextQuestion(){send({type:'next_question'});}
 // ══════════════════════ VOTE ══════════════════════
 function showVote(d) {
   voted=false;
+  closeOverlay('ov-reveal');
   showScreen('s-vote');
   document.getElementById('vote-title').textContent=`Level ${d.level} Selesai! 🎊`;
   document.getElementById('vt-n1').textContent=names['1']||'P1';
@@ -974,6 +1043,7 @@ function updateVoteUI(votes,ns) {
 
 // ══════════════════════ FINAL ══════════════════════
 function showFinal(d) {
+  closeOverlay('ov-reveal');
   showScreen('s-final');
   const s1=d.scores['1'],s2=d.scores['2'];
   const n1=d.names['1']||'P1',n2=d.names['2']||'P2';
