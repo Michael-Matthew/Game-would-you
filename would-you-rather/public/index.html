@@ -612,27 +612,46 @@ function buildDefaultSetup() {
 }
 
 // ══════════════════════ WEBSOCKET ══════════════════════
+let reconnectTimer=null;
+let reconnectDelay=2000;
+
 function connect() {
+  // Jangan buat koneksi baru kalau masih connecting/open
+  if(ws && (ws.readyState===WebSocket.CONNECTING||ws.readyState===WebSocket.OPEN)) return;
+  if(reconnectTimer){clearTimeout(reconnectTimer);reconnectTimer=null;}
   try {
     ws = new WebSocket(SERVER_URL);
-    ws.onopen = () => setConn(true);
+    ws.onopen = () => { reconnectDelay=2000; setConn(true); };
     ws.onmessage = e => { let d; try{d=JSON.parse(e.data);}catch{return;} handleMsg(d); };
-    ws.onclose = () => { setConn(false); setTimeout(connect,3000); };
-    ws.onerror = () => setConn(false);
-  } catch { setConn(false); }
+    ws.onclose = () => {
+      setConn(false);
+      // Exponential backoff: 2s → 4s → 8s → max 15s
+      reconnectDelay=Math.min(reconnectDelay*1.5, 15000);
+      reconnectTimer=setTimeout(connect, reconnectDelay);
+    };
+    ws.onerror = () => { /* onclose will handle retry */ };
+  } catch { setConn(false); reconnectTimer=setTimeout(connect,3000); }
 }
+let connAttempt=0;
 function setConn(ok) {
   document.getElementById('cdot').className='conn-dot '+(ok?'ok':'bad');
-  document.getElementById('ctxt').textContent=ok?'✓ Terhubung ke server':'⏳ Menghubungkan ke server...';
+  if(ok){
+    connAttempt=0;
+    document.getElementById('ctxt').textContent='✓ Terhubung!';
+  } else {
+    connAttempt++;
+    const msgs=['Menghubungkan ke server...','Mencoba lagi...','Masih mencoba konek...','Hampir konek nih...'];
+    document.getElementById('ctxt').textContent='⏳ '+(msgs[Math.min(connAttempt-1,msgs.length-1)]);
+  }
   // Sembunyikan status box kalau sudah konek
   const box=document.getElementById('conn-status-box');
   if(box) box.style.display=ok?'none':'flex';
-  // Enable/disable tombol aksi berdasarkan koneksi
+  // Enable/disable tombol aksi
   ['btn-create','btn-join'].forEach(id=>{
     const el=document.getElementById(id);
     if(el){el.disabled=!ok; el.style.opacity=ok?'1':'0.5';}
   });
-  // Auto-load history tab if it's open
+  // Auto-load history tab if open
   if(ok && document.getElementById('lpanel-2') && document.getElementById('lpanel-2').style.display!=='none') {
     loadLobbyHistory();
   }
@@ -640,11 +659,8 @@ function setConn(ok) {
 function send(obj) {
   if(ws&&ws.readyState===WebSocket.OPEN) {
     ws.send(JSON.stringify(obj));
-  } else if(ws&&ws.readyState===WebSocket.CONNECTING) {
-    showToast('Masih konek ke server, coba lagi sebentar... ⏳');
   } else {
-    showToast('Koneksi terputus, mencoba konek ulang... 🔄');
-    connect();
+    showToast('Belum terhubung, tunggu sebentar... ⏳');
   }
 }
 
