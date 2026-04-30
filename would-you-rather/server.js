@@ -243,7 +243,8 @@ function endLevel(room) {
   });
   room.state.currentLevelHistory = [];
 
-  if (lvl >= 2) {
+  const maxLvl = (room.state.totalLevels || 3) - 1;
+  if (lvl >= maxLvl) {
     endGame(room);
   } else {
     room.state.phase = "vote";
@@ -324,8 +325,9 @@ function handle(ws, d) {
 
     case "setup_done": {
       if (!room || ws.playerNum !== "1") return;
-      if (d.questions && Array.isArray(d.questions) && d.questions.length === 3) {
+      if (d.questions && Array.isArray(d.questions) && d.questions.length >= 1) {
         room.state.questions = d.questions;
+        room.state.totalLevels = d.questions.length; // 1, 2, or 3
       }
       room.state.phase = "playing";
       room.state.level = 0;
@@ -336,7 +338,7 @@ function handle(ws, d) {
       room.state.history = [];
       room.state.currentLevelHistory = [];
       room.state.scores = { "1": 0, "2": 0 };
-      broadcast(room, { type: "game_starting", names: room.state.names });
+      broadcast(room, { type: "game_starting", names: room.state.names, totalLevels: room.state.totalLevels || 3 });
       setTimeout(() => startQuestion(room), 1000);
       break;
     }
@@ -373,7 +375,7 @@ function handle(ws, d) {
           room.state.secretUsedInLevel = false;
           room.state._injectSecret = false;
           room.state.phase = "playing";
-          broadcast(room, { type: "level_start", level: room.state.level + 1, scores: room.state.scores });
+          broadcast(room, { type: "level_start", level: room.state.level + 1, scores: room.state.scores, totalLevels: room.state.totalLevels || 3 });
           setTimeout(() => startQuestion(room), 1000);
         } else {
           endGame(room);

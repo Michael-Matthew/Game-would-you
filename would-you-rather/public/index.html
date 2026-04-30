@@ -86,6 +86,15 @@ textarea{resize:vertical;min-height:70px;}
 .wait-dots span:nth-child(3){animation-delay:.4s;}
 @keyframes bounce{0%,100%{transform:translateY(0);opacity:.4;}50%{transform:translateY(-6px);opacity:1;}}
 
+/* ── LEVEL COUNT PICKER ── */
+.level-count-btns{display:flex;gap:8px;width:100%;}
+.lvcount-btn{flex:1;padding:10px 6px;border-radius:14px;font-family:'Boogaloo',cursive;font-size:1.05rem;
+  border:2.5px solid #FFE4F2;background:var(--white);color:#FFAAD0;cursor:pointer;text-align:center;
+  transition:all .2s;line-height:1.2;}
+.lvcount-btn.active{border-color:#FF69B4;background:linear-gradient(135deg,#FF69B4,#E040A0);color:#fff;
+  box-shadow:0 3px 12px rgba(255,105,180,.3);}
+.lvcount-sub{font-size:.68rem;font-family:'Nunito',sans-serif;font-weight:800;opacity:.8;margin-top:2px;}
+
 /* ── LOBBY TABS ── */
 .lobby-tabs{display:flex;gap:6px;width:100%;background:rgba(255,255,255,.7);border-radius:16px;padding:5px;border:2px solid #FFE4F2;}
 .lobby-tab{flex:1;padding:10px 6px;border-radius:12px;font-family:'Boogaloo',cursive;font-size:.95rem;
@@ -252,6 +261,11 @@ circle{fill:none;stroke-width:5;}
 .hd-a.s2{border-color:#FFB6D9;background:#FFF5FA;}
 .hd-a.secret{border-color:#E040A0;background:#FFF0F7;}
 
+.hd-choices-hint{font-size:.72rem;font-weight:700;color:#FFAAD0;margin-bottom:5px;padding:3px 8px;
+  background:#FFF5FA;border-radius:8px;display:inline-block;}
+.hd-same-badge{display:inline-block;font-size:.72rem;font-weight:800;color:#FF69B4;
+  background:#FFF0F7;border:1.5px solid #FFB6D9;border-radius:50px;padding:2px 10px;margin-bottom:5px;}
+
 /* ── TOAST ── */
 .toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(80px);
   background:linear-gradient(135deg,#FF1493,#E040A0);color:var(--white);padding:11px 22px;border-radius:50px;
@@ -299,7 +313,7 @@ circle{fill:none;stroke-width:5;}
       <div style="margin-bottom:10px">
         <input type="text" id="inp-name-c" placeholder="Nama kamu..." maxlength="16">
       </div>
-      <button class="btn btn-coral" onclick="createRoom()">Bikin Room! 🎉</button>
+      <button class="btn btn-coral" id="btn-create" onclick="createRoom()" disabled style="opacity:0.5">Bikin Room! 🎉</button>
     </div>
     <div style="font-size:.82rem;font-weight:700;color:#FFAAD0;text-align:center;line-height:1.6;">
       Kamu jadi <strong style="color:#FF69B4">Player 1</strong> dan bisa atur pertanyaannya.<br>Kasih kode room ke teman kamu!
@@ -316,7 +330,7 @@ circle{fill:none;stroke-width:5;}
       <div style="margin-bottom:10px">
         <input type="text" id="inp-code" placeholder="Kode room (4 huruf)" maxlength="4" style="text-transform:uppercase;letter-spacing:4px;font-size:1.1rem;text-align:center;">
       </div>
-      <button class="btn btn-sky" onclick="joinRoom()">Join! 🙋</button>
+      <button class="btn btn-sky" id="btn-join" onclick="joinRoom()" disabled style="opacity:0.5">Join! 🙋</button>
     </div>
     <div style="font-size:.82rem;font-weight:700;color:#FFAAD0;text-align:center;line-height:1.6;">
       Minta kode 4 huruf dari teman yang bikin room.<br>Kamu jadi <strong style="color:#FF69B4">Player 2</strong>!
@@ -333,7 +347,12 @@ circle{fill:none;stroke-width:5;}
     </div>
   </div>
 
-  <div class="conn-wrap"><span class="conn-dot" id="cdot"></span><span id="ctxt">Menghubungkan...</span></div>
+  <!-- Status koneksi inline, bukan di bawah sendiri -->
+  <div id="conn-status-box" style="width:100%;display:flex;align-items:center;justify-content:center;gap:8px;
+    background:rgba(255,240,247,.8);border-radius:12px;padding:10px 16px;border:1.5px solid #FFE4F2;">
+    <span class="conn-dot" id="cdot"></span>
+    <span id="ctxt" style="font-size:.8rem;font-weight:800;color:#FFAAD0;">Menghubungkan...</span>
+  </div>
 </div>
 
 <!-- ═══════════════════════════════════════ WAITING -->
@@ -382,12 +401,23 @@ circle{fill:none;stroke-width:5;}
 <!-- ═══════════════════════════════════════ SETUP (P1 only) -->
 <div class="screen" id="s-setup">
   <div class="logo" style="font-size:2rem;">✏️ Buat <span>Pertanyaan</span></div>
-  <div class="logo-sub" style="margin-bottom:0">3 Level × 5 Pertanyaan</div>
 
-  <div class="level-tabs">
+  <!-- Pilih jumlah level -->
+  <div class="card" style="padding:14px 16px">
+    <div class="card-title" style="margin-bottom:10px;">🎯 Berapa level yang mau dimainkan?</div>
+    <div class="level-count-btns">
+      <button class="lvcount-btn active" id="lvcnt-1" onclick="setLevelCount(1)">1 Level<div class="lvcount-sub">5 soal</div></button>
+      <button class="lvcount-btn" id="lvcnt-2" onclick="setLevelCount(2)">2 Level<div class="lvcount-sub">10 soal</div></button>
+      <button class="lvcount-btn" id="lvcnt-3" onclick="setLevelCount(3)">3 Level<div class="lvcount-sub">15 soal</div></button>
+    </div>
+  </div>
+
+  <div id="setup-sublabel" class="logo-sub" style="margin:0">1 Level × 5 Pertanyaan</div>
+
+  <div class="level-tabs" id="setup-level-tabs">
     <div class="tab active" id="tab0" onclick="switchTab(0)">Level 1</div>
-    <div class="tab" id="tab1" onclick="switchTab(1)">Level 2</div>
-    <div class="tab" id="tab2" onclick="switchTab(2)">Level 3</div>
+    <div class="tab" id="tab1" onclick="switchTab(1)" style="display:none">Level 2</div>
+    <div class="tab" id="tab2" onclick="switchTab(2)" style="display:none">Level 3</div>
   </div>
 
   <!-- Level editors -->
@@ -566,6 +596,7 @@ const SERVER_URL = (location.hostname==='localhost'||location.hostname==='127.0.
 // ══════════════════════ STATE ══════════════════════
 let ws=null, myNum=null, myName='', roomCode='', names={}, scores={};
 let answered=false, voted=false;
+let gameTotalLevels=3;
 let timerInterval=null, timeLeft=20;
 let lastHistory=null;
 
@@ -592,8 +623,16 @@ function connect() {
 }
 function setConn(ok) {
   document.getElementById('cdot').className='conn-dot '+(ok?'ok':'bad');
-  document.getElementById('ctxt').textContent=ok?'Terhubung ✓':'Mencoba terhubung...';
-  // Auto-load history tab if it's open when connection established
+  document.getElementById('ctxt').textContent=ok?'✓ Terhubung ke server':'⏳ Menghubungkan ke server...';
+  // Sembunyikan status box kalau sudah konek
+  const box=document.getElementById('conn-status-box');
+  if(box) box.style.display=ok?'none':'flex';
+  // Enable/disable tombol aksi berdasarkan koneksi
+  ['btn-create','btn-join'].forEach(id=>{
+    const el=document.getElementById(id);
+    if(el){el.disabled=!ok; el.style.opacity=ok?'1':'0.5';}
+  });
+  // Auto-load history tab if it's open
   if(ok && document.getElementById('lpanel-2') && document.getElementById('lpanel-2').style.display!=='none') {
     loadLobbyHistory();
   }
@@ -638,6 +677,8 @@ function handleMsg(d) {
 
     case 'game_starting':
       names=d.names;
+      gameTotalLevels = d.totalLevels || 3;
+      updateLevelPipsCount(gameTotalLevels);
       showScreen('s-level');
       document.getElementById('lt-emoji').textContent='🎮';
       document.getElementById('lt-title').textContent='Game Dimulai!';
@@ -726,18 +767,21 @@ function renderLobbyHistory(data) {
   const el=document.getElementById('lobby-hist-list');
   if(!el) return;
   if(!data||!data.length){
-    el.innerHTML='<div style="text-align:center;color:#FFAAD0;font-weight:800;padding:20px 0;">Belum ada history game 🙈</div>';
+    el.innerHTML='<div style="text-align:center;color:#FFAAD0;font-weight:800;padding:20px 0;">Belum ada history game 🙈<br><span style="font-size:.78rem;font-weight:600;">Main dulu yuk!</span></div>';
     return;
   }
-  el.innerHTML=data.slice(0,15).map((h,i)=>{
+  el.innerHTML=data.slice(0,20).map((h)=>{
     const date=new Date(h.played_at).toLocaleDateString('id-ID',{day:'numeric',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'});
     const lvls=h.levels||[];
+    const totalQ=lvls.reduce((s,l)=>(s+(l.questions||[]).length),0);
+    const totalSame=lvls.reduce((s,l)=>(s+(l.questions||[]).filter(q=>q.same).length),0);
     return `<div class="history-entry" onclick="showHistoryDetail(${JSON.stringify(h.levels||[])},${JSON.stringify(h.player1_name)},${JSON.stringify(h.player2_name)})">
       <div class="he-header">
         <div class="he-players">💕 ${h.player1_name||'?'} & ${h.player2_name||'?'}</div>
-        <div class="he-badge">${lvls.length} level</div>
+        <div class="he-badge">${lvls.length} level · ${totalQ} soal</div>
       </div>
       <div class="he-date">📅 ${date} · Room: ${h.room_code}</div>
+      <div style="font-size:.72rem;font-weight:800;color:#FF85C0;margin-top:3px;">🤝 Kompak ${totalSame}/${totalQ} soal · Klik untuk lihat detail</div>
     </div>`;
   }).join('');
 }
@@ -774,6 +818,8 @@ function showWaiting() {
 let activeTab=0;
 
 function goSetup() {
+  selectedLevelCount = 1;
+  setLevelCount(1);
   showScreen('s-setup');
   renderAllEditors();
 }
@@ -823,7 +869,26 @@ function switchTab(i) {
   }
 }
 
-function useDefaults() { send({type:'setup_done'}); }
+// ══════════════════════ LEVEL COUNT ══════════════════════
+let selectedLevelCount = 1;
+
+function setLevelCount(n) {
+  selectedLevelCount = n;
+  [1,2,3].forEach(i => {
+    document.getElementById('lvcnt-'+i).className='lvcount-btn'+(i===n?' active':'');
+    const tab=document.getElementById('tab'+(i-1));
+    if(tab) tab.style.display=i<=n?'':'none';
+  });
+  const labels=['1 Level × 5 Pertanyaan','2 Level × 10 Pertanyaan','3 Level × 15 Pertanyaan'];
+  document.getElementById('setup-sublabel').textContent=labels[n-1];
+  // Reset to tab 0
+  switchTab(0);
+  // Rebuild setupQuestions for new level count
+  setupQuestions = buildDefaultSetup();
+  renderAllEditors();
+}
+
+function useDefaults() { send({type:'setup_done', levelCount: selectedLevelCount}); }
 
 function startGame() {
   // Validate - fill blanks with defaults
@@ -853,7 +918,9 @@ function startGame() {
       b:q.type==='open'?undefined:(q.b||'').trim()||def.b,
     };
   }));
-  send({type:'setup_done',questions:finalQ});
+  // Potong hanya sesuai level yang dipilih
+  const finalQSliced = finalQ.slice(0, selectedLevelCount);
+  send({type:'setup_done', questions:finalQSliced, levelCount: selectedLevelCount});
 }
 
 function esc(s){return (s||'').replace(/"/g,'&quot;');}
@@ -925,6 +992,14 @@ function randomizeAll() {
 
 
 // ══════════════════════ GAME ══════════════════════
+function updateLevelPipsCount(n) {
+  // Show/hide pips based on level count
+  for(let i=0;i<3;i++){
+    const pip=document.getElementById('lvpip'+i);
+    if(pip) pip.style.display=i<n?'':'none';
+  }
+}
+
 function showQuestion(d) {
   showScreen('s-game');
   answered=false;
@@ -944,10 +1019,12 @@ function showQuestion(d) {
   document.getElementById('g-p2').textContent=d.scores['2'];
   document.getElementById('g-rnd').textContent=`${qNum}/${total}`;
 
-  // Level pips
+  // Level pips (only show active levels)
   for(let i=0;i<3;i++){
     const pip=document.getElementById('lvpip'+i);
     const fill=document.getElementById('lvfill'+i);
+    if(!pip) continue;
+    pip.style.display=i<gameTotalLevels?'':'none';
     pip.className='lv-pip';
     if(i<lvl){pip.classList.add('done'); fill.style.width='100%';}
     else if(i===lvl){pip.classList.add('active'); fill.style.width=`${(qNum/total)*100}%`;}
@@ -1173,33 +1250,46 @@ function renderHistoryList(data,silent=false) {
   if(!silent) showOverlay('ov-hist');
 }
 
+function resolveAnswer(raw, question) {
+  // Kalau jawaban A/B, kembalikan teks pilihannya
+  if(!raw) return '(waktu habis)';
+  if(raw==='A' && question?.a) return `A: ${question.a}`;
+  if(raw==='B' && question?.b) return `B: ${question.b}`;
+  return raw; // jawaban open-ended langsung return
+}
+
 function showHistoryDetail(levelsOrHistory,p1name,p2name) {
-  // Accept either array of levels or history object
   let levels=levelsOrHistory;
   let n1=p1name||names['1']||'P1';
   let n2=p2name||names['2']||'P2';
 
   if(!levels||!levels.length){showToast('Tidak ada data history');return;}
-  document.getElementById('hd-title').textContent=`📖 ${n1} & ${n2}`;
+  document.getElementById('hd-title').textContent=`💕 ${n1} & ${n2}`;
   const wrap=document.getElementById('hd-content');
   wrap.innerHTML=levels.map(lv=>`
     <div class="hd-level">
-      <div class="hd-lv-title">Level ${lv.level}</div>
+      <div class="hd-lv-title">🎮 Level ${lv.level}</div>
       ${(lv.questions||[]).map(q=>{
         const a1=q.answers?.['1'];
         const a2=q.answers?.['2'];
-        const isOpen=q.isSecret||(q.question?.type==='open'||q.question?.type==='secret');
+        const qObj=q.question;
+        const isOpenType=q.isSecret||(qObj?.type==='open'||qObj?.type==='secret');
         const same=q.same;
+        const disp1 = isOpenType ? (a1||'(waktu habis)') : resolveAnswer(a1, qObj);
+        const disp2 = isOpenType ? (a2||'(waktu habis)') : resolveAnswer(a2, qObj);
+        const sameClass = q.isSecret?'secret':same?'same':'';
         return `<div class="hd-q">
-          <div class="hd-q-text">${q.isSecret?'🔐 Secret Round':q.question?.question||'?'}</div>
+          <div class="hd-q-text">${q.isSecret?'🔐 Secret Round':qObj?.question||'?'}</div>
+          ${!isOpenType&&qObj?.a?`<div class="hd-choices-hint">A: ${qObj.a} &nbsp;·&nbsp; B: ${qObj.b}</div>`:''}
+          ${same?'<div class="hd-same-badge">🤝 Kompak!</div>':''}
           <div class="hd-ans">
             <div class="hd-a ${q.isSecret?'secret':same?'same':'s1'}">
               <div class="hda-name">${n1}</div>
-              <div class="hda-val">${a1||'(waktu habis)'}</div>
+              <div class="hda-val">${disp1}</div>
             </div>
             <div class="hd-a ${q.isSecret?'secret':same?'same':'s2'}">
               <div class="hda-name">${n2}</div>
-              <div class="hda-val">${a2||'(waktu habis)'}</div>
+              <div class="hda-val">${disp2}</div>
             </div>
           </div>
         </div>`;
