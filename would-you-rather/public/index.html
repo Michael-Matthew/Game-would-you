@@ -995,8 +995,9 @@ function randomizeAll() {
   renderAllEditors();
   showToast('Semua soal sudah diacak! 🎲');
 }
+
+function randomizeQuestion(lvl, qi) {
   const pool = RANDOM_POOL[lvl];
-  // Pick random from pool, avoid same as current
   let pick;
   let tries = 0;
   do {
@@ -1005,6 +1006,7 @@ function randomizeAll() {
   } while(tries < 10 && pick.question === setupQuestions[lvl][qi].question);
   setupQuestions[lvl][qi] = { ...pick };
   renderEditor(lvl);
+}
 
 
 // ══════════════════════ GAME ══════════════════════
