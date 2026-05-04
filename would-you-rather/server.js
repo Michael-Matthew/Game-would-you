@@ -175,19 +175,33 @@ function startQuestion(room) {
   const lvl = room.state.level;
   const qi = room.state.qIndex;
   const totalQ = room.state.questions[lvl].length;
-
-  broadcast(room, {
+  const base = {
     type: "question",
     level: lvl + 1,
     qNum: qi + 1,
     total: totalQ,
     scores: room.state.scores,
-    question: q,
     isSecret: q.type === "secret",
     consecutiveSame: room.state.consecutiveSame,
-  });
+  };
 
-  const timeout = q.type === "secret" ? 30000 : 20000;
+  if (q.type === "bonus_pair") {
+    // Kirim pertanyaan berbeda ke tiap player
+    ["1", "2"].forEach(n => {
+      const ws = room.players[n];
+      if (ws && ws.readyState === 1) {
+        ws.send(JSON.stringify({
+          ...base,
+          question: { ...q, question: q.questionFor[n], type: "open" },
+          isBonus: true,
+        }));
+      }
+    });
+  } else {
+    broadcast(room, { ...base, question: q });
+  }
+
+  const timeout = (q.type === "secret" || q.type === "bonus_pair") ? 30000 : 20000;
   room.state.timer = setTimeout(() => revealAnswer(room), timeout);
 }
 
@@ -199,9 +213,10 @@ function revealAnswer(room) {
   const a1 = ans["1"] !== undefined ? ans["1"] : null;
   const a2 = ans["2"] !== undefined ? ans["2"] : null;
   const isSecret = q.type === "secret";
+  const isBonus = q.type === "bonus_pair";
 
   let same = false;
-  if (!isSecret) {
+  if (!isSecret && !isBonus) {
     same = a1 !== null && a2 !== null && a1 === a2;
     if (same) {
       room.state.scores["1"] += 2;
@@ -218,14 +233,36 @@ function revealAnswer(room) {
     answers: { "1": a1, "2": a2 },
     same,
     isSecret,
+    isBonus,
   });
 
-  const challenge = !isSecret && !same
+  const challenge = (!isSecret && !isBonus && !same)
     ? CHALLENGES[Math.floor(Math.random() * CHALLENGES.length)]
     : null;
 
-  if (!isSecret && room.state.consecutiveSame >= 3 && !room.state.secretUsedInLevel) {
+  if (!isSecret && !isBonus && room.state.consecutiveSame >= 3 && !room.state.secretUsedInLevel) {
     room.state._injectSecret = true;
+  }
+
+  if (isBonus) {
+    // Kirim reveal per-player dengan label soal masing-masing
+    ["1", "2"].forEach(n => {
+      const ws = room.players[n];
+      if (ws && ws.readyState === 1) {
+        ws.send(JSON.stringify({
+          type: "reveal",
+          answers: { "1": a1, "2": a2 },
+          same: false,
+          isSecret: false,
+          isBonus: true,
+          bonusQuestionFor: q.questionFor,
+          challenge: null,
+          scores: room.state.scores,
+          consecutiveSame: room.state.consecutiveSame,
+        }));
+      }
+    });
+    return;
   }
 
   broadcast(room, {
@@ -356,14 +393,22 @@ function handle(ws, d) {
       if (room.state.bonusPending && room.state.bonusQuestions) {
         const bq = room.state.bonusQuestions;
         const lastLvlIdx = room.state.totalLevels - 1;
-        if (bq["1"]) room.state.questions[lastLvlIdx].push({
-          type: "open",
-          question: `💌 Dari ${room.state.names["1"]}: ${bq["1"]}`,
-        });
-        if (bq["2"]) room.state.questions[lastLvlIdx].push({
-          type: "open",
-          question: `💌 Dari ${room.state.names["2"]}: ${bq["2"]}`,
-        });
+        const n1 = room.state.names["1"];
+        const n2 = room.state.names["2"];
+        // Simpan sebagai satu soal tipe "bonus_pair"
+        // P1 dapat soal dari P2, P2 dapat soal dari P1
+        if (bq["1"] && bq["2"]) {
+          room.state.questions[lastLvlIdx].push({
+            type: "bonus_pair",
+            // questionFor["1"] = soal yang diterima P1 (dibuat P2 buat P1)
+            questionFor: {
+              "1": `💌 ${n2} buat kamu: ${bq["2"]}`,
+              "2": `💌 ${n1} buat kamu: ${bq["1"]}`,
+            },
+            question: `💌 Bonus Question`,
+            isBonus: true,
+          });
+        }
         room.state.bonusPending = false;
       }
       room.state.phase = "playing";
