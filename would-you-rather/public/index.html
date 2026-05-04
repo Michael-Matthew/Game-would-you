@@ -644,21 +644,33 @@ function setConn(ok) {
   // Sembunyikan status box kalau sudah konek
   const box=document.getElementById('conn-status-box');
   if(box) box.style.display=ok?'none':'flex';
-  // Enable/disable tombol aksi
-  ['btn-create','btn-join'].forEach(id=>{
-    const el=document.getElementById(id);
-    if(el){el.disabled=!ok; el.style.opacity=ok?'1':'0.5';}
-  });
+  // Tombol selalu aktif, tidak tergantung koneksi
   // Auto-load history tab if open
   if(ok && document.getElementById('lpanel-2') && document.getElementById('lpanel-2').style.display!=='none') {
     loadLobbyHistory();
   }
 }
+let _pendingMsg=null;
 function send(obj) {
   if(ws&&ws.readyState===WebSocket.OPEN) {
     ws.send(JSON.stringify(obj));
   } else {
-    showToast('Belum terhubung, tunggu sebentar... ⏳');
+    // Simpan pesan, lalu paksa reconnect & kirim setelah konek
+    _pendingMsg=obj;
+    showToast('Menghubungkan ke server... ⏳');
+    // Batal timer reconnect yang ada, langsung connect sekarang
+    if(reconnectTimer){clearTimeout(reconnectTimer);reconnectTimer=null;}
+    connect();
+    // Pasang onopen sekali untuk kirim pending
+    const _origOnopen = () => {
+      reconnectDelay=2000; setConn(true);
+      if(_pendingMsg&&ws&&ws.readyState===WebSocket.OPEN){
+        ws.send(JSON.stringify(_pendingMsg));
+        _pendingMsg=null;
+      }
+    };
+    // Override onopen sementara
+    if(ws) ws.onopen=_origOnopen;
   }
 }
 
