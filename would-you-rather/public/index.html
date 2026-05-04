@@ -437,7 +437,7 @@ circle{fill:none;stroke-width:5;}
     <div id="editor1" class="q-editor" style="display:none"></div>
     <div id="editor2" class="q-editor" style="display:none"></div>
 
-    <button class="btn btn-grape" onclick="openBonusQuestion()">💌 Secret Bonus Question</button>
+    <button class="btn btn-grape" id="btn-bonus-q" onclick="openBonusQuestion()" style="display:none">💌 Secret Bonus Question</button>
     <button class="btn btn-sky" onclick="randomizeAll()">🎲 Acak Semua Soal</button>
     <button class="btn btn-ghost" onclick="useDefaults()">Pakai pertanyaan default aja</button>
   </div>
@@ -778,11 +778,19 @@ function handleMsg(d) {
       document.getElementById('slot2').classList.add('filled');
       document.getElementById('slot2').innerHTML=`<div class="slot-icon">👩</div><div class="slot-name">${names['2']}</div><div class="slot-status ok">✓ Siap</div>`;
       if(myNum==='1'){
-        // Tombol mulai muncul, setup sudah bisa diedit sejak tadi
         document.getElementById('btn-setup-wrap').style.display='block';
-        showToast(`${names['2']} sudah join! Mulai game kalau sudah siap 🎮`);
+        document.getElementById('btn-bonus-q').style.display='block';
+        showToast(`${names['2']} sudah join! 🎉`);
+        setTimeout(()=>openBonusQuestion(), 600);
       } else {
         document.getElementById('p2-wait-msg').style.display='block';
+        setTimeout(()=>{
+          document.getElementById('bonus-q-input').value='';
+          document.getElementById('bonus-my-btn').style.display='block';
+          document.getElementById('bonus-sent-msg').style.display='none';
+          document.getElementById('bonus-both-ready').style.display='none';
+          showOverlay('ov-bonus');
+        }, 600);
       }
       break;
 
@@ -1563,8 +1571,6 @@ function openBonusQuestion() {
   document.getElementById('bonus-sent-msg').style.display='none';
   document.getElementById('bonus-both-ready').style.display='none';
   showOverlay('ov-bonus');
-  // Also notify P2 to open bonus overlay (server will broadcast)
-  send({type:'open_bonus_prompt'});
 }
 
 function submitBonusQuestion() {
