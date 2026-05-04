@@ -246,7 +246,9 @@ circle{fill:none;stroke-width:5;}
 .he-badge{margin-left:auto;background:#FFE4F2;border-radius:50px;padding:3px 10px;font-size:.72rem;font-weight:800;color:#E040A0;}
 
 /* History detail overlay */
-.hist-detail{max-width:500px;max-height:85vh;overflow-y:auto;text-align:left;padding:22px 18px;}
+.hist-detail{max-width:500px;max-height:85vh;overflow-y:hidden;text-align:left;padding:0;display:flex;flex-direction:column;}
+.hd-header{padding:18px 18px 12px;border-bottom:2px solid #f0f0f0;flex-shrink:0;position:sticky;top:0;background:#fff;z-index:2;border-radius:20px 20px 0 0;}
+.hd-body{overflow-y:auto;padding:14px 18px 18px;flex:1;}
 .hd-level{margin-bottom:14px;}
 .hd-lv-title{font-family:'Boogaloo',cursive;font-size:1.1rem;color:var(--ink);margin-bottom:8px;
   padding-bottom:6px;border-bottom:2px solid #f0f0f0;}
@@ -578,7 +580,7 @@ circle{fill:none;stroke-width:5;}
 <!-- ═══════ OVERLAY: HISTORY DETAIL ═══════ -->
 <div class="overlay" id="ov-histdetail">
   <div class="popup hist-detail">
-    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">
+    <div class="hd-header" style="display:flex;align-items:center;justify-content:space-between;">
       <div style="font-family:'Boogaloo',cursive;font-size:1.3rem;color:var(--ink);" id="hd-title">Detail</div>
       <div style="display:flex;gap:8px;align-items:center;">
         <button id="hd-delete-btn" onclick="deleteCurrentHistory()" style="background:none;border:none;font-size:1.2rem;cursor:pointer;color:#FFB6D9;" title="Hapus history ini">🗑️</button>
@@ -586,7 +588,7 @@ circle{fill:none;stroke-width:5;}
         <button onclick="closeOverlay('ov-histdetail')" style="background:none;border:none;font-size:1.5rem;cursor:pointer;color:#aaa;">✕</button>
       </div>
     </div>
-    <div id="hd-content"></div>
+    <div class="hd-body" id="hd-content"></div>
   </div>
 </div>
 
@@ -1443,8 +1445,30 @@ function showHistoryDetail(levelsOrHistory,p1name,p2name,histId) {
         const a1=q.answers?.['1'];
         const a2=q.answers?.['2'];
         const qObj=q.question;
-        const isOpenType=q.isSecret||(qObj?.type==='open'||qObj?.type==='secret');
+        const isBonus=qObj?.type==='bonus_pair'||q.isBonus;
+        const isOpenType=q.isSecret||(qObj?.type==='open'||qObj?.type==='secret')||isBonus;
         const same=q.same;
+
+        if(isBonus && qObj?.questionFor) {
+          // Tampilkan soal masing-masing + jawaban masing-masing
+          const qFor = qObj.questionFor;
+          return `<div class="hd-q" style="border-color:#DDA0DD;background:#FDF0FF;">
+            <div class="hd-q-text" style="color:#9B59B6;">💌 Bonus Question</div>
+            <div class="hd-ans" style="flex-direction:column;gap:8px;">
+              <div style="background:#fff;border-radius:8px;border:1.5px solid #DDA0DD;padding:8px 10px;">
+                <div style="font-size:.68rem;font-weight:800;color:#aaa;text-transform:uppercase;margin-bottom:3px;">Soal buat ${n1}</div>
+                <div style="font-size:.8rem;font-weight:800;color:var(--ink);margin-bottom:5px;">${qFor['1']||'-'}</div>
+                <div style="font-size:.75rem;font-weight:700;color:#9B59B6;">💬 ${a1||'(tidak jawab)'}</div>
+              </div>
+              <div style="background:#fff;border-radius:8px;border:1.5px solid #DDA0DD;padding:8px 10px;">
+                <div style="font-size:.68rem;font-weight:800;color:#aaa;text-transform:uppercase;margin-bottom:3px;">Soal buat ${n2}</div>
+                <div style="font-size:.8rem;font-weight:800;color:var(--ink);margin-bottom:5px;">${qFor['2']||'-'}</div>
+                <div style="font-size:.75rem;font-weight:700;color:#9B59B6;">💬 ${a2||'(tidak jawab)'}</div>
+              </div>
+            </div>
+          </div>`;
+        }
+
         const disp1 = isOpenType ? (a1||'(waktu habis)') : resolveAnswer(a1, qObj);
         const disp2 = isOpenType ? (a2||'(waktu habis)') : resolveAnswer(a2, qObj);
         return `<div class="hd-q">
