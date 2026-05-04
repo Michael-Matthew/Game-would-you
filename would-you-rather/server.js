@@ -35,6 +35,10 @@ function getAllHistory() {
   return db.prepare(`SELECT * FROM game_history ORDER BY created_at DESC LIMIT 50`).all();
 }
 
+function deleteHistory(id) {
+  db.prepare(`DELETE FROM game_history WHERE id = ?`).run(id);
+}
+
 // ─── HTTP SERVER ───────────────────────────────────────────────────
 const server = http.createServer((req, res) => {
   res.setHeader("Access-Control-Allow-Origin", "*");
@@ -282,14 +286,13 @@ function endGame(room) {
   room.state.phase = "done";
   clearTimeout(room.state.timer);
   const names = room.state.names;
-  saveHistory(room.code, names["1"], names["2"], room.state.history);
-  const rows = getAllHistory();
+  // History tidak auto-save — player memilih di akhir game
   broadcast(room, {
     type: "game_over",
     scores: room.state.scores,
     names,
     history: room.state.history,
-    allHistory: rows.map(r => ({ ...r, levels: JSON.parse(r.levels) })),
+    allHistory: null, // will be loaded separately if saved
   });
 }
 
@@ -413,6 +416,88 @@ function handle(ws, d) {
       break;
     }
 
+    case "delete_history": {
+      if (d.id) deleteHistory(d.id);
+      const rowsDel = getAllHistory();
+      ws.send(JSON.stringify({
+        type: "history_data",
+        data: rowsDel.map(r => ({ ...r, levels: JSON.parse(r.levels) })),
+      }));
+      break;
+    }
+
+    case "vote_save": {
+      if (!room) return;
+      if (!room.state.saveVotes) room.state.saveVotes = {};
+      room.state.saveVotes[ws.playerNum] = d.yes;
+      broadcast(room, { type: "save_vote_update", votes: room.state.saveVotes, names: room.state.names });
+      if (Object.keys(room.state.saveVotes).length === 2) {
+        const bothYes = room.state.saveVotes["1"] && room.state.saveVotes["2"];
+        if (bothYes) {
+          const namesV = room.state.names;
+          saveHistory(room.code, namesV["1"], namesV["2"], room.state.history);
+          const rowsV = getAllHistory();
+          broadcast(room, {
+            type: "history_saved",
+            allHistory: rowsV.map(r => ({ ...r, levels: JSON.parse(r.levels) })),
+          });
+        } else {
+          broadcast(room, { type: "save_declined" });
+        }
+        room.state.saveVotes = {};
+      }
+      break;
+    }
+
+    case "open_bonus_prompt": {
+      // P1 triggered bonus → notify P2 to open the overlay too
+      if (!room) return;
+      const other = ws.playerNum === "1" ? "2" : "1";
+      const otherWs = room.players[other];
+      if (otherWs && otherWs.readyState === WebSocket.OPEN) {
+        otherWs.send(JSON.stringify({ type: "open_bonus_prompt" }));
+      }
+      break;
+    }
+
+    case "save_to_history": {
+      if (!room) return;
+      const namesH = room.state.names;
+      saveHistory(room.code, namesH["1"], namesH["2"], room.state.history);
+      const rowsSave = getAllHistory();
+      broadcast(room, {
+        type: "history_saved",
+        allHistory: rowsSave.map(r => ({ ...r, levels: JSON.parse(r.levels) })),
+      });
+      break;
+    }
+
+    case "submit_bonus_question": {
+      // Player mengirim pertanyaan bonus untuk lawan
+      if (!room) return;
+      if (!room.state.bonusQuestions) room.state.bonusQuestions = {};
+      room.state.bonusQuestions[ws.playerNum] = d.question;
+      broadcast(room, { type: "bonus_question_received", from: ws.playerNum });
+      // Kalau keduanya sudah submit, inject ke soal terakhir
+      const bq = room.state.bonusQuestions;
+      if (bq["1"] && bq["2"]) {
+        // P1 bikin soal buat P2, P2 bikin soal buat P1 → jadi 2 soal bonus di akhir level terakhir
+        const lastLvlIdx = (room.state.totalLevels || room.state.questions.length) - 1;
+        room.state.questions[lastLvlIdx].push({
+          type: "open",
+          question: `💌 Dari ${room.state.names["1"]}: ${bq["1"]}`,
+          isBonusFor: "2",
+        });
+        room.state.questions[lastLvlIdx].push({
+          type: "open",
+          question: `💌 Dari ${room.state.names["2"]}: ${bq["2"]}`,
+          isBonusFor: "1",
+        });
+        broadcast(room, { type: "bonus_questions_ready" });
+      }
+      break;
+    }
+
     case "restart": {
       if (!room || ws.playerNum !== "1") return;
       clearTimeout(room.state.timer);
@@ -428,6 +513,7 @@ function handle(ws, d) {
       room.state.history = [];
       room.state.currentLevelHistory = [];
       room.state.questions = JSON.parse(JSON.stringify(DEFAULT_QUESTIONS));
+      room.state.bonusQuestions = {};
       broadcast(room, { type: "restart", names: room.state.names });
       break;
     }

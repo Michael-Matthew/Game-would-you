@@ -426,6 +426,7 @@ circle{fill:none;stroke-width:5;}
   <div id="editor2" class="q-editor" style="display:none"></div>
 
   <button class="btn btn-lime" onclick="startGame()" style="margin-top:4px">Mulai Game! 🎮</button>
+  <button class="btn btn-grape" onclick="openBonusQuestion()">💌 Tambah Secret Bonus Question</button>
   <button class="btn btn-sky" onclick="randomizeAll()" style="margin-top:0">🎲 Acak Semua Soal</button>
   <button class="btn btn-ghost" onclick="useDefaults()">Pakai pertanyaan default aja</button>
 </div>
@@ -536,6 +537,7 @@ circle{fill:none;stroke-width:5;}
   <div class="winner-msg" id="f-msg"></div>
 
   <button class="btn btn-sun" onclick="showHistoryDetail(lastHistory)">📖 Lihat History Ronde Ini</button>
+  <button class="btn btn-grape" onclick="openSaveConfirm()" id="f-save-btn">💾 Simpan ke History</button>
   <button class="btn btn-coral" id="f-restart" style="display:none" onclick="restartGame()">Main Lagi! 🔄</button>
   <button class="btn btn-ghost" onclick="goLobby()">Kembali ke Lobby 🏠</button>
 </div>
@@ -579,9 +581,50 @@ circle{fill:none;stroke-width:5;}
   <div class="popup hist-detail">
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">
       <div style="font-family:'Boogaloo',cursive;font-size:1.3rem;color:var(--ink);" id="hd-title">Detail</div>
-      <button onclick="closeOverlay('ov-histdetail')" style="background:none;border:none;font-size:1.5rem;cursor:pointer;color:#aaa;">✕</button>
+      <div style="display:flex;gap:8px;align-items:center;">
+        <button id="hd-delete-btn" onclick="deleteCurrentHistory()" style="background:none;border:none;font-size:1.2rem;cursor:pointer;color:#FFB6D9;" title="Hapus history ini">🗑️</button>
+        <button onclick="backToHistoryList()" style="background:none;border:none;font-size:1.5rem;cursor:pointer;color:#aaa;">←</button>
+        <button onclick="closeOverlay('ov-histdetail')" style="background:none;border:none;font-size:1.5rem;cursor:pointer;color:#aaa;">✕</button>
+      </div>
     </div>
     <div id="hd-content"></div>
+  </div>
+</div>
+
+<!-- ═══════ OVERLAY: SAVE TO HISTORY CONFIRM ═══════ -->
+<div class="overlay" id="ov-save-confirm">
+  <div class="popup" style="text-align:center;">
+    <span style="font-size:3.5rem;display:block;margin-bottom:8px;">📖</span>
+    <div style="font-family:'Boogaloo',cursive;font-size:1.6rem;color:var(--ink);margin-bottom:6px;">Simpan ke History?</div>
+    <div style="font-size:.88rem;font-weight:700;color:#666;margin-bottom:16px;line-height:1.5;">Mau simpen momen seru ini<br>ke history game kalian? 💕</div>
+    <div id="save-vote-status" style="display:flex;gap:10px;margin-bottom:14px;justify-content:center;">
+      <div style="text-align:center;"><div style="font-size:.7rem;font-weight:800;color:#aaa;" id="sv-n1">P1</div><div style="font-size:1.5rem;" id="sv-i1">⏳</div></div>
+      <div style="text-align:center;"><div style="font-size:.7rem;font-weight:800;color:#aaa;" id="sv-n2">P2</div><div style="font-size:1.5rem;" id="sv-i2">⏳</div></div>
+    </div>
+    <div id="save-my-btns" style="display:flex;gap:10px;">
+      <button class="btn btn-coral" style="flex:1" onclick="voteSave(true)">Simpan! 💾</button>
+      <button class="btn btn-ghost" style="flex:1" onclick="voteSave(false)">Gak usah</button>
+    </div>
+    <div id="save-wait-msg" style="display:none;font-weight:800;color:#aaa;font-size:.85rem;margin-top:8px;">Menunggu yang lain...</div>
+  </div>
+</div>
+
+<!-- ═══════ OVERLAY: SECRET BONUS QUESTION ═══════ -->
+<div class="overlay" id="ov-bonus">
+  <div class="popup" style="text-align:center;">
+    <span style="font-size:3rem;display:block;margin-bottom:6px;">💌</span>
+    <div style="font-family:'Boogaloo',cursive;font-size:1.5rem;color:var(--ink);margin-bottom:4px;">Secret Bonus!</div>
+    <div style="font-size:.85rem;font-weight:700;color:#666;margin-bottom:14px;line-height:1.5;">Bikin 1 pertanyaan khusus buat pasangan main kamu.<br>Pertanyaanmu jadi soal terakhir yang harus dijawab mereka! 🎯</div>
+    <textarea id="bonus-q-input" placeholder="Tulis pertanyaan buat dia..." rows="3" style="margin-bottom:10px;"></textarea>
+    <div id="bonus-my-btn">
+      <button class="btn btn-grape" onclick="submitBonusQuestion()">Kirim Pertanyaan 💌</button>
+    </div>
+    <div id="bonus-sent-msg" style="display:none;font-weight:800;color:#FF69B4;font-size:.88rem;margin-top:8px;">
+      Pertanyaanmu terkirim! ✅ Menunggu yang lain...
+    </div>
+    <div id="bonus-both-ready" style="display:none;font-weight:800;color:#FF1493;font-size:.9rem;margin-top:8px;">
+      Keduanya sudah siap! 🎉 Pertanyaan bonus masuk ke soal terakhir.
+    </div>
   </div>
 </div>
 
@@ -755,6 +798,47 @@ function handleMsg(d) {
       renderLobbyHistory(d.data);
       break;
 
+    case 'history_saved':
+      showToast('History tersimpan! 💾');
+      document.getElementById('f-save-btn').style.display='none';
+      closeOverlay('ov-save-confirm');
+      if(d.allHistory) renderLobbyHistory(d.allHistory);
+      break;
+
+    case 'bonus_question_received':
+      updateBonusUI(d.from);
+      break;
+
+    case 'bonus_questions_ready':
+      document.getElementById('bonus-both-ready').style.display='block';
+      setTimeout(()=>closeOverlay('ov-bonus'),1800);
+      showToast('Pertanyaan bonus ditambahkan ke soal terakhir! 💌');
+      break;
+
+    case 'open_bonus_prompt':
+      // P2 juga harus buka overlay bonus
+      document.getElementById('bonus-q-input').value='';
+      document.getElementById('bonus-my-btn').style.display='block';
+      document.getElementById('bonus-sent-msg').style.display='none';
+      document.getElementById('bonus-both-ready').style.display='none';
+      showOverlay('ov-bonus');
+      break;
+
+    case 'save_vote_update':
+      ['1','2'].forEach(n=>{
+        const ico=document.getElementById('sv-i'+n);
+        if(!ico) return;
+        if(d.votes[n]===true) ico.textContent='✅';
+        else if(d.votes[n]===false) ico.textContent='❌';
+        else ico.textContent='⏳';
+      });
+      break;
+
+    case 'save_declined':
+      showToast('Salah satu tidak setuju, history tidak disimpan 🙈');
+      closeOverlay('ov-save-confirm');
+      break;
+
     case 'player_left':
       showToast(`${names[d.player]||'Teman'} keluar dari game 😢`);
       break;
@@ -789,6 +873,20 @@ function loadLobbyHistory() {
   }
 }
 
+function confirmDeleteHistory(id, e) {
+  e.stopPropagation();
+  if(!confirm('Hapus history ini?')) return;
+  send({type:'delete_history', id});
+  showToast('History dihapus! 🗑️');
+}
+
+function resolveAnswer(raw, question) {
+  if(!raw) return '(waktu habis)';
+  if(raw==='A' && question?.a) return `A: ${question.a}`;
+  if(raw==='B' && question?.b) return `B: ${question.b}`;
+  return raw;
+}
+
 function renderLobbyHistory(data) {
   const el=document.getElementById('lobby-hist-list');
   if(!el) return;
@@ -801,13 +899,16 @@ function renderLobbyHistory(data) {
     const lvls=h.levels||[];
     const totalQ=lvls.reduce((s,l)=>(s+(l.questions||[]).length),0);
     const totalSame=lvls.reduce((s,l)=>(s+(l.questions||[]).filter(q=>q.same).length),0);
-    return `<div class="history-entry" onclick="showHistoryDetail(${JSON.stringify(h.levels||[])},${JSON.stringify(h.player1_name)},${JSON.stringify(h.player2_name)})">
-      <div class="he-header">
-        <div class="he-players">💕 ${h.player1_name||'?'} & ${h.player2_name||'?'}</div>
-        <div class="he-badge">${lvls.length} level · ${totalQ} soal</div>
+    return `<div class="history-entry" style="position:relative;">
+      <div onclick="showHistoryDetail(${JSON.stringify(h.levels||[])},${JSON.stringify(h.player1_name)},${JSON.stringify(h.player2_name)},${h.id})">
+        <div class="he-header">
+          <div class="he-players">💕 ${h.player1_name||'?'} & ${h.player2_name||'?'}</div>
+          <div class="he-badge">${lvls.length} level · ${totalQ} soal</div>
+        </div>
+        <div class="he-date">📅 ${date} · Room: ${h.room_code}</div>
+        <div style="font-size:.72rem;font-weight:800;color:#FF85C0;margin-top:3px;">🤝 Kompak ${totalSame}/${totalQ} soal · Klik untuk detail</div>
       </div>
-      <div class="he-date">📅 ${date} · Room: ${h.room_code}</div>
-      <div style="font-size:.72rem;font-weight:800;color:#FF85C0;margin-top:3px;">🤝 Kompak ${totalSame}/${totalQ} soal · Klik untuk lihat detail</div>
+      <button onclick="confirmDeleteHistory(${h.id},event)" style="position:absolute;top:10px;right:10px;background:none;border:none;font-size:1.1rem;cursor:pointer;color:#FFB6D9;line-height:1;" title="Hapus">🗑️</button>
     </div>`;
   }).join('');
 }
@@ -1261,38 +1362,45 @@ function goLobby(){showScreen('s-lobby');}
 // ══════════════════════ HISTORY ══════════════════════
 function openHistoryBrowser(){send({type:'get_history'});showOverlay('ov-hist');}
 
+let _currentHistoryId = null; // untuk delete
+
 function renderHistoryList(data,silent=false) {
   const el=document.getElementById('hist-list');
   if(!data||!data.length){el.innerHTML='<div style="text-align:center;color:#aaa;font-weight:800;padding:20px;">Belum ada history 🙈</div>';return;}
-  el.innerHTML=data.map((h,i)=>{
+  el.innerHTML=data.map((h)=>{
     const lvls=h.levels||[];
     const date=new Date(h.played_at).toLocaleDateString('id-ID',{day:'numeric',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'});
-    return `<div class="history-entry" onclick="showHistoryDetail(${i==='ovHist'?'null':JSON.stringify(h.levels||[])},${JSON.stringify(h.player1_name)},${JSON.stringify(h.player2_name)})">
+    return `<div class="history-entry" onclick="showHistoryDetail(${JSON.stringify(h.levels||[])},${JSON.stringify(h.player1_name)},${JSON.stringify(h.player2_name)},${h.id})">
       <div class="he-header">
         <div class="he-players">👥 ${h.player1_name||'?'} & ${h.player2_name||'?'}</div>
         <div class="he-badge">${lvls.length} level</div>
       </div>
       <div class="he-date">📅 ${date} · Room: ${h.room_code}</div>
+      <div style="font-size:.72rem;font-weight:800;color:#FF85C0;margin-top:2px;">👆 Klik untuk lihat detail</div>
     </div>`;
   }).join('');
   if(!silent) showOverlay('ov-hist');
 }
 
-function resolveAnswer(raw, question) {
-  // Kalau jawaban A/B, kembalikan teks pilihannya
-  if(!raw) return '(waktu habis)';
-  if(raw==='A' && question?.a) return `A: ${question.a}`;
-  if(raw==='B' && question?.b) return `B: ${question.b}`;
-  return raw; // jawaban open-ended langsung return
+function backToHistoryList(){closeOverlay('ov-histdetail');showOverlay('ov-hist');}
+
+function deleteCurrentHistory() {
+  if(!_currentHistoryId){showToast('Tidak ada yang dihapus');return;}
+  if(!confirm('Hapus history ini?')) return;
+  send({type:'delete_history',id:_currentHistoryId});
+  closeOverlay('ov-histdetail');
+  showToast('History dihapus! 🗑️');
 }
 
-function showHistoryDetail(levelsOrHistory,p1name,p2name) {
+function showHistoryDetail(levelsOrHistory,p1name,p2name,histId) {
   let levels=levelsOrHistory;
   let n1=p1name||names['1']||'P1';
   let n2=p2name||names['2']||'P2';
+  _currentHistoryId = histId || null;
 
   if(!levels||!levels.length){showToast('Tidak ada data history');return;}
   document.getElementById('hd-title').textContent=`💕 ${n1} & ${n2}`;
+  document.getElementById('hd-delete-btn').style.display=histId?'block':'none';
   const wrap=document.getElementById('hd-content');
   wrap.innerHTML=levels.map(lv=>`
     <div class="hd-level">
@@ -1305,9 +1413,8 @@ function showHistoryDetail(levelsOrHistory,p1name,p2name) {
         const same=q.same;
         const disp1 = isOpenType ? (a1||'(waktu habis)') : resolveAnswer(a1, qObj);
         const disp2 = isOpenType ? (a2||'(waktu habis)') : resolveAnswer(a2, qObj);
-        const sameClass = q.isSecret?'secret':same?'same':'';
         return `<div class="hd-q">
-          <div class="hd-q-text">${q.isSecret?'🔐 Secret Round':qObj?.question||'?'}</div>
+          <div class="hd-q-text">${q.isSecret?'🔐 Secret Round':(qObj?.question||'?')}</div>
           ${!isOpenType&&qObj?.a?`<div class="hd-choices-hint">A: ${qObj.a} &nbsp;·&nbsp; B: ${qObj.b}</div>`:''}
           ${same?'<div class="hd-same-badge">🤝 Kompak!</div>':''}
           <div class="hd-ans">
@@ -1325,6 +1432,57 @@ function showHistoryDetail(levelsOrHistory,p1name,p2name) {
     </div>`).join('');
   closeOverlay('ov-hist');
   showOverlay('ov-histdetail');
+}
+
+// ══════════════════════ SAVE TO HISTORY ══════════════════════
+let _saveVoted = false;
+let _saveVotes = {};
+
+function openSaveConfirm() {
+  _saveVoted = false;
+  _saveVotes = {};
+  document.getElementById('save-my-btns').style.display='flex';
+  document.getElementById('save-wait-msg').style.display='none';
+  document.getElementById('sv-n1').textContent=names['1']||'P1';
+  document.getElementById('sv-n2').textContent=names['2']||'P2';
+  document.getElementById('sv-i1').textContent='⏳';
+  document.getElementById('sv-i2').textContent='⏳';
+  showOverlay('ov-save-confirm');
+}
+
+function voteSave(yes) {
+  if(_saveVoted) return;
+  _saveVoted = true;
+  document.getElementById('save-my-btns').style.display='none';
+  document.getElementById('save-wait-msg').style.display='block';
+  document.getElementById('sv-i'+myNum).textContent = yes ? '✅' : '❌';
+  send({type:'vote_save', yes});
+}
+
+// ══════════════════════ SECRET BONUS QUESTION ══════════════════════
+function openBonusQuestion() {
+  document.getElementById('bonus-q-input').value='';
+  document.getElementById('bonus-my-btn').style.display='block';
+  document.getElementById('bonus-sent-msg').style.display='none';
+  document.getElementById('bonus-both-ready').style.display='none';
+  showOverlay('ov-bonus');
+  // Also notify P2 to open bonus overlay (server will broadcast)
+  send({type:'open_bonus_prompt'});
+}
+
+function submitBonusQuestion() {
+  const q = document.getElementById('bonus-q-input').value.trim();
+  if(!q){showToast('Tulis dulu pertanyaannya! ✏️');return;}
+  document.getElementById('bonus-my-btn').style.display='none';
+  document.getElementById('bonus-sent-msg').style.display='block';
+  send({type:'submit_bonus_question', question:q});
+}
+
+function updateBonusUI(fromPlayer) {
+  // Show that other player has submitted
+  if(fromPlayer !== myNum) {
+    showToast(`${names[fromPlayer]||'Teman'} sudah kirim pertanyaan bonus! 💌`);
+  }
 }
 
 // ══════════════════════ HELPERS ══════════════════════
