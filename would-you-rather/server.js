@@ -350,7 +350,21 @@ function handle(ws, d) {
       if (!room || ws.playerNum !== "1") return;
       if (d.questions && Array.isArray(d.questions) && d.questions.length >= 1) {
         room.state.questions = d.questions;
-        room.state.totalLevels = d.questions.length; // 1, 2, or 3
+        room.state.totalLevels = d.questions.length;
+      }
+      // Inject bonus questions ke level terakhir kalau ada
+      if (room.state.bonusPending && room.state.bonusQuestions) {
+        const bq = room.state.bonusQuestions;
+        const lastLvlIdx = room.state.totalLevels - 1;
+        if (bq["1"]) room.state.questions[lastLvlIdx].push({
+          type: "open",
+          question: `💌 Dari ${room.state.names["1"]}: ${bq["1"]}`,
+        });
+        if (bq["2"]) room.state.questions[lastLvlIdx].push({
+          type: "open",
+          question: `💌 Dari ${room.state.names["2"]}: ${bq["2"]}`,
+        });
+        room.state.bonusPending = false;
       }
       room.state.phase = "playing";
       room.state.level = 0;
@@ -473,26 +487,14 @@ function handle(ws, d) {
     }
 
     case "submit_bonus_question": {
-      // Player mengirim pertanyaan bonus untuk lawan
       if (!room) return;
       if (!room.state.bonusQuestions) room.state.bonusQuestions = {};
       room.state.bonusQuestions[ws.playerNum] = d.question;
       broadcast(room, { type: "bonus_question_received", from: ws.playerNum });
-      // Kalau keduanya sudah submit, inject ke soal terakhir
+      // Cek kalau keduanya sudah submit
       const bq = room.state.bonusQuestions;
       if (bq["1"] && bq["2"]) {
-        // P1 bikin soal buat P2, P2 bikin soal buat P1 → jadi 2 soal bonus di akhir level terakhir
-        const lastLvlIdx = (room.state.totalLevels || room.state.questions.length) - 1;
-        room.state.questions[lastLvlIdx].push({
-          type: "open",
-          question: `💌 Dari ${room.state.names["1"]}: ${bq["1"]}`,
-          isBonusFor: "2",
-        });
-        room.state.questions[lastLvlIdx].push({
-          type: "open",
-          question: `💌 Dari ${room.state.names["2"]}: ${bq["2"]}`,
-          isBonusFor: "1",
-        });
+        room.state.bonusPending = true; // tandai, inject nanti setelah setup_done
         broadcast(room, { type: "bonus_questions_ready" });
       }
       break;

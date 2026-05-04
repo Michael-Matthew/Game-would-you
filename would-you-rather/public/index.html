@@ -537,7 +537,6 @@ circle{fill:none;stroke-width:5;}
   <div class="winner-msg" id="f-msg"></div>
 
   <button class="btn btn-sun" onclick="showHistoryDetail(lastHistory)">📖 Lihat History Ronde Ini</button>
-  <button class="btn btn-grape" onclick="openSaveConfirm()" id="f-save-btn">💾 Simpan ke History</button>
   <button class="btn btn-coral" id="f-restart" style="display:none" onclick="restartGame()">Main Lagi! 🔄</button>
   <button class="btn btn-ghost" onclick="goLobby()">Kembali ke Lobby 🏠</button>
 </div>
@@ -800,7 +799,6 @@ function handleMsg(d) {
 
     case 'history_saved':
       showToast('History tersimpan! 💾');
-      document.getElementById('f-save-btn').style.display='none';
       closeOverlay('ov-save-confirm');
       if(d.allHistory) renderLobbyHistory(d.allHistory);
       break;
@@ -1352,8 +1350,9 @@ function showFinal(d) {
   document.getElementById('f-msg').innerHTML=msg;
   document.getElementById('f-restart').style.display=myNum==='1'?'block':'none';
 
-  if(d.allHistory) renderHistoryList(d.allHistory,true);
   launchConfetti();
+  // Auto popup konfirmasi save setelah 1.5 detik
+  setTimeout(()=>openSaveConfirm(), 1500);
 }
 
 function restartGame(){send({type:'restart'});}
