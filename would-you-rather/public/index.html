@@ -360,13 +360,7 @@ circle{fill:none;stroke-width:5;}
 <!-- ═══════════════════════════════════════ WAITING -->
 <div class="screen" id="s-wait">
   <div class="logo">Room <span id="w-code">----</span></div>
-  <div class="logo-sub">Menunggu teman...</div>
-
-  <div class="room-code-box">
-    <div class="rc-label">Kode Room</div>
-    <div class="rc-code" id="w-bigcode">----</div>
-    <div class="rc-hint">Kirim ke teman kamu!</div>
-  </div>
+  <div class="logo-sub" style="margin-bottom:6px;">Kirim kode ini ke teman kamu!</div>
 
   <div class="slots">
     <div class="slot filled" id="slot1">
@@ -376,62 +370,61 @@ circle{fill:none;stroke-width:5;}
     </div>
     <div class="slot" id="slot2">
       <div class="slot-icon">👤</div>
-      <div class="slot-name">Menunggu...</div>
+      <div class="slot-name" id="sn2">Menunggu...</div>
       <div class="slot-status"><div class="wait-dots"><span></span><span></span><span></span></div></div>
     </div>
   </div>
 
+  <!-- Setup area: hanya untuk P1 -->
+  <div id="p1-setup-area" style="display:none;width:100%">
+    <div class="card" style="padding:14px 16px">
+      <div class="card-title" style="margin-bottom:10px;">🎯 Berapa level yang mau dimainkan?</div>
+      <div class="level-count-btns">
+        <button class="lvcount-btn active" id="lvcnt-1" onclick="setLevelCount(1)">1 Level<div class="lvcount-sub">5 soal</div></button>
+        <button class="lvcount-btn" id="lvcnt-2" onclick="setLevelCount(2)">2 Level<div class="lvcount-sub">10 soal</div></button>
+        <button class="lvcount-btn" id="lvcnt-3" onclick="setLevelCount(3)">3 Level<div class="lvcount-sub">15 soal</div></button>
+      </div>
+    </div>
+
+    <div id="setup-sublabel" class="logo-sub" style="margin:0">1 Level × 5 Pertanyaan</div>
+
+    <div class="level-tabs" id="setup-level-tabs">
+      <div class="tab active" id="tab0" onclick="switchTab(0)">Level 1</div>
+      <div class="tab" id="tab1" onclick="switchTab(1)" style="display:none">Level 2</div>
+      <div class="tab" id="tab2" onclick="switchTab(2)" style="display:none">Level 3</div>
+    </div>
+
+    <div id="editor0" class="q-editor"></div>
+    <div id="editor1" class="q-editor" style="display:none"></div>
+    <div id="editor2" class="q-editor" style="display:none"></div>
+
+    <button class="btn btn-grape" onclick="openBonusQuestion()">💌 Secret Bonus Question</button>
+    <button class="btn btn-sky" onclick="randomizeAll()">🎲 Acak Semua Soal</button>
+    <button class="btn btn-ghost" onclick="useDefaults()">Pakai pertanyaan default aja</button>
+  </div>
+
+  <!-- Pesan untuk P2 -->
+  <div id="p2-wait-msg" style="display:none;width:100%;text-align:center;">
+    <div class="card" style="padding:14px 18px">
+      <div class="card-title" style="font-size:.95rem;margin-bottom:8px;">📋 Cara Main</div>
+      <div style="font-size:.82rem;font-weight:700;color:#666;display:flex;flex-direction:column;gap:5px;">
+        <div>🎯 Jawab pertanyaan <strong>bersamaan</strong> — keliatan setelah keduanya submit!</div>
+        <div>🤝 Jawaban <strong>sama</strong> = +2 poin masing-masing!</div>
+        <div>😂 Jawaban <strong>beda</strong> = ada tantangan lucu!</div>
+        <div>🔐 Sama 3x berturut = muncul <strong>Secret Round!</strong></div>
+        <div>Menunggu Player 1 setup pertanyaan... ✏️</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tombol mulai: hanya muncul setelah P2 join -->
   <div id="btn-setup-wrap" style="display:none;width:100%">
-    <button class="btn btn-lime" onclick="goSetup()">Lanjut ke Setup Pertanyaan ✏️</button>
-  </div>
-  <div id="p2-wait-msg" style="display:none;width:100%;text-align:center;font-weight:800;color:#aaa;font-size:.9rem;">
-    Menunggu Player 1 memulai game...
-  </div>
-
-  <div class="card" style="padding:14px 18px">
-    <div class="card-title" style="font-size:.95rem;margin-bottom:8px;">📋 Cara Main</div>
-    <div style="font-size:.82rem;font-weight:700;color:#666;display:flex;flex-direction:column;gap:5px;">
-      <div>🎯 Jawab pertanyaan <strong>bersamaan</strong> — keliatan setelah keduanya submit!</div>
-      <div>🤝 Jawaban <strong>sama</strong> = +2 poin masing-masing!</div>
-      <div>😂 Jawaban <strong>beda</strong> = ada tantangan lucu!</div>
-      <div>🔐 Sama 3x berturut = muncul <strong>Secret Round!</strong></div>
-      <div>🏆 3 level, masing-masing 5 pertanyaan.</div>
-    </div>
+    <button class="btn btn-lime" onclick="startGame()">Mulai Game! 🎮</button>
   </div>
 </div>
 
-<!-- ═══════════════════════════════════════ SETUP (P1 only) -->
-<div class="screen" id="s-setup">
-  <div class="logo" style="font-size:2rem;">✏️ Buat <span>Pertanyaan</span></div>
-
-  <!-- Pilih jumlah level -->
-  <div class="card" style="padding:14px 16px">
-    <div class="card-title" style="margin-bottom:10px;">🎯 Berapa level yang mau dimainkan?</div>
-    <div class="level-count-btns">
-      <button class="lvcount-btn active" id="lvcnt-1" onclick="setLevelCount(1)">1 Level<div class="lvcount-sub">5 soal</div></button>
-      <button class="lvcount-btn" id="lvcnt-2" onclick="setLevelCount(2)">2 Level<div class="lvcount-sub">10 soal</div></button>
-      <button class="lvcount-btn" id="lvcnt-3" onclick="setLevelCount(3)">3 Level<div class="lvcount-sub">15 soal</div></button>
-    </div>
-  </div>
-
-  <div id="setup-sublabel" class="logo-sub" style="margin:0">1 Level × 5 Pertanyaan</div>
-
-  <div class="level-tabs" id="setup-level-tabs">
-    <div class="tab active" id="tab0" onclick="switchTab(0)">Level 1</div>
-    <div class="tab" id="tab1" onclick="switchTab(1)" style="display:none">Level 2</div>
-    <div class="tab" id="tab2" onclick="switchTab(2)" style="display:none">Level 3</div>
-  </div>
-
-  <!-- Level editors -->
-  <div id="editor0" class="q-editor"></div>
-  <div id="editor1" class="q-editor" style="display:none"></div>
-  <div id="editor2" class="q-editor" style="display:none"></div>
-
-  <button class="btn btn-lime" onclick="startGame()" style="margin-top:4px">Mulai Game! 🎮</button>
-  <button class="btn btn-grape" onclick="openBonusQuestion()">💌 Tambah Secret Bonus Question</button>
-  <button class="btn btn-sky" onclick="randomizeAll()" style="margin-top:0">🎲 Acak Semua Soal</button>
-  <button class="btn btn-ghost" onclick="useDefaults()">Pakai pertanyaan default aja</button>
-</div>
+<!-- s-setup ditiadakan, setup sudah di s-wait -->
+<div class="screen" id="s-setup" style="display:none"></div>
 
 <!-- ═══════════════════════════════════════ LEVEL TRANSITION -->
 <div class="screen" id="s-level">
@@ -739,7 +732,9 @@ function handleMsg(d) {
       document.getElementById('slot2').classList.add('filled');
       document.getElementById('slot2').innerHTML=`<div class="slot-icon">👩</div><div class="slot-name">${names['2']}</div><div class="slot-status ok">✓ Siap</div>`;
       if(myNum==='1'){
+        // Tombol mulai muncul, setup sudah bisa diedit sejak tadi
         document.getElementById('btn-setup-wrap').style.display='block';
+        showToast(`${names['2']} sudah join! Mulai game kalau sudah siap 🎮`);
       } else {
         document.getElementById('p2-wait-msg').style.display='block';
       }
@@ -937,12 +932,17 @@ function joinRoom() {
 function showWaiting() {
   showScreen('s-wait');
   document.getElementById('w-code').textContent=roomCode;
-  document.getElementById('w-bigcode').textContent=roomCode;
   document.getElementById('sn1').textContent=names['1']||myName;
   document.getElementById('btn-setup-wrap').style.display='none';
   document.getElementById('p2-wait-msg').style.display='none';
-  if(myNum==='2') {
-    // P2 - show both slots filled immediately
+  if(myNum==='1') {
+    // P1 langsung bisa setup sambil nunggu
+    document.getElementById('p1-setup-area').style.display='block';
+    selectedLevelCount = 1;
+    setLevelCount(1);
+    renderAllEditors();
+  } else {
+    document.getElementById('p1-setup-area').style.display='none';
     document.getElementById('slot2').classList.add('filled');
     document.getElementById('slot2').innerHTML=`<div class="slot-icon">👩</div><div class="slot-name">${names['2']}</div><div class="slot-status ok">✓ Siap</div>`;
     document.getElementById('p2-wait-msg').style.display='block';
@@ -951,13 +951,6 @@ function showWaiting() {
 
 // ══════════════════════ SETUP ══════════════════════
 let activeTab=0;
-
-function goSetup() {
-  selectedLevelCount = 1;
-  setLevelCount(1);
-  showScreen('s-setup');
-  renderAllEditors();
-}
 
 function renderAllEditors() {
   for(let lvl=0;lvl<3;lvl++) renderEditor(lvl);
