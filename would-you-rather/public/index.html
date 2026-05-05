@@ -326,8 +326,12 @@ circle{fill:none;stroke-width:5;}
 
 /* consecutive streak indicator */
 .streak-bar{display:flex;gap:4px;align-items:center;justify-content:center;width:100%;}
-.streak-pip{width:24px;height:8px;border-radius:50px;background:#f0f0f0;transition:background .3s;}
+.streak-pip{width:20px;height:8px;border-radius:50px;background:#f0f0f0;transition:background .3s;}
 .streak-pip.lit{background:var(--t-accent1);}
+.streak-pip.sp-bonus{border:2px solid var(--t-accent3);}
+.streak-pip.sp-bonus.lit{background:#FFD700;border-color:#FFC000;}
+.streak-pip.sp-honest{border:2px solid var(--t-accent2);}
+.streak-pip.sp-honest.lit{background:var(--t-shadow1);border-color:var(--t-shadow2);}
 .streak-label{font-size:.75rem;font-weight:800;color:#aaa;margin-left:4px;}
 
 /* ── MODE SELECTION ── */
@@ -564,7 +568,8 @@ circle{fill:none;stroke-width:5;}
         <div>🎯 Jawab pertanyaan <strong>bersamaan</strong> — keliatan setelah keduanya submit!</div>
         <div>🤝 Jawaban <strong>sama</strong> = +2 poin masing-masing!</div>
         <div>😂 Jawaban <strong>beda</strong> = ada tantangan lucu!</div>
-        <div>🔐 Sama 3x berturut = muncul <strong>Secret Round!</strong></div>
+        <div>💌 Sama 3x berturut = <strong>Bonus Question</strong> dari masing-masing!</div>
+      <div>🔐 Sama 5x berturut = <strong>Jujur Round</strong> — ungkapin sesuatu!</div>
         <div>Menunggu Player 1 setup pertanyaan... ✏️</div>
       </div>
     </div>
@@ -622,7 +627,9 @@ circle{fill:none;stroke-width:5;}
   <div class="streak-bar">
     <div class="streak-pip" id="sp0"></div>
     <div class="streak-pip" id="sp1"></div>
-    <div class="streak-pip" id="sp2"></div>
+    <div class="streak-pip sp-bonus" id="sp2" title="3x = Bonus Question!"></div>
+    <div class="streak-pip" id="sp3"></div>
+    <div class="streak-pip sp-honest" id="sp4" title="5x = Jujur Round!"></div>
     <span class="streak-label" id="streak-lbl">Sama 0x berturut</span>
   </div>
 
@@ -791,8 +798,8 @@ circle{fill:none;stroke-width:5;}
 <div class="overlay" id="ov-bonus">
   <div class="popup" style="text-align:center;">
     <span style="font-size:3rem;display:block;margin-bottom:6px;">💌</span>
-    <div style="font-family:'Boogaloo',cursive;font-size:1.5rem;color:var(--ink);margin-bottom:4px;">Secret Bonus!</div>
-    <div style="font-size:.85rem;font-weight:700;color:#666;margin-bottom:14px;line-height:1.5;">Bikin 1 pertanyaan khusus buat pasangan main kamu.<br>Pertanyaanmu jadi soal terakhir yang harus dijawab mereka! 🎯</div>
+    <div style="font-family:'Boogaloo',cursive;font-size:1.5rem;color:var(--ink);margin-bottom:4px;">3x Cocok! Bonus Question!</div>
+    <div style="font-size:.85rem;font-weight:700;color:#666;margin-bottom:14px;line-height:1.5;">Kalian kompak banget! Sekarang bikin 1 pertanyaan khusus buat dia — dan dia juga bikin buat kamu! 🎯<br>Jawaban akan muncul di soal berikutnya.</div>
     <textarea id="bonus-q-input" placeholder="Tulis pertanyaan buat dia..." rows="3" style="margin-bottom:10px;"></textarea>
     <div id="bonus-my-btn">
       <button class="btn btn-grape" onclick="submitBonusQuestion()">Kirim Pertanyaan 💌</button>
@@ -932,16 +939,8 @@ function handleMsg(d) {
         document.getElementById('btn-setup-wrap').style.display='block';
         document.getElementById('btn-bonus-q').style.display='block';
         showToast(`${names['2']} sudah join! 🎉`);
-        setTimeout(()=>openBonusQuestion(), 600);
       } else {
         document.getElementById('p2-wait-msg').style.display='block';
-        setTimeout(()=>{
-          document.getElementById('bonus-q-input').value='';
-          document.getElementById('bonus-my-btn').style.display='block';
-          document.getElementById('bonus-sent-msg').style.display='none';
-          document.getElementById('bonus-both-ready').style.display='none';
-          showOverlay('ov-bonus');
-        }, 600);
       }
       break;
 
@@ -982,7 +981,9 @@ function handleMsg(d) {
         const a1Open = (d.answers?.['1'] || '').toLowerCase().trim();
         const a2Open = (d.answers?.['2'] || '').toLowerCase().trim();
         if(myNum === '2' && a2Open && a1Open) {
-          const openGuessCorrect = a1Open.includes(a2Open) || a2Open.includes(a1Open);
+          // P2's answer is valid if every word in P2's answer exists in P1's answer
+          const p2Words = a2Open.split(/\s+/).filter(w => w.length > 0);
+          const openGuessCorrect = p2Words.length > 0 && p2Words.every(w => a1Open.includes(w));
           if(openGuessCorrect) {
             guessScores['2'] = (guessScores['2']||0) + 1;
             showToast('Jawaban Cocok! 🎯 +1');
@@ -1037,6 +1038,16 @@ function handleMsg(d) {
       document.getElementById('bonus-both-ready').style.display='block';
       setTimeout(()=>closeOverlay('ov-bonus'),1800);
       showToast('Pertanyaan bonus ditambahkan ke soal terakhir! 💌');
+      break;
+
+    case 'trigger_bonus_question':
+      // Server triggers bonus question overlay for both players (3x streak)
+      document.getElementById('bonus-q-input').value='';
+      document.getElementById('bonus-my-btn').style.display='block';
+      document.getElementById('bonus-sent-msg').style.display='none';
+      document.getElementById('bonus-both-ready').style.display='none';
+      showToast('3x Cocok! 🎉 Bikin pertanyaan buat dia!');
+      showOverlay('ov-bonus');
       break;
 
     case 'open_bonus_prompt':
@@ -1204,7 +1215,8 @@ function updateModeUI() {
     : `<div>🎯 Jawab pertanyaan <strong>bersamaan</strong> — keliatan setelah keduanya submit!</div>
        <div>🤝 Jawaban <strong>sama</strong> = +2 poin masing-masing!</div>
        <div>😂 Jawaban <strong>beda</strong> = ada tantangan lucu!</div>
-       <div>🔐 Sama 3x berturut = muncul <strong>Secret Round!</strong></div>
+       <div>💌 Sama 3x berturut = <strong>Bonus Question</strong> dari masing-masing!</div>
+       <div>🔐 Sama 5x berturut = <strong>Jujur Round</strong> — ungkapin sesuatu!</div>
        <div>Menunggu Player 1 setup pertanyaan... ✏️</div>`;
 }
 
@@ -1439,7 +1451,7 @@ function showQuestion(d) {
   document.getElementById('g-n1').textContent=names['1']||'P1';
   document.getElementById('g-n2').textContent=names['2']||'P2';
   if(gameMode==='guess') {
-    document.getElementById('g-p1').textContent=guessScores['1']+'🎯';
+    document.getElementById('g-p1').textContent='—';
     document.getElementById('g-p2').textContent=guessScores['2']+'🎯';
   } else {
     document.getElementById('g-p1').textContent=d.scores['1'];
@@ -1462,8 +1474,18 @@ function showQuestion(d) {
 
   // Streak (only show for match mode)
   const cs=d.consecutiveSame||0;
-  for(let i=0;i<3;i++) document.getElementById('sp'+i).className='streak-pip'+(i<cs?' lit':'');
-  document.getElementById('streak-lbl').textContent=gameMode==='guess'?`🎯 Guess Mode`:`Sama ${cs}x berturut`;
+  for(let i=0;i<5;i++){
+    const el=document.getElementById('sp'+i);
+    if(!el) continue;
+    let cls='streak-pip'+(i===2?' sp-bonus':i===4?' sp-honest':'');
+    if(i<cs) cls+=' lit';
+    el.className=cls;
+  }
+  let streakHint='';
+  if(cs===3) streakHint=' 💌 Bonus!';
+  else if(cs>=4) streakHint=' 🔥';
+  else if(cs===5) streakHint=' 🔐 Jujur!';
+  document.getElementById('streak-lbl').textContent=gameMode==='guess'?`🎯 Guess Mode`:`Sama ${cs}x berturut${streakHint}`;
 
   // Guess mode: show phase banner
   const guessPhasebar = document.getElementById('guess-phase-bar');
@@ -1591,7 +1613,7 @@ function showGuessPhase(revealData) {
   document.getElementById('g-cb').textContent = q.b||'Pilihan B';
 
   // Hide streak, update scores display with guess scores
-  document.getElementById('g-p1').textContent = guessScores['1']+'🎯';
+  document.getElementById('g-p1').textContent = '—';
   document.getElementById('g-p2').textContent = guessScores['2']+'🎯';
   document.getElementById('streak-lbl').textContent = '🎯 Tebak jawaban lawan!';
 
@@ -1610,13 +1632,13 @@ function submitGuess(choice, revealData) {
   document.getElementById('btn-'+choice).classList.add('picked');
   setStatus('Menunggu teman menebak...');
 
-  // Calculate if guess is correct
+  // Calculate if guess is correct — only P2 gets score
   const oppNum = myNum==='1'?'2':'1';
   const oppRealAnswer = revealData.answers[oppNum];
   const guessCorrect = choice === oppRealAnswer;
 
-  if(guessCorrect) {
-    guessScores[myNum] = (guessScores[myNum]||0) + 1;
+  if(guessCorrect && myNum === '2') {
+    guessScores['2'] = (guessScores['2']||0) + 1;
     showToast('Tebakan Benar! 🎯 +1');
   }
 
@@ -1809,26 +1831,22 @@ function showFinal(d) {
     const gs1=guessScores['1'], gs2=guessScores['2'];
     document.getElementById('fn1').textContent=n1;
     document.getElementById('fn2').textContent=n2;
-    document.getElementById('fp1').textContent=gs1;
+    document.getElementById('fp1').textContent='—';
     document.getElementById('fp2').textContent=gs2;
-    document.getElementById('fp1-label').textContent='TEBAKAN BENAR';
+    document.getElementById('fp1-label').textContent='';
     document.getElementById('fp2-label').textContent='TEBAKAN BENAR';
     document.getElementById('fsc1').classList.remove('winner');
     document.getElementById('fsc2').classList.remove('winner');
     document.getElementById('f-trophy').textContent='🎯';
     let title,msg;
     const total=allRoundData.length;
-    if(gs1>gs2){
-      document.getElementById('fsc1').classList.add('winner');
-      title=`${n1} Lebih Kenal! 🎯`;
-      msg=`🎯 <strong>${n1}</strong> berhasil menebak ${gs1}/${total} jawaban ${n2} dengan benar!<br><br>Artinya: <strong>${n1}</strong> lebih mengenal pasangannya! 💪`;
-    } else if(gs2>gs1){
+    if(gs2>0){
       document.getElementById('fsc2').classList.add('winner');
       title=`${n2} Lebih Kenal! 🎯`;
       msg=`🎯 <strong>${n2}</strong> berhasil menebak ${gs2}/${total} jawaban ${n1} dengan benar!<br><br>Artinya: <strong>${n2}</strong> lebih mengenal pasangannya! 💪`;
     } else {
-      title='SAMA-SAMA KENAL! 🤝';
-      msg=`🤝 Kalian sama-sama saling mengenal dengan baik! Score ${gs1} vs ${gs2} — seimbang dan kompak! 💕`;
+      title=`${n2} Belum Tebak Apapun 😅`;
+      msg=`Tidak ada tebakan yang benar. Tapi kalian tetap kompak! 💕`;
     }
     document.getElementById('f-title').textContent=title;
     document.getElementById('f-msg').innerHTML=msg;

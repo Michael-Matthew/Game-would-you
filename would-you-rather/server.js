@@ -139,6 +139,10 @@ function makeRoom(code, name) {
       qIndex: 0,
       consecutiveSame: 0,
       secretUsedInLevel: false,
+      bonusUsedInLevel: false,
+      honestUsedInLevel: false,
+      _injectBonus: false,
+      _injectHonest: false,
       _injectSecret: false,
       answers: {},
       scores: { "1": 0, "2": 0 },
@@ -240,8 +244,13 @@ function revealAnswer(room) {
     ? CHALLENGES[Math.floor(Math.random() * CHALLENGES.length)]
     : null;
 
-  if (!isSecret && !isBonus && room.state.consecutiveSame >= 3 && !room.state.secretUsedInLevel) {
-    room.state._injectSecret = true;
+  if (!isSecret && !isBonus) {
+    const cs = room.state.consecutiveSame;
+    if (cs >= 5 && !room.state.honestUsedInLevel) {
+      room.state._injectHonest = true;
+    } else if (cs >= 3 && !room.state.bonusUsedInLevel && !room.state._injectHonest) {
+      room.state._injectBonus = true;
+    }
   }
 
   if (isBonus) {
@@ -277,14 +286,19 @@ function revealAnswer(room) {
 }
 
 function nextQuestion(room) {
-  if (room.state._injectSecret) {
-    room.state._injectSecret = false;
-    room.state.secretUsedInLevel = true;
-    const secretQ = {
+  if (room.state._injectHonest) {
+    room.state._injectHonest = false;
+    room.state.honestUsedInLevel = true;
+    const honestQ = {
       type: "secret",
-      question: "🔐 SECRET ROUND! Tulis jawaban jujur kamu — keliatan setelah keduanya submit!",
+      question: "🔐 JUJUR ROUND! Ada hal yang ingin kamu sampaikan ke pasangan kamu? Tulis sekarang — cuma kalian berdua yang tahu.",
     };
-    room.state.questions[room.state.level].splice(room.state.qIndex + 1, 0, secretQ);
+    room.state.questions[room.state.level].splice(room.state.qIndex + 1, 0, honestQ);
+  } else if (room.state._injectBonus) {
+    room.state._injectBonus = false;
+    room.state.bonusUsedInLevel = true;
+    // Trigger client to open bonus question prompt
+    broadcast(room, { type: "trigger_bonus_question" });
   }
 
   room.state.qIndex++;
@@ -418,6 +432,10 @@ function handle(ws, d) {
       room.state.qIndex = 0;
       room.state.consecutiveSame = 0;
       room.state.secretUsedInLevel = false;
+      room.state.bonusUsedInLevel = false;
+      room.state.honestUsedInLevel = false;
+      room.state._injectBonus = false;
+      room.state._injectHonest = false;
       room.state._injectSecret = false;
       room.state.history = [];
       room.state.currentLevelHistory = [];
@@ -457,6 +475,10 @@ function handle(ws, d) {
           room.state.qIndex = 0;
           room.state.consecutiveSame = 0;
           room.state.secretUsedInLevel = false;
+      room.state.bonusUsedInLevel = false;
+      room.state.honestUsedInLevel = false;
+      room.state._injectBonus = false;
+      room.state._injectHonest = false;
           room.state._injectSecret = false;
           room.state.phase = "playing";
           broadcast(room, { type: "level_start", level: room.state.level + 1, scores: room.state.scores, totalLevels: room.state.totalLevels || 3 });
@@ -541,7 +563,20 @@ function handle(ws, d) {
       // Cek kalau keduanya sudah submit
       const bq = room.state.bonusQuestions;
       if (bq["1"] && bq["2"]) {
-        room.state.bonusPending = true; // tandai, inject nanti setelah setup_done
+        // Inject bonus question immediately into current level queue
+        const n1 = room.state.names["1"];
+        const n2 = room.state.names["2"];
+        const bonusQ = {
+          type: "bonus_pair",
+          questionFor: {
+            "1": `💌 ${n2} buat kamu: ${bq["2"]}`,
+            "2": `💌 ${n1} buat kamu: ${bq["1"]}`,
+          },
+          question: "💌 Bonus Question",
+          isBonus: true,
+        };
+        room.state.questions[room.state.level].splice(room.state.qIndex + 1, 0, bonusQ);
+        room.state.bonusQuestions = {};
         broadcast(room, { type: "bonus_questions_ready" });
       }
       break;
@@ -558,6 +593,10 @@ function handle(ws, d) {
       room.state.voteNext = {};
       room.state.consecutiveSame = 0;
       room.state.secretUsedInLevel = false;
+      room.state.bonusUsedInLevel = false;
+      room.state.honestUsedInLevel = false;
+      room.state._injectBonus = false;
+      room.state._injectHonest = false;
       room.state._injectSecret = false;
       room.state.history = [];
       room.state.currentLevelHistory = [];
