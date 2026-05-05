@@ -329,10 +329,116 @@ circle{fill:none;stroke-width:5;}
 .streak-pip{width:24px;height:8px;border-radius:50px;background:#f0f0f0;transition:background .3s;}
 .streak-pip.lit{background:var(--t-accent1);}
 .streak-label{font-size:.75rem;font-weight:800;color:#aaa;margin-left:4px;}
+
+/* ── MODE SELECTION ── */
+.mode-card{width:100%;background:var(--white);border-radius:22px;padding:22px 20px;
+  box-shadow:4px 4px 0 rgba(0,0,0,.1),0 8px 24px rgba(0,0,0,.06);
+  border:2.5px solid var(--t-soft);cursor:pointer;transition:all .2s cubic-bezier(.34,1.56,.64,1);
+  text-align:center;position:relative;overflow:hidden;}
+.mode-card:hover{transform:translateY(-4px);border-color:var(--t-accent1);
+  box-shadow:4px 8px 0 rgba(0,0,0,.12),0 12px 32px rgba(0,0,0,.1);}
+.mode-card.selected{border-color:var(--t-accent1);background:var(--t-soft);}
+.mode-icon{font-size:3rem;display:block;margin-bottom:8px;}
+.mode-title{font-family:'Boogaloo',cursive;font-size:1.4rem;color:var(--t-ink);margin-bottom:4px;}
+.mode-desc{font-size:.8rem;font-weight:700;color:#888;line-height:1.5;}
+.mode-tag{display:inline-block;background:linear-gradient(135deg,var(--t-accent1),var(--t-accent2));
+  color:#fff;border-radius:50px;padding:3px 12px;font-size:.7rem;font-weight:900;
+  letter-spacing:.5px;margin-bottom:8px;}
+.mode-vs{font-family:'Boogaloo',cursive;font-size:1rem;color:var(--t-mid);
+  text-align:center;padding:6px 0;}
+
+/* ── GUESS MODE UI ── */
+.guess-phase-banner{width:100%;background:linear-gradient(135deg,var(--t-accent2),var(--t-shadow1));
+  color:#fff;border-radius:14px;padding:10px 16px;text-align:center;
+  font-family:'Boogaloo',cursive;font-size:1rem;letter-spacing:.5px;}
+.guess-target{width:100%;background:var(--t-soft);border-radius:16px;padding:12px 16px;
+  text-align:center;border:2px solid var(--t-mid);}
+.guess-target-label{font-size:.7rem;font-weight:900;color:var(--t-mid);letter-spacing:1.5px;
+  text-transform:uppercase;margin-bottom:4px;}
+.guess-target-name{font-family:'Boogaloo',cursive;font-size:1.3rem;color:var(--t-ink);}
+
+/* ── STATS SCREEN ── */
+#s-stats{padding-bottom:60px;}
+.stats-section{width:100%;background:var(--white);border-radius:20px;padding:18px;
+  box-shadow:4px 4px 0 rgba(0,0,0,.08);border:2px solid var(--t-soft);}
+.stats-title{font-family:'Boogaloo',cursive;font-size:1.1rem;color:var(--t-ink);
+  margin-bottom:14px;display:flex;align-items:center;gap:6px;padding-bottom:8px;
+  border-bottom:2px solid var(--t-soft);}
+.stat-row{display:flex;align-items:center;gap:10px;margin-bottom:10px;}
+.stat-row:last-child{margin-bottom:0;}
+.stat-label{flex:1;font-size:.82rem;font-weight:800;color:#777;}
+.stat-bar-wrap{flex:2;background:#f5f5f5;border-radius:50px;height:10px;overflow:hidden;}
+.stat-bar{height:100%;border-radius:50px;background:linear-gradient(90deg,var(--t-accent1),var(--t-accent2));transition:width .8s ease;}
+.stat-val{font-family:'Boogaloo',cursive;font-size:1rem;color:var(--t-ink);width:36px;text-align:right;}
+
+.compat-ring{position:relative;width:120px;height:120px;margin:0 auto 10px;}
+.compat-ring svg{transform:rotate(-90deg);}
+.compat-ring .cr-num{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);
+  font-family:'Boogaloo',cursive;font-size:1.8rem;color:var(--t-ink);text-align:center;line-height:1;}
+.compat-ring .cr-sub{font-size:.65rem;font-weight:800;color:var(--t-mid);display:block;margin-top:2px;}
+
+.q-recap{background:var(--t-bg);border-radius:12px;padding:10px 12px;margin-bottom:8px;border:1.5px solid var(--t-soft);}
+.q-recap:last-child{margin-bottom:0;}
+.q-recap-text{font-size:.8rem;font-weight:900;color:var(--t-ink);margin-bottom:6px;}
+.q-recap-ans{display:flex;gap:6px;}
+.q-recap-box{flex:1;border-radius:8px;padding:6px 8px;text-align:center;border:2px solid #eee;
+  font-size:.75rem;font-weight:800;}
+.q-recap-box.match{border-color:var(--t-accent3);background:var(--t-soft);}
+.q-recap-box.diff1{border-color:var(--t-accent1);background:var(--t-bg);}
+.q-recap-box.diff2{border-color:var(--t-mid);background:var(--t-bg);}
+.q-recap-box .qr-name{font-size:.62rem;color:#aaa;text-transform:uppercase;letter-spacing:.5px;margin-bottom:2px;}
+.q-recap-box .qr-val{color:var(--t-ink);}
+
+/* guess score highlight */
+.guess-score-card{flex:1;background:var(--white);border-radius:18px;padding:16px 10px;text-align:center;
+  box-shadow:4px 4px 0 rgba(0,0,0,.09);border:2.5px solid #eee;position:relative;overflow:hidden;}
+.guess-score-card.winner{border-color:var(--t-accent1);background:var(--t-soft);}
+.guess-score-card.winner::after{content:'🎯';position:absolute;top:-2px;right:8px;font-size:1.4rem;}
+.gs-name{font-size:.72rem;font-weight:900;color:#aaa;text-transform:uppercase;letter-spacing:1px;}
+.gs-pts{font-family:'Boogaloo',cursive;font-size:2.4rem;color:var(--ink);line-height:1;}
+.gs-sub{font-size:.68rem;font-weight:800;color:#aaa;margin-top:2px;}
+
+/* mode badge in topbar */
+.mode-badge-pill{background:linear-gradient(135deg,var(--t-accent3),var(--t-accent1));color:#fff;
+  border-radius:50px;padding:4px 10px;font-family:'Boogaloo',cursive;font-size:.75rem;
+  white-space:nowrap;}
 </style>
 </head>
 <body>
 <div class="wrap">
+
+<!-- ═══════════════════════════════════════ MODE SELECTION -->
+<div class="screen" id="s-mode">
+  <span class="mascot">🎮</span>
+  <div class="logo">Pilih <span>Mode!</span></div>
+  <div class="logo-sub">Gimana cara main kalian? 🤔</div>
+
+  <div class="mode-card" id="mode-card-match" onclick="selectMode('match')">
+    <div class="mode-tag">🤝 MATCH MODE</div>
+    <span class="mode-icon">💑</span>
+    <div class="mode-title">Match Mode</div>
+    <div class="mode-desc">Kalian jawab pertanyaan yang <strong>sama</strong> secara bersamaan. Semakin banyak jawaban yang sama = semakin kompak! Skor: <strong>Compatibility Score</strong> berdua.</div>
+  </div>
+
+  <div class="mode-vs">— atau —</div>
+
+  <div class="mode-card" id="mode-card-guess" onclick="selectMode('guess')">
+    <div class="mode-tag">🎯 GUESS MODE</div>
+    <span class="mode-icon">🔍</span>
+    <div class="mode-title">Guess Mode</div>
+    <div class="mode-desc">Tiap ronde kalian <strong>menebak jawaban lawan</strong>. Siapa yang paling kenal pasangannya? Skor: <strong>Individual P1 vs P2</strong>.</div>
+  </div>
+
+  <div style="width:100%;background:var(--t-soft);border-radius:14px;padding:14px;border:1.5px solid var(--t-mid);">
+    <div style="font-size:.78rem;font-weight:800;color:var(--t-ink);line-height:1.6;">
+      <div style="margin-bottom:4px;"><span style="color:var(--t-accent1)">🤝 Match Mode</span> → Ukur seberapa <em>kompak</em> kalian berdua</div>
+      <div><span style="color:var(--t-accent2)">🎯 Guess Mode</span> → Ukur siapa yang paling <em>kenal lawan</em></div>
+    </div>
+  </div>
+
+  <button class="btn btn-coral" id="btn-confirm-mode" onclick="confirmMode()" style="display:none">Lanjut dengan mode ini! ➡️</button>
+  <button class="btn btn-ghost" onclick="goLobby()">← Kembali</button>
+</div>
 
 <!-- ═══════════════════════════════════════ LOBBY -->
 <div class="screen on" id="s-lobby">
@@ -447,9 +553,14 @@ circle{fill:none;stroke-width:5;}
 
   <!-- Pesan untuk P2 -->
   <div id="p2-wait-msg" style="display:none;width:100%;text-align:center;">
+    <!-- Mode display for P2 -->
+    <div id="p2-mode-banner" style="width:100%;background:linear-gradient(135deg,var(--t-accent1),var(--t-accent2));border-radius:14px;padding:12px 16px;margin-bottom:10px;color:#fff;text-align:center;">
+      <div style="font-family:'Boogaloo',cursive;font-size:1.1rem;">Mode: <span id="p2-mode-label">Match Mode</span></div>
+      <div id="p2-mode-desc" style="font-size:.75rem;font-weight:800;opacity:.85;margin-top:2px;">Jawab pertanyaan bersamaan — lihat seberapa kompak kalian!</div>
+    </div>
     <div class="card" style="padding:14px 18px">
-      <div class="card-title" style="font-size:.95rem;margin-bottom:8px;">📋 Cara Main</div>
-      <div style="font-size:.82rem;font-weight:700;color:#666;display:flex;flex-direction:column;gap:5px;">
+      <div class="card-title" style="font-size:.95rem;margin-bottom:8px;" id="p2-cara-main-title">📋 Cara Main — Match Mode</div>
+      <div id="p2-cara-main-body" style="font-size:.82rem;font-weight:700;color:#666;display:flex;flex-direction:column;gap:5px;">
         <div>🎯 Jawab pertanyaan <strong>bersamaan</strong> — keliatan setelah keduanya submit!</div>
         <div>🤝 Jawaban <strong>sama</strong> = +2 poin masing-masing!</div>
         <div>😂 Jawaban <strong>beda</strong> = ada tantangan lucu!</div>
@@ -461,6 +572,12 @@ circle{fill:none;stroke-width:5;}
 
   <!-- Tombol mulai: hanya muncul setelah P2 join -->
   <div id="btn-setup-wrap" style="display:none;width:100%">
+    <!-- Mode indicator for P1 before start -->
+    <div id="p1-mode-indicator" style="width:100%;text-align:center;margin-bottom:8px;">
+      <span style="font-size:.78rem;font-weight:800;color:var(--t-mid);">Mode: </span>
+      <span id="p1-mode-tag" style="font-weight:900;color:var(--t-accent1);">🤝 Match Mode</span>
+      <button onclick="showModeSelection()" style="background:none;border:none;font-size:.75rem;color:var(--t-mid);cursor:pointer;font-weight:800;margin-left:6px;">Ganti</button>
+    </div>
     <button class="btn btn-lime" onclick="startGame()">Mulai Game! 🎮</button>
   </div>
 </div>
@@ -479,6 +596,11 @@ circle{fill:none;stroke-width:5;}
 
 <!-- ═══════════════════════════════════════ GAME -->
 <div class="screen" id="s-game">
+  <!-- Mode indicator for guess mode -->
+  <div id="guess-phase-bar" style="display:none;width:100%">
+    <div class="guess-phase-banner" id="guess-phase-text">🎯 Fase Tebak: Tebak jawaban P1!</div>
+  </div>
+
   <div class="topbar">
     <div class="score-pill">
       <div><div class="s-name" id="g-n1">P1</div><div class="s-pts" id="g-p1">0</div></div>
@@ -563,18 +685,32 @@ circle{fill:none;stroke-width:5;}
 
 <!-- ═══════════════════════════════════════ FINAL -->
 <div class="screen" id="s-final">
-  <div class="trophy">🏆</div>
+  <div class="trophy" id="f-trophy">🏆</div>
   <div class="logo" id="f-title">Game Over!</div>
 
-  <div class="final-scores">
-    <div class="fs-card" id="fsc1"><div class="fs-name" id="fn1">P1</div><div class="fs-pts" id="fp1">0</div><div style="font-size:.7rem;font-weight:800;color:#ccc;">POIN</div></div>
-    <div class="fs-card" id="fsc2"><div class="fs-name" id="fn2">P2</div><div class="fs-pts" id="fp2">0</div><div style="font-size:.7rem;font-weight:800;color:#ccc;">POIN</div></div>
+  <div class="final-scores" id="f-scores-wrap">
+    <div class="fs-card" id="fsc1"><div class="fs-name" id="fn1">P1</div><div class="fs-pts" id="fp1">0</div><div style="font-size:.7rem;font-weight:800;color:#ccc;" id="fp1-label">POIN</div></div>
+    <div class="fs-card" id="fsc2"><div class="fs-name" id="fn2">P2</div><div class="fs-pts" id="fp2">0</div><div style="font-size:.7rem;font-weight:800;color:#ccc;" id="fp2-label">POIN</div></div>
   </div>
 
   <div class="winner-msg" id="f-msg"></div>
 
+  <button class="btn btn-grape" onclick="showStats()" style="font-size:1.05rem;">📊 Lihat Statistik Lengkap</button>
   <button class="btn btn-sun" onclick="showHistoryDetail(lastHistory)">📖 Lihat History Ronde Ini</button>
   <button class="btn btn-coral" id="f-restart" style="display:none" onclick="restartGame()">Main Lagi! 🔄</button>
+  <button class="btn btn-ghost" onclick="goLobby()">Kembali ke Lobby 🏠</button>
+</div>
+
+<!-- ═══════════════════════════════════════ STATS -->
+<div class="screen" id="s-stats">
+  <div style="text-align:center;font-size:2.5rem;animation:wobble 1.5s ease infinite;">📊</div>
+  <div class="logo">Statistik <span>Game</span></div>
+
+  <!-- Dynamic stats content injected here -->
+  <div id="stats-content" style="width:100%;display:flex;flex-direction:column;gap:14px;"></div>
+
+  <button class="btn btn-coral" onclick="showScreen('s-final')">← Kembali ke Hasil</button>
+  <button class="btn btn-coral" id="stats-restart" style="display:none" onclick="restartGame()">Main Lagi! 🔄</button>
   <button class="btn btn-ghost" onclick="goLobby()">Kembali ke Lobby 🏠</button>
 </div>
 
@@ -683,6 +819,17 @@ let gameTotalLevels=3;
 let timerInterval=null, timeLeft=20;
 let lastHistory=null;
 
+// ── GAME MODE STATE ──
+let gameMode = 'match'; // 'match' | 'guess'
+let _pendingCreateName = '';
+let guessPhase = 'guess'; // for guess mode: 'guess' (tebak) | 'orig' (jawab asli)
+let _guessRoundQueue = []; // queue: [{type:'orig'}, {type:'guess', target:'1'|'2'}]
+let _guessQueueIdx = 0;
+let _origAnswer1 = null; // P1's real answer this round
+let _origAnswer2 = null; // P2's real answer this round
+let guessScores = {'1':0,'2':0};
+let allRoundData = []; // [{q, a1, a2, same, g1correct, g2correct, isGuessMode}]
+
 // Setup editor state: 3 levels × 5 questions
 let setupQuestions = buildDefaultSetup();
 
@@ -776,6 +923,8 @@ function handleMsg(d) {
 
     case 'both_joined':
       names=d.names;
+      // Sync game mode from server for P2
+      if(d.gameMode) { gameMode = d.gameMode; updateModeUI(); }
       document.getElementById('sn1').textContent=names['1'];
       document.getElementById('slot2').classList.add('filled');
       document.getElementById('slot2').innerHTML=`<div class="slot-icon">👩</div><div class="slot-name">${names['2']}</div><div class="slot-status ok">✓ Siap</div>`;
@@ -800,10 +949,15 @@ function handleMsg(d) {
       names=d.names;
       gameTotalLevels = d.totalLevels || 3;
       updateLevelPipsCount(gameTotalLevels);
+      // Sync game mode from server message if P2 (P2 doesn't pick mode)
+      if(d.gameMode) gameMode = d.gameMode;
+      // Reset guess scores
+      guessScores={'1':0,'2':0};
+      allRoundData=[];
       showScreen('s-level');
-      document.getElementById('lt-emoji').textContent='🎮';
-      document.getElementById('lt-title').textContent='Game Dimulai!';
-      document.getElementById('lt-sub').textContent='Bersiap untuk Level 1...';
+      document.getElementById('lt-emoji').textContent=gameMode==='guess'?'🎯':'🎮';
+      document.getElementById('lt-title').textContent=gameMode==='guess'?'Guess Mode Dimulai!':'Game Dimulai!';
+      document.getElementById('lt-sub').textContent=gameMode==='guess'?'Tebak jawaban lawan kamu!':'Bersiap untuk Level 1...';
       break;
 
     case 'question':
@@ -818,7 +972,13 @@ function handleMsg(d) {
     case 'reveal':
       scores=d.scores;
       clearTimerTick();
-      showReveal(d);
+      if(gameMode==='guess' && d.question?.type==='ab' && !d.isSecret && !d.isBonus) {
+        // Store real answers for guess phase, then run guess phase
+        _storedRevealData = d;
+        showGuessPhase(d);
+      } else {
+        showReveal(d);
+      }
       break;
 
     case 'vote_start':
@@ -973,9 +1133,72 @@ function openLobbyHistDetail(idx) {
 }
 
 // ══════════════════════ LOBBY ══════════════════════
+// ══════════════════════ MODE SELECTION ══════════════════════
+function selectMode(mode) {
+  gameMode = mode;
+  document.getElementById('mode-card-match').classList.toggle('selected', mode==='match');
+  document.getElementById('mode-card-guess').classList.toggle('selected', mode==='guess');
+  document.getElementById('btn-confirm-mode').style.display = 'block';
+}
+
+function showModeSelection() {
+  showScreen('s-mode');
+  // Reset selection UI
+  document.getElementById('mode-card-match').classList.remove('selected');
+  document.getElementById('mode-card-guess').classList.remove('selected');
+  // Pre-select current mode
+  if(gameMode) {
+    document.getElementById('mode-card-'+gameMode).classList.add('selected');
+    document.getElementById('btn-confirm-mode').style.display = 'block';
+  } else {
+    document.getElementById('btn-confirm-mode').style.display = 'none';
+  }
+}
+
+function confirmMode() {
+  // Update mode display in wait screen
+  updateModeUI();
+  if(_pendingCreateName) {
+    // First time: create room
+    const name = _pendingCreateName;
+    _pendingCreateName = '';
+    send({type:'create_room', name});
+  } else {
+    // Mode change: just go back to wait screen
+    showScreen('s-wait');
+  }
+}
+
+function updateModeUI() {
+  const isGuess = gameMode==='guess';
+  // P1 mode tag
+  const p1tag = document.getElementById('p1-mode-tag');
+  if(p1tag) p1tag.textContent = isGuess?'🎯 Guess Mode':'🤝 Match Mode';
+  // P2 mode banner
+  const p2label = document.getElementById('p2-mode-label');
+  const p2desc = document.getElementById('p2-mode-desc');
+  const p2title = document.getElementById('p2-cara-main-title');
+  const p2body = document.getElementById('p2-cara-main-body');
+  if(p2label) p2label.textContent = isGuess?'Guess Mode 🎯':'Match Mode 🤝';
+  if(p2desc) p2desc.textContent = isGuess?'Tebak jawaban lawan — siapa yang paling kenal?':'Jawab bersamaan — lihat seberapa kompak kalian!';
+  if(p2title) p2title.textContent = isGuess?'📋 Cara Main — Guess Mode':'📋 Cara Main — Match Mode';
+  if(p2body) p2body.innerHTML = isGuess
+    ? `<div>🎯 Kalian jawab pertanyaan <strong>untuk diri sendiri</strong></div>
+       <div>🔍 Setelah jawab, <strong>tebak jawaban lawan</strong>!</div>
+       <div>✅ Tebakan benar = <strong>+1 poin</strong> untuk kamu</div>
+       <div>📊 Skor individual P1 vs P2 — siapa yang lebih kenal?</div>
+       <div>Menunggu Player 1 setup pertanyaan... ✏️</div>`
+    : `<div>🎯 Jawab pertanyaan <strong>bersamaan</strong> — keliatan setelah keduanya submit!</div>
+       <div>🤝 Jawaban <strong>sama</strong> = +2 poin masing-masing!</div>
+       <div>😂 Jawaban <strong>beda</strong> = ada tantangan lucu!</div>
+       <div>🔐 Sama 3x berturut = muncul <strong>Secret Round!</strong></div>
+       <div>Menunggu Player 1 setup pertanyaan... ✏️</div>`;
+}
+
 function createRoom() {
   const name=document.getElementById('inp-name-c').value.trim()||'Player 1';
-  send({type:'create_room',name});
+  _pendingCreateName = name;
+  showModeSelection();
 }
 function joinRoom() {
   const name=document.getElementById('inp-name-j').value.trim()||'Player 2';
@@ -1105,7 +1328,7 @@ function startGame() {
       b:q.type==='open'?undefined:(q.b||'').trim()||undefined };
   }));
   const finalQSliced = finalQ.slice(0, selectedLevelCount);
-  send({type:'setup_done', questions:finalQSliced, levelCount: selectedLevelCount});
+  send({type:'setup_done', questions:finalQSliced, levelCount: selectedLevelCount, gameMode: gameMode});
 }
 
 function esc(s){return (s||'').replace(/"/g,'&quot;');}
@@ -1199,11 +1422,16 @@ function showQuestion(d) {
   const qNum=d.qNum;
   const total=d.total;
 
-  // Scores
+  // Scores — in guess mode show individual guess scores
   document.getElementById('g-n1').textContent=names['1']||'P1';
   document.getElementById('g-n2').textContent=names['2']||'P2';
-  document.getElementById('g-p1').textContent=d.scores['1'];
-  document.getElementById('g-p2').textContent=d.scores['2'];
+  if(gameMode==='guess') {
+    document.getElementById('g-p1').textContent=guessScores['1']+'🎯';
+    document.getElementById('g-p2').textContent=guessScores['2']+'🎯';
+  } else {
+    document.getElementById('g-p1').textContent=d.scores['1'];
+    document.getElementById('g-p2').textContent=d.scores['2'];
+  }
   document.getElementById('g-rnd').textContent=`${qNum}/${total}`;
 
   // Level pips (only show active levels)
@@ -1219,10 +1447,19 @@ function showQuestion(d) {
   }
   document.getElementById('g-lvlabel').textContent=`Level ${d.level}`;
 
-  // Streak
+  // Streak (only show for match mode)
   const cs=d.consecutiveSame||0;
   for(let i=0;i<3;i++) document.getElementById('sp'+i).className='streak-pip'+(i<cs?' lit':'');
-  document.getElementById('streak-lbl').textContent=`Sama ${cs}x berturut`;
+  document.getElementById('streak-lbl').textContent=gameMode==='guess'?`🎯 Guess Mode`:`Sama ${cs}x berturut`;
+
+  // Guess mode: show phase banner
+  const guessPhasebar = document.getElementById('guess-phase-bar');
+  if(gameMode==='guess' && !isSecret && !isOpen) {
+    guessPhasebar.style.display='block';
+    document.getElementById('guess-phase-text').textContent=`🎯 Jawab pertanyaan ini untuk diri kamu sendiri!`;
+  } else {
+    guessPhasebar.style.display='none';
+  }
 
   // Question card
   const qcard=document.getElementById('g-qcard');
@@ -1301,7 +1538,123 @@ function updateTimerUI(t,total) {
   circ.style.stroke=t<=5?'var(--coral)':t<=10?'var(--sun)':'var(--sky)';
 }
 
-// ══════════════════════ REVEAL ══════════════════════
+// ══════════════════════ GUESS MODE PHASE ══════════════════════
+let _storedRevealData = null;
+let _guessSubmitted = false;
+let _partnerGuess = null; // what my partner guessed about me
+
+function showGuessPhase(revealData) {
+  // Hide reveal overlay, show game screen in "guess mode"
+  closeOverlay('ov-reveal');
+  showScreen('s-game');
+  answered = false;
+  _guessSubmitted = false;
+
+  const q = revealData.question;
+  const oppNum = myNum==='1'?'2':'1';
+  const oppName = names[oppNum]||'Teman';
+
+  // Show guess banner
+  const guessPhasebar = document.getElementById('guess-phase-bar');
+  guessPhasebar.style.display = 'block';
+  document.getElementById('guess-phase-text').textContent = `🎯 TEBAK! Kira-kira ${oppName} pilih apa?`;
+
+  // Update question card — same question
+  const qcard = document.getElementById('g-qcard');
+  qcard.className = 'q-card';
+  document.getElementById('g-cat').textContent = `🎯 GUESS: Tebak jawaban ${oppName}!`;
+  document.getElementById('g-q').textContent = q.question;
+
+  // Show choices
+  document.getElementById('g-choices').style.display = 'flex';
+  document.getElementById('g-open-wrap').style.display = 'none';
+  ['A','B'].forEach(c=>{
+    const btn = document.getElementById('btn-'+c);
+    btn.className = 'btn-choice';
+    btn.disabled = false;
+    btn.onclick = ()=>submitGuess(c, revealData);
+  });
+  document.getElementById('g-ca').textContent = q.a||'Pilihan A';
+  document.getElementById('g-cb').textContent = q.b||'Pilihan B';
+
+  // Hide streak, update scores display with guess scores
+  document.getElementById('g-p1').textContent = guessScores['1']+'🎯';
+  document.getElementById('g-p2').textContent = guessScores['2']+'🎯';
+  document.getElementById('streak-lbl').textContent = '🎯 Tebak jawaban lawan!';
+
+  setStatus(`Tebak jawaban ${oppName}!`, true);
+  startTimerTick(15);
+}
+
+function submitGuess(choice, revealData) {
+  if(_guessSubmitted) return;
+  _guessSubmitted = true;
+  answered = true;
+  clearTimerTick();
+
+  document.getElementById('btn-A').disabled = true;
+  document.getElementById('btn-B').disabled = true;
+  document.getElementById('btn-'+choice).classList.add('picked');
+  setStatus('Menunggu teman menebak...');
+
+  // Calculate if guess is correct
+  const oppNum = myNum==='1'?'2':'1';
+  const oppRealAnswer = revealData.answers[oppNum];
+  const guessCorrect = choice === oppRealAnswer;
+
+  if(guessCorrect) {
+    guessScores[myNum] = (guessScores[myNum]||0) + 1;
+    showToast('Tebakan Benar! 🎯 +1');
+  }
+
+  // Show reveal after a brief moment
+  setTimeout(()=>{
+    showGuessReveal(revealData, choice, guessCorrect);
+  }, 800);
+}
+
+function showGuessReveal(revealData, myGuess, guessCorrect) {
+  document.getElementById('guess-phase-bar').style.display='none';
+  const oppNum = myNum==='1'?'2':'1';
+  const q = revealData.question;
+  const myRealAns = revealData.answers[myNum];
+  const oppRealAns = revealData.answers[oppNum];
+  const n1 = names['1']||'P1', n2 = names['2']||'P2';
+  const myName_ = names[myNum]||`P${myNum}`;
+  const oppName_ = names[oppNum]||`P${oppNum}`;
+
+  const dispMyReal = myRealAns==='A'?(q.a||'A'):myRealAns==='B'?(q.b||'B'):(myRealAns||'⏱️');
+  const dispOppReal = oppRealAns==='A'?(q.a||'A'):oppRealAns==='B'?(q.b||'B'):(oppRealAns||'⏱️');
+  const dispMyGuess = myGuess==='A'?(q.a||'A'):myGuess==='B'?(q.b||'B'):myGuess;
+
+  document.getElementById('ov-emoji').textContent = guessCorrect?'🎯':'😅';
+  document.getElementById('ov-title').textContent = guessCorrect?'TEBAKAN BENAR! 🎯':'Salah Tebak! 😅';
+  document.getElementById('ov-sub').textContent = guessCorrect
+    ? `Kamu tahu ${oppName_} pilih ${dispOppReal}! +1 poin 🏆`
+    : `Kamu tebak ${dispMyGuess}, ${oppName_} sebenarnya pilih ${dispOppReal}`;
+
+  document.getElementById('ov-ans').innerHTML=`
+    <div class="ans-box ${revealData.same?'same':'diff1'}">
+      <div class="an-player">${n1} (asli)</div>
+      <div class="an-val">${names['1']===myName_?dispMyReal:dispOppReal}</div>
+    </div>
+    <div class="ans-box ${revealData.same?'same':'diff2'}">
+      <div class="an-player">${n2} (asli)</div>
+      <div class="an-val">${names['2']===myName_?dispMyReal:dispOppReal}</div>
+    </div>`;
+
+  document.getElementById('ov-challenge').style.display='none';
+  document.getElementById('ov-next-btn').style.display=myNum==='1'?'block':'none';
+  document.getElementById('ov-wait-next').style.display=myNum==='1'?'none':'block';
+
+  // Reset button onclick back to normal nextQuestion
+  document.getElementById('btn-A').onclick = ()=>answerAB('A');
+  document.getElementById('btn-B').onclick = ()=>answerAB('B');
+
+  showOverlay('ov-reveal');
+}
+
+// ══════════════════════ REVEAL (Match Mode / Normal) ══════════════════════
 function showReveal(d) {
   const same=d.same;
   const isSecret=d.isSecret;
@@ -1421,29 +1774,276 @@ function updateVoteUI(votes,ns) {
 function showFinal(d) {
   closeOverlay('ov-reveal');
   showScreen('s-final');
-  const s1=d.scores['1'],s2=d.scores['2'];
   const n1=d.names['1']||'P1',n2=d.names['2']||'P2';
-  document.getElementById('fn1').textContent=n1;
-  document.getElementById('fn2').textContent=n2;
-  document.getElementById('fp1').textContent=s1;
-  document.getElementById('fp2').textContent=s2;
-  document.getElementById('fsc1').classList.remove('winner');
-  document.getElementById('fsc2').classList.remove('winner');
-  let title,msg;
-  if(s1>s2){document.getElementById('fsc1').classList.add('winner');title=`${n1} Menang! 🏆`;msg=`🎉 <strong>${n1}</strong> jadi juaranya! Tapi yang paling penting kalian udah lebih kenal satu sama lain 💕<br><br>Hadiahnya: ${n2} harus traktir! 🍦`;}
-  else if(s2>s1){document.getElementById('fsc2').classList.add('winner');title=`${n2} Menang! 🏆`;msg=`🎉 <strong>${n2}</strong> jadi juaranya! Tapi yang paling penting kalian udah lebih kenal satu sama lain 💕<br><br>Hadiahnya: ${n1} harus traktir! 🍦`;}
-  else{title='SERI! 🤝';msg=`🤝 Sama-sama menang! Kalian <strong>setara dan cocok banget!</strong> 💕<br><br>Karena seri: kalian harus pergi makan bareng! 🍜`;}
-  document.getElementById('f-title').textContent=title;
-  document.getElementById('f-msg').innerHTML=msg;
+
+  // Prep stats data from history
+  allRoundData = [];
+  (d.history||[]).forEach(lvl=>{
+    (lvl.questions||[]).forEach(qd=>{
+      if(!qd.isSecret&&!qd.isBonus) {
+        allRoundData.push({
+          q: qd.question,
+          a1: qd.answers?.['1'],
+          a2: qd.answers?.['2'],
+          same: qd.same,
+        });
+      }
+    });
+  });
+
+  if(gameMode==='guess') {
+    // Guess mode: use guessScores
+    const gs1=guessScores['1'], gs2=guessScores['2'];
+    document.getElementById('fn1').textContent=n1;
+    document.getElementById('fn2').textContent=n2;
+    document.getElementById('fp1').textContent=gs1;
+    document.getElementById('fp2').textContent=gs2;
+    document.getElementById('fp1-label').textContent='TEBAKAN BENAR';
+    document.getElementById('fp2-label').textContent='TEBAKAN BENAR';
+    document.getElementById('fsc1').classList.remove('winner');
+    document.getElementById('fsc2').classList.remove('winner');
+    document.getElementById('f-trophy').textContent='🎯';
+    let title,msg;
+    const total=allRoundData.length;
+    if(gs1>gs2){
+      document.getElementById('fsc1').classList.add('winner');
+      title=`${n1} Lebih Kenal! 🎯`;
+      msg=`🎯 <strong>${n1}</strong> berhasil menebak ${gs1}/${total} jawaban ${n2} dengan benar!<br><br>Artinya: <strong>${n1}</strong> lebih mengenal pasangannya! 💪`;
+    } else if(gs2>gs1){
+      document.getElementById('fsc2').classList.add('winner');
+      title=`${n2} Lebih Kenal! 🎯`;
+      msg=`🎯 <strong>${n2}</strong> berhasil menebak ${gs2}/${total} jawaban ${n1} dengan benar!<br><br>Artinya: <strong>${n2}</strong> lebih mengenal pasangannya! 💪`;
+    } else {
+      title='SAMA-SAMA KENAL! 🤝';
+      msg=`🤝 Kalian sama-sama saling mengenal dengan baik! Score ${gs1} vs ${gs2} — seimbang dan kompak! 💕`;
+    }
+    document.getElementById('f-title').textContent=title;
+    document.getElementById('f-msg').innerHTML=msg;
+  } else {
+    // Match mode: original logic
+    const s1=d.scores['1'],s2=d.scores['2'];
+    document.getElementById('fn1').textContent=n1;
+    document.getElementById('fn2').textContent=n2;
+    document.getElementById('fp1').textContent=s1;
+    document.getElementById('fp2').textContent=s2;
+    document.getElementById('fp1-label').textContent='POIN';
+    document.getElementById('fp2-label').textContent='POIN';
+    document.getElementById('fsc1').classList.remove('winner');
+    document.getElementById('fsc2').classList.remove('winner');
+    document.getElementById('f-trophy').textContent='🏆';
+    let title,msg;
+    if(s1>s2){document.getElementById('fsc1').classList.add('winner');title=`${n1} Menang! 🏆`;msg=`🎉 <strong>${n1}</strong> jadi juaranya! Tapi yang paling penting kalian udah lebih kenal satu sama lain 💕<br><br>Hadiahnya: ${n2} harus traktir! 🍦`;}
+    else if(s2>s1){document.getElementById('fsc2').classList.add('winner');title=`${n2} Menang! 🏆`;msg=`🎉 <strong>${n2}</strong> jadi juaranya! Tapi yang paling penting kalian udah lebih kenal satu sama lain 💕<br><br>Hadiahnya: ${n1} harus traktir! 🍦`;}
+    else{title='SERI! 🤝';msg=`🤝 Sama-sama menang! Kalian <strong>setara dan cocok banget!</strong> 💕<br><br>Karena seri: kalian harus pergi makan bareng! 🍜`;}
+    document.getElementById('f-title').textContent=title;
+    document.getElementById('f-msg').innerHTML=msg;
+  }
+
   document.getElementById('f-restart').style.display=myNum==='1'?'block':'none';
+  document.getElementById('stats-restart').style.display=myNum==='1'?'block':'none';
 
   launchConfetti();
-  // Auto popup konfirmasi save setelah 1.5 detik
+  // Prepare stats
+  buildStats(d);
   setTimeout(()=>openSaveConfirm(), 1500);
 }
 
-function restartGame(){send({type:'restart'});}
-function goLobby(){showScreen('s-lobby');}
+// ══════════════════════ STATS ══════════════════════
+function buildStats(d) {
+  const n1=d.names['1']||'P1', n2=d.names['2']||'P2';
+  const el=document.getElementById('stats-content');
+  const total = allRoundData.length;
+  if(!total){ el.innerHTML='<div style="text-align:center;color:#aaa;padding:20px;font-weight:800;">Tidak ada data statistik</div>'; return; }
+
+  const sameCount = allRoundData.filter(r=>r.same).length;
+  const pct = Math.round((sameCount/total)*100);
+
+  // Build compatibility ring
+  const C = 2*Math.PI*48;
+  const offset = C*(1-pct/100);
+  const ringColor = pct>=70?'var(--t-accent3)':pct>=40?'var(--t-accent1)':'var(--t-accent2)';
+  const compatLabel = pct>=80?'Sangat Kompak! 💑':pct>=60?'Cukup Kompak 🤝':pct>=40?'Lumayan Kenal 😄':'Masih Perlu Belajar 📚';
+
+  // Count who picks A vs B
+  const p1A=allRoundData.filter(r=>r.a1==='A').length;
+  const p1B=allRoundData.filter(r=>r.a1==='B').length;
+  const p2A=allRoundData.filter(r=>r.a2==='A').length;
+  const p2B=allRoundData.filter(r=>r.a2==='B').length;
+
+  if(gameMode==='match') {
+    el.innerHTML=`
+      <!-- Compatibility Score -->
+      <div class="stats-section">
+        <div class="stats-title">💑 Compatibility Score</div>
+        <div class="compat-ring">
+          <svg viewBox="0 0 110 110" width="120" height="120">
+            <circle cx="55" cy="55" r="48" fill="none" stroke="#f0f0f0" stroke-width="10"/>
+            <circle cx="55" cy="55" r="48" fill="none" stroke="${ringColor}" stroke-width="10"
+              stroke-linecap="round" stroke-dasharray="${C}" stroke-dashoffset="${offset}"
+              transform="rotate(-90 55 55)" style="transition:stroke-dashoffset 1.2s ease"/>
+          </svg>
+          <div class="cr-num">${pct}%<span class="cr-sub">Kompak</span></div>
+        </div>
+        <div style="text-align:center;font-weight:900;font-size:.9rem;color:var(--t-ink);margin-bottom:4px;">${compatLabel}</div>
+        <div style="text-align:center;font-size:.78rem;font-weight:700;color:#888;">Sama ${sameCount} dari ${total} pertanyaan</div>
+      </div>
+
+      <!-- Breakdown per soal -->
+      <div class="stats-section">
+        <div class="stats-title">📋 Jawaban Bersamaan</div>
+        ${allRoundData.map((r,i)=>{
+          const q=r.q; const label=q?.question||`Soal ${i+1}`;
+          const disp1=r.a1==='A'?(q?.a||'A'):r.a1==='B'?(q?.b||'B'):(r.a1||'⏱️');
+          const disp2=r.a2==='A'?(q?.a||'A'):r.a2==='B'?(q?.b||'B'):(r.a2||'⏱️');
+          return `<div class="q-recap">
+            <div class="q-recap-text">${label}</div>
+            <div class="q-recap-ans">
+              <div class="q-recap-box ${r.same?'match':'diff1'}">
+                <div class="qr-name">${n1}</div>
+                <div class="qr-val">${disp1}</div>
+              </div>
+              <div style="display:flex;align-items:center;font-size:.9rem;">${r.same?'✅':'❌'}</div>
+              <div class="q-recap-box ${r.same?'match':'diff2'}">
+                <div class="qr-name">${n2}</div>
+                <div class="qr-val">${disp2}</div>
+              </div>
+            </div>
+          </div>`;
+        }).join('')}
+      </div>
+
+      <!-- Pilihan style -->
+      <div class="stats-section">
+        <div class="stats-title">📊 Gaya Pilihan</div>
+        <div class="stat-row">
+          <div class="stat-label">${n1} pilih A</div>
+          <div class="stat-bar-wrap"><div class="stat-bar" style="width:${total?Math.round(p1A/total*100):0}%"></div></div>
+          <div class="stat-val">${p1A}x</div>
+        </div>
+        <div class="stat-row">
+          <div class="stat-label">${n1} pilih B</div>
+          <div class="stat-bar-wrap"><div class="stat-bar" style="width:${total?Math.round(p1B/total*100):0}%;background:linear-gradient(90deg,var(--t-accent2),var(--t-shadow1))"></div></div>
+          <div class="stat-val">${p1B}x</div>
+        </div>
+        <div class="stat-row">
+          <div class="stat-label">${n2} pilih A</div>
+          <div class="stat-bar-wrap"><div class="stat-bar" style="width:${total?Math.round(p2A/total*100):0}%;background:linear-gradient(90deg,var(--t-accent3),var(--t-accent1))"></div></div>
+          <div class="stat-val">${p2A}x</div>
+        </div>
+        <div class="stat-row">
+          <div class="stat-label">${n2} pilih B</div>
+          <div class="stat-bar-wrap"><div class="stat-bar" style="width:${total?Math.round(p2B/total*100):0}%;background:linear-gradient(90deg,var(--t-mid),var(--t-accent2))"></div></div>
+          <div class="stat-val">${p2B}x</div>
+        </div>
+      </div>
+
+      <!-- Fun facts -->
+      <div class="stats-section">
+        <div class="stats-title">🎯 Fun Facts</div>
+        <div style="font-size:.84rem;font-weight:800;color:var(--t-ink);line-height:1.9;display:flex;flex-direction:column;gap:4px;">
+          <div>🔥 Streak terpanjang sama: <strong>${getLongestStreak(allRoundData)}</strong> soal</div>
+          <div>🗓️ Mode: <strong>${gameMode==='match'?'Match Mode — Cek Kompak':'Guess Mode — Tebak Lawan'}</strong></div>
+          <div>📝 Total soal dimainkan: <strong>${total}</strong></div>
+          <div>${sameCount===total?'🏆 Sempurna! Kalian jawab sama semua!':sameCount===0?'😂 Tidak ada satupun yang sama — unik!':'💡 Kalian punya kesamaan dan perbedaan yang seru!'}</div>
+        </div>
+      </div>
+    `;
+  } else {
+    // Guess mode stats
+    const gs1=guessScores['1'], gs2=guessScores['2'];
+    el.innerHTML=`
+      <!-- Guess Scores -->
+      <div class="stats-section">
+        <div class="stats-title">🎯 Skor Guess Mode</div>
+        <div style="display:flex;gap:10px;">
+          <div class="guess-score-card ${gs1>gs2?'winner':''}">
+            <div class="gs-name">${n1}</div>
+            <div class="gs-pts">${gs1}</div>
+            <div class="gs-sub">tebakan benar</div>
+          </div>
+          <div class="guess-score-card ${gs2>gs1?'winner':''}">
+            <div class="gs-name">${n2}</div>
+            <div class="gs-pts">${gs2}</div>
+            <div class="gs-sub">tebakan benar</div>
+          </div>
+        </div>
+        <div style="text-align:center;font-size:.82rem;font-weight:800;color:#888;margin-top:10px;">
+          ${gs1>gs2?`${n1} lebih kenal ${n2}!`:gs2>gs1?`${n2} lebih kenal ${n1}!`:'Kalian saling mengenal dengan sama baiknya! 🤝'}
+        </div>
+      </div>
+
+      <!-- Compatibility tetap dihitung dari jawaban asli -->
+      <div class="stats-section">
+        <div class="stats-title">💑 Seberapa Kompak Kalian?</div>
+        <div class="compat-ring">
+          <svg viewBox="0 0 110 110" width="120" height="120">
+            <circle cx="55" cy="55" r="48" fill="none" stroke="#f0f0f0" stroke-width="10"/>
+            <circle cx="55" cy="55" r="48" fill="none" stroke="${ringColor}" stroke-width="10"
+              stroke-linecap="round" stroke-dasharray="${C}" stroke-dashoffset="${offset}"
+              transform="rotate(-90 55 55)" style="transition:stroke-dashoffset 1.2s ease"/>
+          </svg>
+          <div class="cr-num">${pct}%<span class="cr-sub">Cocok</span></div>
+        </div>
+        <div style="text-align:center;font-weight:900;font-size:.9rem;color:var(--t-ink);">${compatLabel}</div>
+        <div style="text-align:center;font-size:.78rem;font-weight:700;color:#888;">Jawaban asli kalian sama ${sameCount}/${total} soal</div>
+      </div>
+
+      <!-- Per-soal breakdown -->
+      <div class="stats-section">
+        <div class="stats-title">📋 Hasil Tebakan</div>
+        ${allRoundData.map((r,i)=>{
+          const q=r.q; const label=q?.question||`Soal ${i+1}`;
+          const disp1=r.a1==='A'?(q?.a||'A'):r.a1==='B'?(q?.b||'B'):(r.a1||'⏱️');
+          const disp2=r.a2==='A'?(q?.a||'A'):r.a2==='B'?(q?.b||'B'):(r.a2||'⏱️');
+          return `<div class="q-recap">
+            <div class="q-recap-text">${label}</div>
+            <div class="q-recap-ans">
+              <div class="q-recap-box ${r.same?'match':'diff1'}">
+                <div class="qr-name">${n1}</div>
+                <div class="qr-val">${disp1}</div>
+              </div>
+              <div style="display:flex;align-items:center;font-size:.9rem;">${r.same?'✅':'❌'}</div>
+              <div class="q-recap-box ${r.same?'match':'diff2'}">
+                <div class="qr-name">${n2}</div>
+                <div class="qr-val">${disp2}</div>
+              </div>
+            </div>
+          </div>`;
+        }).join('')}
+      </div>
+
+      <!-- Fun facts -->
+      <div class="stats-section">
+        <div class="stats-title">🎯 Fun Facts</div>
+        <div style="font-size:.84rem;font-weight:800;color:var(--t-ink);line-height:1.9;display:flex;flex-direction:column;gap:4px;">
+          <div>🔥 ${n1} menebak ${gs1}/${total} jawaban ${n2} dengan benar</div>
+          <div>🔥 ${n2} menebak ${gs2}/${total} jawaban ${n1} dengan benar</div>
+          <div>💡 Akurasi ${n1}: <strong>${total?Math.round(gs1/total*100):0}%</strong></div>
+          <div>💡 Akurasi ${n2}: <strong>${total?Math.round(gs2/total*100):0}%</strong></div>
+          <div>📝 Total soal: <strong>${total}</strong></div>
+        </div>
+      </div>
+    `;
+  }
+}
+
+function getLongestStreak(rounds) {
+  let max=0,cur=0;
+  rounds.forEach(r=>{cur=r.same?cur+1:0;max=Math.max(max,cur);});
+  return max;
+}
+
+function showStats() {
+  showScreen('s-stats');
+}
+
+function restartGame(){
+  // Reset guess scores on restart
+  guessScores={'1':0,'2':0};
+  allRoundData=[];
+  send({type:'restart'});
+}
+function goLobby(){_pendingCreateName=''; showScreen('s-lobby');}
 
 // ══════════════════════ HISTORY ══════════════════════
 function openHistoryBrowser(){send({type:'get_history'});showOverlay('ov-hist');}

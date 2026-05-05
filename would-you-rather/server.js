@@ -379,7 +379,7 @@ function handle(ws, d) {
       ws.roomCode = code;
       ws.playerNum = "2";
       ws.send(JSON.stringify({ type: "joined", code, playerNum: "2", name: d.name, opponentName: r.state.names["1"] }));
-      broadcast(r, { type: "both_joined", names: r.state.names });
+      broadcast(r, { type: "both_joined", names: r.state.names, gameMode: r.state.gameMode || 'match' });
       break;
     }
 
@@ -389,6 +389,8 @@ function handle(ws, d) {
         room.state.questions = d.questions;
         room.state.totalLevels = d.questions.length;
       }
+      // Save game mode
+      if (d.gameMode) room.state.gameMode = d.gameMode;
       // Inject bonus questions ke level terakhir kalau ada
       if (room.state.bonusPending && room.state.bonusQuestions) {
         const bq = room.state.bonusQuestions;
@@ -420,7 +422,7 @@ function handle(ws, d) {
       room.state.history = [];
       room.state.currentLevelHistory = [];
       room.state.scores = { "1": 0, "2": 0 };
-      broadcast(room, { type: "game_starting", names: room.state.names, totalLevels: room.state.totalLevels || 3 });
+      broadcast(room, { type: "game_starting", names: room.state.names, totalLevels: room.state.totalLevels || 3, gameMode: room.state.gameMode || 'match' });
       setTimeout(() => startQuestion(room), 1000);
       break;
     }
