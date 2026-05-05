@@ -219,16 +219,25 @@ function revealAnswer(room) {
   const a2 = ans["2"] !== undefined ? ans["2"] : null;
   const isSecret = q.type === "secret";
   const isBonus = q.type === "bonus_pair";
+  const isGuessMode = room.state.gameMode === "guess";
 
   let same = false;
   if (!isSecret && !isBonus) {
-    same = a1 !== null && a2 !== null && a1 === a2;
-    if (same) {
-      room.state.scores["1"] += 2;
-      room.state.scores["2"] += 2;
-      room.state.consecutiveSame++;
+    if (isGuessMode) {
+      // Guess mode: a2 adalah tebakan P2 tentang P1, bukan jawaban independen P2.
+      // Jangan bandingkan a1===a2 sebagai "sama", jangan kasih skor, jangan hitung streak.
+      // Skor ditangani client via pesan "guess_point".
+      same = false;
+      // streak tidak diubah di sini — diurus di handler next_question
     } else {
-      room.state.consecutiveSame = 0;
+      same = a1 !== null && a2 !== null && a1 === a2;
+      if (same) {
+        room.state.scores["1"] += 2;
+        room.state.scores["2"] += 2;
+        room.state.consecutiveSame++;
+      } else {
+        room.state.consecutiveSame = 0;
+      }
     }
   }
 
@@ -241,11 +250,11 @@ function revealAnswer(room) {
     isBonus,
   });
 
-  const challenge = (!isSecret && !isBonus && !same)
+  const challenge = (!isSecret && !isBonus && !same && !isGuessMode)
     ? CHALLENGES[Math.floor(Math.random() * CHALLENGES.length)]
     : null;
 
-  if (!isSecret && !isBonus) {
+  if (!isSecret && !isBonus && !isGuessMode) {
     const cs = room.state.consecutiveSame;
     if (cs >= 5 && !room.state.honestUsedInLevel) {
       room.state._injectHonest = true;
