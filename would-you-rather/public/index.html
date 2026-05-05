@@ -2009,56 +2009,45 @@ function buildStats(d) {
       <!-- Guess Scores -->
       <div class="stats-section">
         <div class="stats-title">🎯 Skor Guess Mode</div>
-        <div style="display:flex;gap:10px;">
-          <div class="guess-score-card ${gs1>gs2?'winner':''}">
-            <div class="gs-name">${n1}</div>
-            <div class="gs-pts">${gs1}</div>
-            <div class="gs-sub">tebakan benar</div>
-          </div>
-          <div class="guess-score-card ${gs2>gs1?'winner':''}">
+        <div style="display:flex;justify-content:center;">
+          <div class="guess-score-card winner" style="min-width:140px;">
             <div class="gs-name">${n2}</div>
             <div class="gs-pts">${gs2}</div>
-            <div class="gs-sub">tebakan benar</div>
+            <div class="gs-sub">tebakan benar dari ${total} soal</div>
           </div>
         </div>
         <div style="text-align:center;font-size:.82rem;font-weight:800;color:#888;margin-top:10px;">
-          ${gs1>gs2?`${n1} lebih kenal ${n2}!`:gs2>gs1?`${n2} lebih kenal ${n1}!`:'Kalian saling mengenal dengan sama baiknya! 🤝'}
+          ${gs2===total?`Sempurna! ${n2} tahu semua jawaban ${n1}! 🏆`:gs2>=total*0.7?`${n2} sangat kenal ${n1}! 💪`:gs2>0?`${n2} berhasil menebak ${gs2} dari ${total} jawaban ${n1}`:`${n2} belum bisa menebak jawaban ${n1} 😅`}
         </div>
       </div>
 
-      <!-- Compatibility tetap dihitung dari jawaban asli -->
+      <!-- Per-soal breakdown berdasarkan tebakan P2 -->
       <div class="stats-section">
-        <div class="stats-title">💑 Seberapa Kompak Kalian?</div>
-        <div class="compat-ring">
-          <svg viewBox="0 0 110 110" width="120" height="120">
-            <circle cx="55" cy="55" r="48" fill="none" stroke="#f0f0f0" stroke-width="10"/>
-            <circle cx="55" cy="55" r="48" fill="none" stroke="${ringColor}" stroke-width="10"
-              stroke-linecap="round" stroke-dasharray="${C}" stroke-dashoffset="${offset}"
-              transform="rotate(-90 55 55)" style="transition:stroke-dashoffset 1.2s ease"/>
-          </svg>
-          <div class="cr-num">${pct}%<span class="cr-sub">Cocok</span></div>
-        </div>
-        <div style="text-align:center;font-weight:900;font-size:.9rem;color:var(--t-ink);">${compatLabel}</div>
-        <div style="text-align:center;font-size:.78rem;font-weight:700;color:#888;">Jawaban asli kalian sama ${sameCount}/${total} soal</div>
-      </div>
-
-      <!-- Per-soal breakdown -->
-      <div class="stats-section">
-        <div class="stats-title">📋 Hasil Tebakan</div>
+        <div class="stats-title">📋 Hasil Tebakan ${n2}</div>
         ${allRoundData.map((r,i)=>{
           const q=r.q; const label=q?.question||`Soal ${i+1}`;
-          const disp1=r.a1==='A'?(q?.a||'A'):r.a1==='B'?(q?.b||'B'):(r.a1||'⏱️');
-          const disp2=r.a2==='A'?(q?.a||'A'):r.a2==='B'?(q?.b||'B'):(r.a2||'⏱️');
+          const a1=r.a1||''; const a2=r.a2||'';
+          const disp1=a1==='A'?(q?.a||'A'):a1==='B'?(q?.b||'B'):(a1||'⏱️');
+          const disp2=a2==='A'?(q?.a||'A'):a2==='B'?(q?.b||'B'):(a2||'⏱️');
+          // Guess correct: ab = exact match, open = any word from a2 in a1 (case-insensitive)
+          let guessOk = false;
+          if(q?.type==='open'||(!q?.a&&!q?.b)) {
+            const w1=a1.toLowerCase().trim(); const w2=a2.toLowerCase().trim();
+            const words=w2.split(/\s+/).filter(w=>w.length>0);
+            guessOk = words.length>0 && words.some(w=>w1.includes(w));
+          } else {
+            guessOk = a1!=='' && a2!=='' && a1===a2;
+          }
           return `<div class="q-recap">
             <div class="q-recap-text">${label}</div>
             <div class="q-recap-ans">
-              <div class="q-recap-box ${r.same?'match':'diff1'}">
-                <div class="qr-name">${n1}</div>
+              <div class="q-recap-box ${guessOk?'match':'diff1'}">
+                <div class="qr-name">${n1} jawab</div>
                 <div class="qr-val">${disp1}</div>
               </div>
-              <div style="display:flex;align-items:center;font-size:.9rem;">${r.same?'✅':'❌'}</div>
-              <div class="q-recap-box ${r.same?'match':'diff2'}">
-                <div class="qr-name">${n2}</div>
+              <div style="display:flex;align-items:center;font-size:.9rem;">${guessOk?'🎯':'❌'}</div>
+              <div class="q-recap-box ${guessOk?'match':'diff2'}">
+                <div class="qr-name">${n2} tebak</div>
                 <div class="qr-val">${disp2}</div>
               </div>
             </div>
@@ -2070,10 +2059,8 @@ function buildStats(d) {
       <div class="stats-section">
         <div class="stats-title">🎯 Fun Facts</div>
         <div style="font-size:.84rem;font-weight:800;color:var(--t-ink);line-height:1.9;display:flex;flex-direction:column;gap:4px;">
-          <div>🔥 ${n1} menebak ${gs1}/${total} jawaban ${n2} dengan benar</div>
-          <div>🔥 ${n2} menebak ${gs2}/${total} jawaban ${n1} dengan benar</div>
-          <div>💡 Akurasi ${n1}: <strong>${total?Math.round(gs1/total*100):0}%</strong></div>
-          <div>💡 Akurasi ${n2}: <strong>${total?Math.round(gs2/total*100):0}%</strong></div>
+          <div>🎯 ${n2} berhasil menebak <strong>${gs2}/${total}</strong> jawaban ${n1}</div>
+          <div>💡 Akurasi tebakan: <strong>${total?Math.round(gs2/total*100):0}%</strong></div>
           <div>📝 Total soal: <strong>${total}</strong></div>
         </div>
       </div>
