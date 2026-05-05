@@ -979,17 +979,13 @@ function handleMsg(d) {
             _storedRevealData = d;
             showGuessPhase(d);
           } else if(d.question?.type==='open') {
-            // Open question: check if any word from P2's answer appears in P1's (case-insensitive)
-            const a1Open = (d.answers?.['1'] || '').toLowerCase().trim();
-            const a2Open = (d.answers?.['2'] || '').toLowerCase().trim();
-            if(a2Open && a1Open) {
-              const p2Words = a2Open.split(/\s+/).filter(w => w.length > 0);
-              const openGuessCorrect = p2Words.length > 0 && p2Words.some(w => a1Open.includes(w));
-              if(openGuessCorrect) {
-                guessScores['2'] = (guessScores['2']||0) + 1;
-                send({type:'guess_point'});
-                showToast('Jawaban Cocok! 🎯 +1');
-              }
+            const a1Open = d.answers?.['1'] || '';
+            const a2Open = d.answers?.['2'] || '';
+            const openGuessCorrect = isGuessCorrect(a1Open, a2Open, 'open');
+            if(openGuessCorrect && a2Open) {
+              guessScores['2'] = (guessScores['2']||0) + 1;
+              send({type:'guess_point'});
+              showToast('Jawaban Cocok! 🎯 +1');
             }
             showReveal(d);
           } else {
@@ -1657,7 +1653,7 @@ function submitGuess(choice, revealData) {
 
   // P2 menebak jawaban P1
   const p1RealAnswer = revealData.answers['1'];
-  const guessCorrect = choice === p1RealAnswer;
+  const guessCorrect = isGuessCorrect(p1RealAnswer, choice, 'ab');
 
   if(guessCorrect) {
     guessScores['2'] = (guessScores['2']||0) + 1;
@@ -1707,7 +1703,29 @@ function showGuessReveal(revealData, myGuess, guessCorrect) {
   showOverlay('ov-reveal');
 }
 
-// ══════════════════════ REVEAL (Match Mode / Normal) ══════════════════════
+// ══════════════════════ GUESS MATCHING LOGIC ══════════════════════
+// Rules:
+//   A/B soal → exact match (case-insensitive)
+//   Open soal → salah satu pihak mengandung kata dari yang lain (case-insensitive)
+//   "musik" vs "Musik" → benar
+//   "baju baru" vs "baju" → benar (kata "baju" ada di "baju baru")
+//   "oke" vs "oke banget" → benar (kata "oke" ada di "oke banget")
+//   "jatuh" vs "Jatuh meja" → benar (kata "jatuh" ada di "Jatuh meja")
+function isGuessCorrect(a1, a2, qType) {
+  if(!a1 || !a2) return false;
+  const s1 = a1.toLowerCase().trim();
+  const s2 = a2.toLowerCase().trim();
+  if(qType === 'ab') {
+    return s1 === s2;
+  }
+  // open-ended: cek apakah ada kata dari s1 yang ada di s2, atau sebaliknya
+  const words1 = s1.split(/\s+/).filter(w => w.length >= 2);
+  const words2 = s2.split(/\s+/).filter(w => w.length >= 2);
+  if(s1 === s2) return true;
+  if(words2.some(w => s1.includes(w))) return true;
+  if(words1.some(w => s2.includes(w))) return true;
+  return false;
+}
 function showReveal(d) {
   const same=d.same;
   const isSecret=d.isSecret;
@@ -1724,7 +1742,7 @@ function showReveal(d) {
     const q = d.question;
     const p1RealAns = a1;
     const p2Guess = a2; // di guess mode, P2 submit tebakannya sebagai "jawaban"
-    const guessCorrect = p2Guess && p1RealAns && p2Guess === p1RealAns;
+    const guessCorrect = isGuessCorrect(p1RealAns, p2Guess, q?.type||'ab');
     const dispP1 = p1RealAns==='A'?(q?.a||'A'):p1RealAns==='B'?(q?.b||'B'):(p1RealAns||'⏱️');
     const dispP2 = p2Guess==='A'?(q?.a||'A'):p2Guess==='B'?(q?.b||'B'):(p2Guess||'⏱️');
 
@@ -2059,15 +2077,8 @@ function buildStats(d) {
           const a1=r.a1||''; const a2=r.a2||'';
           const disp1=a1==='A'?(q?.a||'A'):a1==='B'?(q?.b||'B'):(a1||'⏱️');
           const disp2=a2==='A'?(q?.a||'A'):a2==='B'?(q?.b||'B'):(a2||'⏱️');
-          // Guess correct: ab = exact match, open = any word from a2 in a1 (case-insensitive)
-          let guessOk = false;
-          if(q?.type==='open'||(!q?.a&&!q?.b)) {
-            const w1=a1.toLowerCase().trim(); const w2=a2.toLowerCase().trim();
-            const words=w2.split(/\s+/).filter(w=>w.length>0);
-            guessOk = words.length>0 && words.some(w=>w1.includes(w));
-          } else {
-            guessOk = a1!=='' && a2!=='' && a1===a2;
-          }
+          // Guess correct: gunakan isGuessCorrect untuk konsistensi
+          const guessOk = isGuessCorrect(a1, a2, q?.type||'ab');
           return `<div class="q-recap">
             <div class="q-recap-text">${label}</div>
             <div class="q-recap-ans">
