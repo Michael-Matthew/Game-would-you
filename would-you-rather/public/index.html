@@ -972,33 +972,52 @@ function handleMsg(d) {
     case 'reveal':
       scores=d.scores;
       clearTimerTick();
-      if(gameMode==='guess' && !d.isSecret && !d.isBonus) {
-        if(myNum === '2') {
-          // P2: enter guess phase (tebak jawaban P1)
-          if(d.question?.type==='ab') {
-            _storedRevealData = d;
-            showGuessPhase(d);
-          } else if(d.question?.type==='open') {
-            const a1Open = d.answers?.['1'] || '';
-            const a2Open = d.answers?.['2'] || '';
-            const openGuessCorrect = isGuessCorrect(a1Open, a2Open, 'open');
-            if(openGuessCorrect && a2Open) {
-              guessScores['2'] = (guessScores['2']||0) + 1;
-              send({type:'guess_point'});
-              showToast('Jawaban Cocok! 🎯 +1');
-            }
-            showReveal(d);
-          } else {
-            showReveal(d);
-          }
-        } else {
-          // P1: langsung reveal biasa, tidak ada fase nebak untuk P1
-          showReveal(d);
+      // Guess mode A/B: P2 sudah nebak dari awal (jawaban P2 IS tebakannya).
+      // Langsung showReveal — handler di dalamnya sudah urus tampilan guess result.
+      // Open/secret/bonus tetap jalan normal.
+      if(gameMode==='guess' && !d.isSecret && !d.isBonus && d.question?.type==='open' && myNum==='2') {
+        // Open question: cek apakah jawaban P2 cocok dengan P1 (open-ended matching)
+        const a1Open = d.answers?.['1'] || '';
+        const a2Open = d.answers?.['2'] || '';
+        const openGuessCorrect = isGuessCorrect(a1Open, a2Open, 'open');
+        if(openGuessCorrect && a2Open) {
+          guessScores['2'] = (guessScores['2']||0) + 1;
+          send({type:'guess_point'});
+          showToast('Jawaban Cocok! 🎯 +1');
         }
-      } else {
-        showReveal(d);
       }
+      showReveal(d);
       break;
+
+    case 'vote_start':
+      scores=d.scores;
+      names=d.names||names;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
     case 'vote_start':
       scores=d.scores;
@@ -1499,14 +1518,18 @@ function showQuestion(d) {
   const cs=d.consecutiveSame||0;
   updateStreakBar(cs);
 
-  // Guess mode: show phase banner
+  // ── GUESS MODE special handling ──
+  // P2 di soal A/B: langsung nebak jawaban P1, tidak perlu jawab untuk diri sendiri
+  const isGuessABforP2 = gameMode==='guess' && !isSecret && !isOpen && !d.isBonus && myNum==='2';
+
+  // Phase banner
   const guessPhasebar = document.getElementById('guess-phase-bar');
-  if(gameMode==='guess' && !isSecret && !isOpen) {
+  if(gameMode==='guess' && !isSecret && !isOpen && !d.isBonus) {
     guessPhasebar.style.display='block';
     if(myNum==='1') {
-      document.getElementById('guess-phase-text').textContent=`📝 Jawab untuk diri sendiri — P2 akan menebak!`;
+      document.getElementById('guess-phase-text').textContent=`📝 Jawab untuk diri sendiri — ${names['2']||'P2'} akan menebak!`;
     } else {
-      document.getElementById('guess-phase-text').textContent=`📝 Jawab dulu, lalu kamu tebak jawaban ${names['1']||'P1'}!`;
+      document.getElementById('guess-phase-text').textContent=`🎯 Tebak jawaban ${names['1']||'P1'}!`;
     }
   } else {
     guessPhasebar.style.display='none';
@@ -1515,7 +1538,13 @@ function showQuestion(d) {
   // Question card
   const qcard=document.getElementById('g-qcard');
   qcard.className='q-card'+(isSecret?' secret-glow':d.isBonus?' secret-glow':'');
-  document.getElementById('g-cat').textContent=isSecret?'🔐 SECRET ROUND':d.isBonus?'💌 BONUS QUESTION':(q.category||`Level ${d.level}`);
+
+  if(isGuessABforP2) {
+    // P2: ubah label jadi "TEBAK" bukan jawab biasa
+    document.getElementById('g-cat').textContent=`🎯 TEBAK jawaban ${names['1']||'P1'}!`;
+  } else {
+    document.getElementById('g-cat').textContent=isSecret?'🔐 SECRET ROUND':d.isBonus?'💌 BONUS QUESTION':(q.category||`Level ${d.level}`);
+  }
   document.getElementById('g-q').textContent=q.question;
 
   // Choices
@@ -1536,12 +1565,19 @@ function showQuestion(d) {
       const btn=document.getElementById('btn-'+c);
       btn.className='btn-choice';
       btn.disabled=false;
+      // Normal onclick — tapi untuk P2 guess mode, answerAB sudah cukup
+      // karena server terima jawabnya, dan reveal handler tahu ini adalah tebakan
+      btn.onclick = ()=>answerAB(c);
     });
     document.getElementById('g-ca').textContent=q.a||'Pilihan A';
     document.getElementById('g-cb').textContent=q.b||'Pilihan B';
   }
 
-  setStatus('Pilih jawaban kamu!',true);
+  if(isGuessABforP2) {
+    setStatus(`Pilih jawaban yang kamu kira dipilih ${names['1']||'P1'}!`, true);
+  } else {
+    setStatus('Pilih jawaban kamu!',true);
+  }
   const secs=isSecret||isOpen?30:20;
   startTimerTick(secs);
 }
@@ -1553,7 +1589,12 @@ function answerAB(choice) {
   document.getElementById('btn-B').disabled=true;
   document.getElementById('btn-'+choice).classList.add('picked');
   send({type:'answer',answer:choice});
-  setStatus(`Pilih ${choice}! Menunggu ${names[myNum==='1'?'2':'1']||'teman'}...`);
+  const oppName = names[myNum==='1'?'2':'1']||'teman';
+  if(gameMode==='guess' && myNum==='2') {
+    setStatus(`Tebakan terkirim! Menunggu ${names['1']||'P1'} selesai...`);
+  } else {
+    setStatus(`Pilih ${choice}! Menunggu ${oppName}...`);
+  }
 }
 
 function answerOpen() {
@@ -1587,139 +1628,6 @@ function updateTimerUI(t,total) {
   circ.style.strokeDashoffset=C*(1-t/total);
   num.textContent=t;
   circ.style.stroke=t<=5?'var(--coral)':t<=10?'var(--sun)':'var(--sky)';
-}
-
-// ══════════════════════ GUESS MODE PHASE ══════════════════════
-let _storedRevealData = null;
-let _guessSubmitted = false;
-let _partnerGuess = null; // what my partner guessed about me
-
-// ══════════════════════ STREAK BAR ══════════════════════
-function updateStreakBar(cs) {
-  for(let i=0;i<5;i++){
-    const el=document.getElementById('sp'+i);
-    if(!el) continue;
-    let cls='streak-pip'+(i===2?' sp-bonus':i===4?' sp-honest':'');
-    if(i<cs) cls+=' lit';
-    el.className=cls;
-  }
-  let label='';
-  if(gameMode==='guess'){
-    if(cs>=5) label=`🎯 ${cs}x Benar! 🔐 Jujur Round!`;
-    else if(cs>=3) label=`🎯 ${cs}x Benar berturut! 💌 Bonus!`;
-    else label=`🎯 Benar ${cs}x berturut`;
-  } else {
-    if(cs>=5) label=`Sama ${cs}x berturut 🔐 Jujur!`;
-    else if(cs>=3) label=`Sama ${cs}x berturut 💌 Bonus!`;
-    else label=`Sama ${cs}x berturut`;
-  }
-  document.getElementById('streak-lbl').textContent=label;
-}
-
-function showGuessPhase(revealData) {
-  // Hide reveal overlay, show game screen in "guess mode"
-  closeOverlay('ov-reveal');
-  showScreen('s-game');
-  answered = false;
-  _guessSubmitted = false;
-
-  const q = revealData.question;
-  const oppNum = myNum==='1'?'2':'1';
-  const oppName = names[oppNum]||'Teman';
-
-  // Show guess banner
-  const guessPhasebar = document.getElementById('guess-phase-bar');
-  guessPhasebar.style.display = 'block';
-  document.getElementById('guess-phase-text').textContent = `🎯 Tebak jawaban ${names['1']||'P1'}!`;
-
-  // Update question card — same question
-  const qcard = document.getElementById('g-qcard');
-  qcard.className = 'q-card';
-  document.getElementById('g-cat').textContent = `🎯 GUESS: Tebak jawaban ${names['1']||'P1'}!`;
-  document.getElementById('g-q').textContent = q.question;
-
-  // Show choices
-  document.getElementById('g-choices').style.display = 'flex';
-  document.getElementById('g-open-wrap').style.display = 'none';
-  ['A','B'].forEach(c=>{
-    const btn = document.getElementById('btn-'+c);
-    btn.className = 'btn-choice';
-    btn.disabled = false;
-    btn.onclick = ()=>submitGuess(c, revealData);
-  });
-  document.getElementById('g-ca').textContent = q.a||'Pilihan A';
-  document.getElementById('g-cb').textContent = q.b||'Pilihan B';
-
-  // Hide streak, update scores display with guess scores
-  document.getElementById('g-p1').textContent = '—';
-  document.getElementById('g-p2').textContent = guessScores['2']+'🎯';
-  document.getElementById('streak-lbl').textContent = '🎯 Tebak jawaban lawan!';
-
-  setStatus(`Tebak jawaban ${oppName}!`, true);
-  startTimerTick(15);
-}
-
-function submitGuess(choice, revealData) {
-  if(_guessSubmitted) return;
-  _guessSubmitted = true;
-  answered = true;
-  clearTimerTick();
-
-  document.getElementById('btn-A').disabled = true;
-  document.getElementById('btn-B').disabled = true;
-  document.getElementById('btn-'+choice).classList.add('picked');
-  setStatus('Menunggu teman menebak...');
-
-  // P2 menebak jawaban P1
-  const p1RealAnswer = revealData.answers['1'];
-  const guessCorrect = isGuessCorrect(p1RealAnswer, choice, 'ab');
-
-  if(guessCorrect) {
-    guessScores['2'] = (guessScores['2']||0) + 1;
-    send({type:'guess_point'});
-    showToast('Tebakan Benar! 🎯 +1');
-  }
-
-  // Show reveal after a brief moment
-  setTimeout(()=>{
-    showGuessReveal(revealData, choice, guessCorrect);
-  }, 800);
-}
-
-function showGuessReveal(revealData, myGuess, guessCorrect) {
-  document.getElementById('guess-phase-bar').style.display='none';
-  const q = revealData.question;
-  const p1RealAns = revealData.answers['1'];
-  const n1 = names['1']||'P1', n2 = names['2']||'P2';
-
-  const dispP1Real = p1RealAns==='A'?(q.a||'A'):p1RealAns==='B'?(q.b||'B'):(p1RealAns||'⏱️');
-  const dispMyGuess = myGuess==='A'?(q.a||'A'):myGuess==='B'?(q.b||'B'):myGuess;
-
-  document.getElementById('ov-emoji').textContent = guessCorrect?'🎯':'😅';
-  document.getElementById('ov-title').textContent = guessCorrect?'TEBAKAN BENAR! 🎯':'Salah Tebak! 😅';
-  document.getElementById('ov-sub').textContent = guessCorrect
-    ? `Kamu tahu ${n1} pilih ${dispP1Real}! +1 poin 🏆`
-    : `Kamu tebak ${dispMyGuess}, ${n1} sebenarnya pilih ${dispP1Real}`;
-
-  document.getElementById('ov-ans').innerHTML=`
-    <div class="ans-box diff1">
-      <div class="an-player">Jawaban ${n1}</div>
-      <div class="an-val">${dispP1Real}</div>
-    </div>
-    <div class="ans-box ${guessCorrect?'same':'diff2'}">
-      <div class="an-player">Tebakan ${n2}</div>
-      <div class="an-val">${dispMyGuess}</div>
-    </div>`;
-
-  document.getElementById('ov-challenge').style.display='none';
-  document.getElementById('ov-next-btn').style.display=myNum==='1'?'block':'none';
-  document.getElementById('ov-wait-next').style.display=myNum==='1'?'none':'block';
-
-  // Reset button onclick back to normal
-  document.getElementById('btn-A').onclick = ()=>answerAB('A');
-  document.getElementById('btn-B').onclick = ()=>answerAB('B');
-
-  showOverlay('ov-reveal');
 }
 
 // ══════════════════════ GUESS MATCHING LOGIC ══════════════════════
@@ -1756,28 +1664,45 @@ function showReveal(d) {
   const n1=names['1']||'P1';
   const n2=names['2']||'P2';
 
-  // GUESS MODE: P1 melihat apakah P2 berhasil menebak jawaban P1
-  if(gameMode==='guess' && !isSecret && !isBonus) {
+  // GUESS MODE: P2 jawaban = tebakannya tentang P1 (langsung nebak dari awal)
+  if(gameMode==='guess' && !isSecret && !isBonus && d.question?.type==='ab') {
     const q = d.question;
-    const p1RealAns = a1;
-    const p2Guess = a2; // di guess mode, P2 submit tebakannya sebagai "jawaban"
-    const guessCorrect = isGuessCorrect(p1RealAns, p2Guess, q?.type||'ab');
-    const dispP1 = p1RealAns==='A'?(q?.a||'A'):p1RealAns==='B'?(q?.b||'B'):(p1RealAns||'⏱️');
-    const dispP2 = p2Guess==='A'?(q?.a||'A'):p2Guess==='B'?(q?.b||'B'):(p2Guess||'⏱️');
+    const p1RealAns = a1;   // jawaban asli P1
+    const p2Guess   = a2;   // tebakan P2 tentang P1
+    const guessCorrect = isGuessCorrect(p1RealAns, p2Guess, 'ab');
+
+    // Award skor ke P2 di sisi client, lalu sinkron ke server
+    if(guessCorrect && myNum==='2') {
+      guessScores['2'] = (guessScores['2']||0) + 1;
+      send({type:'guess_point'});
+    }
+
+    const dispP1 = p1RealAns==='A'?(q?.a||'Pilihan A'):p1RealAns==='B'?(q?.b||'Pilihan B'):(p1RealAns||'⏱️');
+    const dispP2 = p2Guess==='A'?(q?.a||'Pilihan A'):p2Guess==='B'?(q?.b||'Pilihan B'):(p2Guess||'⏱️');
 
     document.getElementById('ov-emoji').textContent = guessCorrect?'🎯':'😅';
-    document.getElementById('ov-title').textContent = guessCorrect?`${n2} TEBAK BENAR! 🎯`:`${n2} Salah Tebak 😅`;
-    document.getElementById('ov-sub').textContent = guessCorrect
-      ? `${n2} tahu kamu pilih ${dispP1}! Dia dapat +1 poin`
-      : `${n2} tebak ${dispP2}, kamu sebenarnya pilih ${dispP1}`;
+
+    if(myNum==='1') {
+      // P1 lihat: apakah P2 berhasil nebak P1?
+      document.getElementById('ov-title').textContent = guessCorrect?`${n2} Tebak Benar! 🎯`:`${n2} Salah Tebak 😅`;
+      document.getElementById('ov-sub').textContent = guessCorrect
+        ? `${n2} tahu kamu pilih "${dispP1}"! +1 poin untuk ${n2} 🏆`
+        : `${n2} tebak "${dispP2}", padahal kamu pilih "${dispP1}"`;
+    } else {
+      // P2 lihat: apakah tebakanku benar?
+      document.getElementById('ov-title').textContent = guessCorrect?'TEBAKAN BENAR! 🎯':'Salah Tebak! 😅';
+      document.getElementById('ov-sub').textContent = guessCorrect
+        ? `${n1} memang pilih "${dispP1}"! +1 poin buat kamu 🏆`
+        : `Kamu tebak "${dispP2}", ${n1} sebenarnya pilih "${dispP1}"`;
+    }
 
     document.getElementById('ov-ans').innerHTML=`
       <div class="ans-box diff1">
-        <div class="an-player">Jawaban ${n1}</div>
+        <div class="an-player">📝 Jawaban ${n1}</div>
         <div class="an-val">${dispP1}</div>
       </div>
       <div class="ans-box ${guessCorrect?'same':'diff2'}">
-        <div class="an-player">Tebakan ${n2}</div>
+        <div class="an-player">🎯 Tebakan ${n2}</div>
         <div class="an-val">${dispP2}</div>
       </div>`;
 
