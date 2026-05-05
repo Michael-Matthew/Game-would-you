@@ -415,7 +415,7 @@ circle{fill:none;stroke-width:5;}
 
   <div class="mode-card" id="mode-card-match" onclick="selectMode('match')">
     <div class="mode-tag">🤝 MATCH MODE</div>
-    <span class="mode-icon">💑</span>
+    <span class="mode-icon">👫</span>
     <div class="mode-title">Match Mode</div>
     <div class="mode-desc">Kalian jawab pertanyaan yang <strong>sama</strong> secara bersamaan. Semakin banyak jawaban yang sama = semakin kompak! Skor: <strong>Compatibility Score</strong> berdua.</div>
   </div>
@@ -976,6 +976,19 @@ function handleMsg(d) {
         // Store real answers for guess phase, then run guess phase
         _storedRevealData = d;
         showGuessPhase(d);
+      } else if(gameMode==='guess' && d.question?.type==='open' && !d.isSecret && !d.isBonus) {
+        // Open question in guess mode: P2's answer checked against P1's (case-insensitive)
+        // P2 gets +1 if their answer is contained in P1's answer; P1 doesn't get score
+        const a1Open = (d.answers?.['1'] || '').toLowerCase().trim();
+        const a2Open = (d.answers?.['2'] || '').toLowerCase().trim();
+        if(myNum === '2' && a2Open && a1Open) {
+          const openGuessCorrect = a1Open.includes(a2Open) || a2Open.includes(a1Open);
+          if(openGuessCorrect) {
+            guessScores['2'] = (guessScores['2']||0) + 1;
+            showToast('Jawaban Cocok! 🎯 +1');
+          }
+        }
+        showReveal(d);
       } else {
         showReveal(d);
       }
