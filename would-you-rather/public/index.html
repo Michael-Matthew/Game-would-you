@@ -1758,7 +1758,9 @@ function showReveal(d) {
   const n2=names['2']||'P2';
 
   // GUESS MODE A/B: a2 = tebakan P2 tentang P1 (langsung dari showQuestion)
-  if(gameMode==='guess' && !isSecret && !isBonus && d.question?.type==='ab') {
+  // Guard: bukan secret, bukan bonus, bukan open (= soal pilihan ganda / ab)
+  const qType = d.question?.type;
+  if(gameMode==='guess' && !isSecret && !isBonus && qType !== 'open') {
     const q = d.question;
     const p1RealAns = a1;
     const p2Guess   = a2;
