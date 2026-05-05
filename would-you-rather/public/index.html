@@ -972,17 +972,18 @@ function handleMsg(d) {
     case 'reveal':
       scores=d.scores;
       clearTimerTick();
-      // Guess mode A/B: P2 sudah nebak dari awal saat showQuestion.
-      // Jawaban P2 = tebakannya → langsung showReveal, tidak perlu showGuessPhase lagi.
-      // Open question tetap: auto-cek kecocokan dulu.
-      if(gameMode==='guess' && !d.isSecret && !d.isBonus && d.question?.type==='open' && myNum==='2') {
+      // Guess mode open question: cek kecocokan sebelum reveal
+      if(gameMode==='guess' && !d.isSecret && !d.isBonus && d.question?.type==='open') {
         const a1Open = d.answers?.['1'] || '';
         const a2Open = d.answers?.['2'] || '';
-        if(isGuessCorrect(a1Open, a2Open, 'open') && a2Open) {
+        const openCorrect = isGuessCorrect(a1Open, a2Open, 'open') && a1Open && a2Open;
+        if(openCorrect && myNum==='2') {
           guessScores['2'] = (guessScores['2']||0) + 1;
           send({type:'guess_point'});
           showToast('Jawaban Cocok! 🎯 +1');
         }
+        showRevealGuessOpen(d, openCorrect);
+        break;
       }
       showReveal(d);
       break;
@@ -1192,7 +1193,7 @@ function confirmMode() {
     // First time: create room
     const name = _pendingCreateName;
     _pendingCreateName = '';
-    send({type:'create_room', name});
+    send({type:'create_room', name, gameMode: gameMode});
   } else {
     // Mode change: just go back to wait screen
     showScreen('s-wait');
@@ -1869,6 +1870,38 @@ function showReveal(d) {
   document.getElementById('ov-next-btn').style.display=myNum==='1'?'block':'none';
   document.getElementById('ov-wait-next').style.display=myNum==='1'?'none':'block';
 
+  showOverlay('ov-reveal');
+}
+
+// ══ GUESS MODE — OPEN QUESTION REVEAL ══
+function showRevealGuessOpen(d, guessCorrect) {
+  const n1=names['1']||'P1', n2=names['2']||'P2';
+  const a1=d.answers['1']||'(tidak jawab)';
+  const a2=d.answers['2']||'(tidak jawab)';
+  document.getElementById('ov-emoji').textContent = guessCorrect?'🎯':'😅';
+  if(myNum==='1') {
+    document.getElementById('ov-title').textContent = guessCorrect?`${n2} Tebak Benar! 🎯`:`${n2} Salah Tebak 😅`;
+    document.getElementById('ov-sub').textContent = guessCorrect
+      ? `${n2} punya jawaban yang mirip denganmu! +1 poin untuk ${n2} 🏆`
+      : `Jawaban kalian tidak mirip — tapi tetap seru! 😄`;
+  } else {
+    document.getElementById('ov-title').textContent = guessCorrect?'TEBAKAN BENAR! 🎯':'Salah Tebak! 😅';
+    document.getElementById('ov-sub').textContent = guessCorrect
+      ? `Jawabanmu mirip dengan ${n1}! +1 poin buat kamu 🏆`
+      : `Jawabanmu beda dari ${n1} — lebih kenal lagi yuk! 😊`;
+  }
+  document.getElementById('ov-ans').innerHTML=`
+    <div class="ans-box diff1" style="flex-direction:column;text-align:left;padding:10px 12px;">
+      <div class="an-player" style="margin-bottom:4px;">📝 Jawaban ${n1}</div>
+      <div class="an-open">${a1}</div>
+    </div>
+    <div class="ans-box ${guessCorrect?'same':'diff2'}" style="flex-direction:column;text-align:left;padding:10px 12px;">
+      <div class="an-player" style="margin-bottom:4px;">🎯 Jawaban ${n2}</div>
+      <div class="an-open">${a2}</div>
+    </div>`;
+  document.getElementById('ov-challenge').style.display='none';
+  document.getElementById('ov-next-btn').style.display=myNum==='1'?'block':'none';
+  document.getElementById('ov-wait-next').style.display=myNum==='1'?'none':'block';
   showOverlay('ov-reveal');
 }
 

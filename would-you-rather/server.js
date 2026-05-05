@@ -127,7 +127,7 @@ function generateCode() {
   return c;
 }
 
-function makeRoom(code, name) {
+function makeRoom(code, name, gameMode) {
   return {
     code,
     players: { "1": null, "2": null },
@@ -151,6 +151,7 @@ function makeRoom(code, name) {
       history: [],
       currentLevelHistory: [],
       timer: null,
+      gameMode: gameMode || "match",
     },
   };
 }
@@ -390,7 +391,7 @@ function handle(ws, d) {
     case "create_room": {
       let code = generateCode();
       while (rooms[code]) code = generateCode();
-      const r = makeRoom(code, d.name || "Player 1");
+      const r = makeRoom(code, d.name || "Player 1", d.gameMode || "match");
       rooms[code] = r;
       r.players["1"] = ws;
       ws.roomCode = code;
@@ -503,7 +504,10 @@ function handle(ws, d) {
     case "next_question": {
       if (!room || ws.playerNum !== "1") return;
       // In guess mode, if no guess_point was sent for this question, it was wrong → reset streak
-      if (room.state.gameMode === "guess" && !room.state._guessCorrectThisRound) {
+      // BUT: skip streak reset for secret rounds (no guessing involved)
+      const curQ = room.state.questions[room.state.level]?.[room.state.qIndex];
+      const isSecretQ = curQ?.type === "secret";
+      if (room.state.gameMode === "guess" && !room.state._guessCorrectThisRound && !isSecretQ) {
         room.state.consecutiveSame = 0;
       }
       room.state._guessCorrectThisRound = false;
