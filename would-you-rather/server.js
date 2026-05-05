@@ -453,10 +453,27 @@ function handle(ws, d) {
       break;
     }
 
+    case "set_mode": {
+      if (!room || ws.playerNum !== "1") return;
+      room.state.gameMode = d.gameMode || "match";
+      // Broadcast updated mode to both players immediately
+      broadcast(room, { type: "mode_updated", gameMode: room.state.gameMode });
+      break;
+    }
+
     case "guess_point": {
       if (!room) return;
       room.state.guessScores["2"] = (room.state.guessScores["2"] || 0) + 1;
-      broadcast(room, { type: "guess_score_update", guessScores: room.state.guessScores });
+      room.state._guessCorrectThisRound = true;
+      // In guess mode, treat correct guess as "same" for streak purposes
+      room.state.consecutiveSame++;
+      const cs = room.state.consecutiveSame;
+      if (cs >= 5 && !room.state.honestUsedInLevel) {
+        room.state._injectHonest = true;
+      } else if (cs >= 3 && !room.state.bonusUsedInLevel && !room.state._injectHonest) {
+        room.state._injectBonus = true;
+      }
+      broadcast(room, { type: "guess_score_update", guessScores: room.state.guessScores, consecutiveSame: room.state.consecutiveSame });
       break;
     }
 
@@ -475,6 +492,11 @@ function handle(ws, d) {
 
     case "next_question": {
       if (!room || ws.playerNum !== "1") return;
+      // In guess mode, if no guess_point was sent for this question, it was wrong → reset streak
+      if (room.state.gameMode === "guess" && !room.state._guessCorrectThisRound) {
+        room.state.consecutiveSame = 0;
+      }
+      room.state._guessCorrectThisRound = false;
       nextQuestion(room);
       break;
     }
