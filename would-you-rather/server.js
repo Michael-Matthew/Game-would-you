@@ -219,16 +219,16 @@ function revealAnswer(room) {
   const a2 = ans["2"] !== undefined ? ans["2"] : null;
   const isSecret = q.type === "secret";
   const isBonus = q.type === "bonus_pair";
+
   const isGuessMode = room.state.gameMode === "guess";
 
   let same = false;
   if (!isSecret && !isBonus) {
     if (isGuessMode) {
-      // Guess mode: a2 adalah tebakan P2 tentang P1, bukan jawaban independen P2.
-      // Jangan bandingkan a1===a2 sebagai "sama", jangan kasih skor, jangan hitung streak.
-      // Skor ditangani client via pesan "guess_point".
+      // Guess mode: a2 = tebakan P2 tentang P1, BUKAN jawaban independen.
+      // Jangan hitung same, jangan kasih skor, jangan update streak di sini.
+      // Skor & streak diurus via pesan "guess_point" dari client.
       same = false;
-      // streak tidak diubah di sini — diurus di handler next_question
     } else {
       same = a1 !== null && a2 !== null && a1 === a2;
       if (same) {
@@ -250,6 +250,7 @@ function revealAnswer(room) {
     isBonus,
   });
 
+  // Challenge & streak inject: skip di guess mode
   const challenge = (!isSecret && !isBonus && !same && !isGuessMode)
     ? CHALLENGES[Math.floor(Math.random() * CHALLENGES.length)]
     : null;
