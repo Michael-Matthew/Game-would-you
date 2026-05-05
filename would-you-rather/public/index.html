@@ -70,8 +70,8 @@ body::after{content:'';position:fixed;inset:0;z-index:0;
 /* ── CARDS ── */
 .card{background:var(--white);border-radius:22px;padding:20px;width:100%;
   box-shadow:4px 4px 0 rgba(0,0,0,.1),0 8px 24px rgba(0,0,0,.06);
-  border:2px solid rgba(0,0,0,.06);}
-.card-title{font-family:'Boogaloo',cursive;font-size:1.2rem;color:var(--ink);margin-bottom:12px;display:flex;align-items:center;gap:8px;}
+  border:2px solid var(--t-soft);}
+.card-title{font-family:'Boogaloo',cursive;font-size:1.2rem;color:var(--t-ink);margin-bottom:12px;display:flex;align-items:center;gap:8px;}
 
 /* ── BUTTONS ── */
 .btn{border:none;cursor:pointer;font-family:'Boogaloo',cursive;letter-spacing:.5px;
@@ -92,9 +92,9 @@ body::after{content:'';position:fixed;inset:0;z-index:0;
 .btn-sm{padding:9px 16px;font-size:.9rem;width:auto;border-radius:10px;}
 
 /* ── INPUTS ── */
-input,textarea{width:100%;padding:12px 14px;border:2px solid #e8e8e8;border-radius:12px;
-  font-family:'Nunito',sans-serif;font-size:.95rem;font-weight:700;color:var(--ink);
-  background:#fafafa;outline:none;transition:border-color .2s;}
+input,textarea{width:100%;padding:12px 14px;border:2px solid var(--t-mid);border-radius:12px;
+  font-family:'Nunito',sans-serif;font-size:.95rem;font-weight:700;color:var(--t-ink);
+  background:var(--t-bg);outline:none;transition:border-color .2s,background .2s;}
 input:focus,textarea:focus{border-color:var(--t-accent1);background:var(--white);}
 input::placeholder,textarea::placeholder{color:var(--t-mid);font-weight:600;}
 textarea{resize:vertical;min-height:70px;}
@@ -589,8 +589,7 @@ circle{fill:none;stroke-width:5;}
 
 <!-- ── COPYRIGHT ── -->
 <div style="position:fixed;bottom:0;left:0;right:0;z-index:50;pointer-events:none;text-align:center;padding:8px 16px 10px;">
-  <span style="font-family:'Nunito',sans-serif;font-size:.72rem;font-weight:800;color:#FF85C0;letter-spacing:.5px;
-    text-shadow:0 1px 4px rgba(255,255,255,.8);background:rgba(255,240,247,.7);border-radius:50px;padding:4px 14px;backdrop-filter:blur(4px);border:1px solid rgba(255,182,217,.4);">
+  <span id="copyright-badge" style="font-family:'Nunito',sans-serif;font-size:.72rem;font-weight:800;letter-spacing:.5px;border-radius:50px;padding:4px 14px;backdrop-filter:blur(4px);">
     © Michael 2026 💕
   </span>
 </div>
@@ -1074,17 +1073,15 @@ function setLevelCount(n) {
 }
 
 function useDefaults() {
-  // Isi semua soal yang kosong dengan pertanyaan random dari pool
+  const used = [];
   for(let lvl=0;lvl<3;lvl++){
-    const pool=[...RANDOM_POOL[lvl]];
     for(let qi=0;qi<5;qi++){
       const q=setupQuestions[lvl][qi];
       const isEmpty=!q.question.trim()||(q.type==='ab'&&(!q.a?.trim()||!q.b?.trim()));
       if(isEmpty){
-        const idx=Math.floor(Math.random()*pool.length);
-        setupQuestions[lvl][qi]={...pool[idx]};
-        pool.splice(idx,1);
-        if(pool.length===0) pool.push(...RANDOM_POOL[lvl]);
+        const pick = _pickRandom(RANDOM_POOL, used);
+        setupQuestions[lvl][qi] = pick;
+        used.push(pick.question);
       }
     }
   }
@@ -1093,34 +1090,20 @@ function useDefaults() {
 }
 
 function startGame() {
-  // Validate - fill blanks with defaults
-  const DEFAULT=[
-    [{type:'ab',question:'Liburan impian kamu?',a:'Pantai santai 🌅',b:'Hiking gunung 🏔️'},
-     {type:'ab',question:'Date makan malam?',a:'Restoran fancy 🕯️',b:'Warung pinggir jalan 🍜'},
-     {type:'ab',question:'Weekend di rumah?',a:'Nonton film 🎬',b:'Main game 🎮'},
-     {type:'ab',question:'Cuaca favorit?',a:'Panas cerah ☀️',b:'Hujan deras 🌧️'},
-     {type:'ab',question:'Peliharaan impian?',a:'Kucing 🐱',b:'Anjing 🐶'}],
-    [{type:'ab',question:'Superpower?',a:'Terbang ✈️',b:'Baca pikiran 🧠'},
-     {type:'ab',question:'Kado terbaik?',a:'Hadiah mahal 💎',b:'Buatan sendiri 🎨'},
-     {type:'ab',question:'Malam minggu?',a:'Pesta rame 🎉',b:'Dinner berdua 🕯️'},
-     {type:'ab',question:'Tipe waktu?',a:'Early bird 🌅',b:'Night owl 🌙'},
-     {type:'ab',question:'Musik santai?',a:'Lo-fi chill 🎧',b:'Lagu upbeat 🎤'}],
-    [{type:'ab',question:'Time travel?',a:'Ke masa lalu ⏪',b:'Ke masa depan ⏩'},
-     {type:'ab',question:'Kaya raya?',a:'Keliling dunia 🌍',b:'Rumah impian 🏡'},
-     {type:'ab',question:'Kerja ideal?',a:'Remote bebas 💻',b:'Kantor seru 🏢'},
-     {type:'ab',question:'Film favorit?',a:'Komedi 😂',b:'Drama 😭'},
-     {type:'ab',question:'Cara healing?',a:'Me-time 🔋',b:'Jalan bareng teman 👥'}],
-  ];
-  const finalQ=setupQuestions.map((lvl,li)=>lvl.map((q,qi)=>{
-    const def=DEFAULT[li][qi];
-    return {
-      type:q.type||'ab',
-      question:q.question.trim()||def.question,
-      a:q.type==='open'?undefined:(q.a||'').trim()||def.a,
-      b:q.type==='open'?undefined:(q.b||'').trim()||def.b,
-    };
+  // Fill any empty slots from RANDOM_POOL
+  const used = [];
+  const finalQ = setupQuestions.map(lvl => lvl.map(q => {
+    const isEmpty = !q.question.trim() || (q.type==='ab' && (!q.a?.trim()||!q.b?.trim()));
+    if(isEmpty){
+      const pick = _pickRandom(RANDOM_POOL, used);
+      used.push(pick.question);
+      return pick;
+    }
+    used.push(q.question);
+    return { type:q.type||'ab', question:q.question.trim(),
+      a:q.type==='open'?undefined:(q.a||'').trim()||undefined,
+      b:q.type==='open'?undefined:(q.b||'').trim()||undefined };
   }));
-  // Potong hanya sesuai level yang dipilih
   const finalQSliced = finalQ.slice(0, selectedLevelCount);
   send({type:'setup_done', questions:finalQSliced, levelCount: selectedLevelCount});
 }
@@ -1767,7 +1750,7 @@ let _currentTheme = localStorage.getItem('wyr-theme') || 'pink';
 function applyTheme(id) {
   const theme = THEMES.find(t=>t.id===id) || THEMES[0];
   const root = document.documentElement;
-  // Reset white/ink first
+  // Reset defaults
   root.style.setProperty('--white', '#fff');
   root.style.setProperty('--ink', theme.vars['--t-ink'] || '#333');
   Object.entries(theme.vars).forEach(([k,v])=> root.style.setProperty(k,v));
@@ -1778,6 +1761,13 @@ function applyTheme(id) {
   if(mascot) mascot.textContent = theme.emoji;
   // Update FAB color
   document.getElementById('theme-fab').style.background = theme.vars['--t-accent1'];
+  // Update copyright badge
+  const badge = document.getElementById('copyright-badge');
+  if(badge){
+    badge.style.color = theme.vars['--t-accent1'];
+    badge.style.background = (theme.vars['--t-soft']||'#FFE4F2') + 'CC';
+    badge.style.border = `1px solid ${theme.vars['--t-mid']||'#FFB6D9'}66`;
+  }
   renderThemeGrid();
 }
 
