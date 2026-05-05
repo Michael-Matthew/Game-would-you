@@ -277,6 +277,7 @@ function revealAnswer(room) {
 
   broadcast(room, {
     type: "reveal",
+    question: q,
     answers: { "1": a1, "2": a2 },
     same,
     isSecret,
@@ -289,6 +290,7 @@ function revealAnswer(room) {
 function nextQuestion(room) {
   if (room.state._injectHonest) {
     room.state._injectHonest = false;
+      room.state._waitingBonus = false;
     room.state.honestUsedInLevel = true;
     const honestQ = {
       type: "secret",
@@ -298,8 +300,10 @@ function nextQuestion(room) {
   } else if (room.state._injectBonus) {
     room.state._injectBonus = false;
     room.state.bonusUsedInLevel = true;
-    // Trigger client to open bonus question prompt
+    room.state._waitingBonus = true;
+    // Trigger client to open bonus question prompt — pause here until both submit
     broadcast(room, { type: "trigger_bonus_question" });
+    return; // don't advance yet
   }
 
   room.state.qIndex++;
@@ -438,6 +442,7 @@ function handle(ws, d) {
       room.state.honestUsedInLevel = false;
       room.state._injectBonus = false;
       room.state._injectHonest = false;
+      room.state._waitingBonus = false;
       room.state._injectSecret = false;
       room.state.history = [];
       room.state.currentLevelHistory = [];
@@ -489,6 +494,7 @@ function handle(ws, d) {
       room.state.honestUsedInLevel = false;
       room.state._injectBonus = false;
       room.state._injectHonest = false;
+      room.state._waitingBonus = false;
           room.state._injectSecret = false;
           room.state.phase = "playing";
           broadcast(room, { type: "level_start", level: room.state.level + 1, scores: room.state.scores, totalLevels: room.state.totalLevels || 3 });
@@ -585,9 +591,17 @@ function handle(ws, d) {
           question: "💌 Bonus Question",
           isBonus: true,
         };
-        room.state.questions[room.state.level].splice(room.state.qIndex + 1, 0, bonusQ);
+        // If we paused for bonus, inject at current+1 position and resume
+        const insertIdx = room.state._waitingBonus
+          ? room.state.qIndex + 1
+          : room.state.qIndex + 1;
+        room.state.questions[room.state.level].splice(insertIdx, 0, bonusQ);
         room.state.bonusQuestions = {};
+        room.state._waitingBonus = false;
         broadcast(room, { type: "bonus_questions_ready" });
+        // Resume: advance to the injected bonus question
+        room.state.qIndex++;
+        startQuestion(room);
       }
       break;
     }
@@ -608,6 +622,7 @@ function handle(ws, d) {
       room.state.honestUsedInLevel = false;
       room.state._injectBonus = false;
       room.state._injectHonest = false;
+      room.state._waitingBonus = false;
       room.state._injectSecret = false;
       room.state.history = [];
       room.state.currentLevelHistory = [];

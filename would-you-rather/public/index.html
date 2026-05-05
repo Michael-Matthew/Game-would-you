@@ -971,24 +971,33 @@ function handleMsg(d) {
     case 'reveal':
       scores=d.scores;
       clearTimerTick();
-      if(gameMode==='guess' && d.question?.type==='ab' && !d.isSecret && !d.isBonus) {
-        // Store real answers for guess phase, then run guess phase
-        _storedRevealData = d;
-        showGuessPhase(d);
-      } else if(gameMode==='guess' && d.question?.type==='open' && !d.isSecret && !d.isBonus) {
-        // Open question in guess mode: valid if ANY word from P2's answer appears in P1's answer (case-insensitive)
-        const a1Open = (d.answers?.['1'] || '').toLowerCase().trim();
-        const a2Open = (d.answers?.['2'] || '').toLowerCase().trim();
-        if(myNum === '2' && a2Open && a1Open) {
-          const p2Words = a2Open.split(/\s+/).filter(w => w.length > 0);
-          const openGuessCorrect = p2Words.length > 0 && p2Words.some(w => a1Open.includes(w));
-          if(openGuessCorrect) {
-            guessScores['2'] = (guessScores['2']||0) + 1;
-            send({type:'guess_point'});
-            showToast('Jawaban Cocok! 🎯 +1');
+      if(gameMode==='guess' && !d.isSecret && !d.isBonus) {
+        if(myNum === '2') {
+          // P2: enter guess phase (tebak jawaban P1)
+          if(d.question?.type==='ab') {
+            _storedRevealData = d;
+            showGuessPhase(d);
+          } else if(d.question?.type==='open') {
+            // Open question: check if any word from P2's answer appears in P1's (case-insensitive)
+            const a1Open = (d.answers?.['1'] || '').toLowerCase().trim();
+            const a2Open = (d.answers?.['2'] || '').toLowerCase().trim();
+            if(a2Open && a1Open) {
+              const p2Words = a2Open.split(/\s+/).filter(w => w.length > 0);
+              const openGuessCorrect = p2Words.length > 0 && p2Words.some(w => a1Open.includes(w));
+              if(openGuessCorrect) {
+                guessScores['2'] = (guessScores['2']||0) + 1;
+                send({type:'guess_point'});
+                showToast('Jawaban Cocok! 🎯 +1');
+              }
+            }
+            showReveal(d);
+          } else {
+            showReveal(d);
           }
+        } else {
+          // P1: langsung reveal biasa, tidak ada fase nebak untuk P1
+          showReveal(d);
         }
-        showReveal(d);
       } else {
         showReveal(d);
       }
@@ -1496,7 +1505,11 @@ function showQuestion(d) {
   const guessPhasebar = document.getElementById('guess-phase-bar');
   if(gameMode==='guess' && !isSecret && !isOpen) {
     guessPhasebar.style.display='block';
-    document.getElementById('guess-phase-text').textContent=`🎯 Jawab pertanyaan ini untuk diri kamu sendiri!`;
+    if(myNum==='1') {
+      document.getElementById('guess-phase-text').textContent=`📝 Jawab untuk diri sendiri — P2 akan menebak!`;
+    } else {
+      document.getElementById('guess-phase-text').textContent=`📝 Jawab dulu, lalu kamu tebak jawaban ${names['1']||'P1'}!`;
+    }
   } else {
     guessPhasebar.style.display='none';
   }
@@ -1597,12 +1610,12 @@ function showGuessPhase(revealData) {
   // Show guess banner
   const guessPhasebar = document.getElementById('guess-phase-bar');
   guessPhasebar.style.display = 'block';
-  document.getElementById('guess-phase-text').textContent = `🎯 TEBAK! Kira-kira ${oppName} pilih apa?`;
+  document.getElementById('guess-phase-text').textContent = `🎯 Tebak jawaban ${names['1']||'P1'}!`;
 
   // Update question card — same question
   const qcard = document.getElementById('g-qcard');
   qcard.className = 'q-card';
-  document.getElementById('g-cat').textContent = `🎯 GUESS: Tebak jawaban ${oppName}!`;
+  document.getElementById('g-cat').textContent = `🎯 GUESS: Tebak jawaban ${names['1']||'P1'}!`;
   document.getElementById('g-q').textContent = q.question;
 
   // Show choices
@@ -1637,12 +1650,11 @@ function submitGuess(choice, revealData) {
   document.getElementById('btn-'+choice).classList.add('picked');
   setStatus('Menunggu teman menebak...');
 
-  // Calculate if guess is correct — only P2 gets score
-  const oppNum = myNum==='1'?'2':'1';
-  const oppRealAnswer = revealData.answers[oppNum];
-  const guessCorrect = choice === oppRealAnswer;
+  // P2 menebak jawaban P1
+  const p1RealAnswer = revealData.answers['1'];
+  const guessCorrect = choice === p1RealAnswer;
 
-  if(guessCorrect && myNum === '2') {
+  if(guessCorrect) {
     guessScores['2'] = (guessScores['2']||0) + 1;
     send({type:'guess_point'});
     showToast('Tebakan Benar! 🎯 +1');
@@ -1664,24 +1676,26 @@ function showGuessReveal(revealData, myGuess, guessCorrect) {
   const myName_ = names[myNum]||`P${myNum}`;
   const oppName_ = names[oppNum]||`P${oppNum}`;
 
-  const dispMyReal = myRealAns==='A'?(q.a||'A'):myRealAns==='B'?(q.b||'B'):(myRealAns||'⏱️');
-  const dispOppReal = oppRealAns==='A'?(q.a||'A'):oppRealAns==='B'?(q.b||'B'):(oppRealAns||'⏱️');
+  const p1RealAns = revealData.answers['1'];
+  const p2RealAns = revealData.answers['2'];
+  const dispP1Real = p1RealAns==='A'?(q.a||'A'):p1RealAns==='B'?(q.b||'B'):(p1RealAns||'⏱️');
+  const dispP2Real = p2RealAns==='A'?(q.a||'A'):p2RealAns==='B'?(q.b||'B'):(p2RealAns||'⏱️');
   const dispMyGuess = myGuess==='A'?(q.a||'A'):myGuess==='B'?(q.b||'B'):myGuess;
 
   document.getElementById('ov-emoji').textContent = guessCorrect?'🎯':'😅';
   document.getElementById('ov-title').textContent = guessCorrect?'TEBAKAN BENAR! 🎯':'Salah Tebak! 😅';
   document.getElementById('ov-sub').textContent = guessCorrect
-    ? `Kamu tahu ${oppName_} pilih ${dispOppReal}! +1 poin 🏆`
-    : `Kamu tebak ${dispMyGuess}, ${oppName_} sebenarnya pilih ${dispOppReal}`;
+    ? `Kamu tahu ${names['1']||'P1'} pilih ${dispP1Real}! +1 poin 🏆`
+    : `Kamu tebak ${dispMyGuess}, ${names['1']||'P1'} sebenarnya pilih ${dispP1Real}`;
 
   document.getElementById('ov-ans').innerHTML=`
-    <div class="ans-box ${revealData.same?'same':'diff1'}">
-      <div class="an-player">${n1} (asli)</div>
-      <div class="an-val">${names['1']===myName_?dispMyReal:dispOppReal}</div>
+    <div class="ans-box diff1">
+      <div class="an-player">${names['1']||'P1'} jawab</div>
+      <div class="an-val">${dispP1Real}</div>
     </div>
-    <div class="ans-box ${revealData.same?'same':'diff2'}">
-      <div class="an-player">${n2} (asli)</div>
-      <div class="an-val">${names['2']===myName_?dispMyReal:dispOppReal}</div>
+    <div class="ans-box diff2">
+      <div class="an-player">${names['2']||'P2'} tebak</div>
+      <div class="an-val">${dispMyGuess}</div>
     </div>`;
 
   document.getElementById('ov-challenge').style.display='none';
@@ -1842,6 +1856,7 @@ function showFinal(d) {
     document.getElementById('fp2').textContent=gs2;
     document.getElementById('fp1-label').textContent='';
     document.getElementById('fp2-label').textContent='TEBAKAN BENAR';
+    document.getElementById('fsc1').style.display='none';
     document.getElementById('fsc1').classList.remove('winner');
     document.getElementById('fsc2').classList.remove('winner');
     document.getElementById('f-trophy').textContent='🎯';
@@ -1860,6 +1875,7 @@ function showFinal(d) {
   } else {
     // Match mode: original logic
     const s1=d.scores['1'],s2=d.scores['2'];
+    document.getElementById('fsc1').style.display='';
     document.getElementById('fn1').textContent=n1;
     document.getElementById('fn2').textContent=n2;
     document.getElementById('fp1').textContent=s1;
