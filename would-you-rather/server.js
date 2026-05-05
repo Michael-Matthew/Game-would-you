@@ -146,6 +146,7 @@ function makeRoom(code, name) {
       _injectSecret: false,
       answers: {},
       scores: { "1": 0, "2": 0 },
+      guessScores: { "1": 0, "2": 0 },
       voteNext: {},
       history: [],
       currentLevelHistory: [],
@@ -341,6 +342,7 @@ function endGame(room) {
   broadcast(room, {
     type: "game_over",
     scores: room.state.scores,
+    guessScores: room.state.guessScores || { "1": 0, "2": 0 },
     names,
     history: room.state.history,
     allHistory: null, // will be loaded separately if saved
@@ -440,8 +442,16 @@ function handle(ws, d) {
       room.state.history = [];
       room.state.currentLevelHistory = [];
       room.state.scores = { "1": 0, "2": 0 };
+      room.state.guessScores = { "1": 0, "2": 0 };
       broadcast(room, { type: "game_starting", names: room.state.names, totalLevels: room.state.totalLevels || 3, gameMode: room.state.gameMode || 'match' });
       setTimeout(() => startQuestion(room), 1000);
+      break;
+    }
+
+    case "guess_point": {
+      if (!room) return;
+      room.state.guessScores["2"] = (room.state.guessScores["2"] || 0) + 1;
+      broadcast(room, { type: "guess_score_update", guessScores: room.state.guessScores });
       break;
     }
 
@@ -589,6 +599,7 @@ function handle(ws, d) {
       room.state.level = 0;
       room.state.qIndex = 0;
       room.state.scores = { "1": 0, "2": 0 };
+      room.state.guessScores = { "1": 0, "2": 0 };
       room.state.answers = {};
       room.state.voteNext = {};
       room.state.consecutiveSame = 0;

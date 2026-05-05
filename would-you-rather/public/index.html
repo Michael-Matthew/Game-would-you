@@ -976,16 +976,15 @@ function handleMsg(d) {
         _storedRevealData = d;
         showGuessPhase(d);
       } else if(gameMode==='guess' && d.question?.type==='open' && !d.isSecret && !d.isBonus) {
-        // Open question in guess mode: P2's answer checked against P1's (case-insensitive)
-        // P2 gets +1 if their answer is contained in P1's answer; P1 doesn't get score
+        // Open question in guess mode: valid if ANY word from P2's answer appears in P1's answer (case-insensitive)
         const a1Open = (d.answers?.['1'] || '').toLowerCase().trim();
         const a2Open = (d.answers?.['2'] || '').toLowerCase().trim();
         if(myNum === '2' && a2Open && a1Open) {
-          // P2's answer is valid if every word in P2's answer exists in P1's answer
           const p2Words = a2Open.split(/\s+/).filter(w => w.length > 0);
-          const openGuessCorrect = p2Words.length > 0 && p2Words.every(w => a1Open.includes(w));
+          const openGuessCorrect = p2Words.length > 0 && p2Words.some(w => a1Open.includes(w));
           if(openGuessCorrect) {
             guessScores['2'] = (guessScores['2']||0) + 1;
+            send({type:'guess_point'});
             showToast('Jawaban Cocok! 🎯 +1');
           }
         }
@@ -1067,6 +1066,12 @@ function handleMsg(d) {
         else if(d.votes[n]===false) ico.textContent='❌';
         else ico.textContent='⏳';
       });
+      break;
+
+    case 'guess_score_update':
+      guessScores = d.guessScores;
+      document.getElementById('g-p2').textContent = guessScores['2']+'🎯';
+      document.getElementById('g-p1').textContent = '—';
       break;
 
     case 'save_declined':
@@ -1639,6 +1644,7 @@ function submitGuess(choice, revealData) {
 
   if(guessCorrect && myNum === '2') {
     guessScores['2'] = (guessScores['2']||0) + 1;
+    send({type:'guess_point'});
     showToast('Tebakan Benar! 🎯 +1');
   }
 
@@ -1827,7 +1833,8 @@ function showFinal(d) {
   });
 
   if(gameMode==='guess') {
-    // Guess mode: use guessScores
+    // Guess mode: use server-authoritative guessScores from game_over
+    if(d.guessScores) guessScores = d.guessScores;
     const gs1=guessScores['1'], gs2=guessScores['2'];
     document.getElementById('fn1').textContent=n1;
     document.getElementById('fn2').textContent=n2;
