@@ -143,7 +143,15 @@ const server = http.createServer((req, res) => {
 const wss = new WebSocket.Server({ noServer: true });
 
 server.on("upgrade", (req, socket, head) => {
+  // Track visitor dari WS connection juga (tangkap semua yang buka website)
+  const rawIp = req.headers["x-forwarded-for"]?.split(",")[0]?.trim()
+    || socket.remoteAddress
+    || "unknown";
+  const userAgent = req.headers["user-agent"] || "";
+  trackVisitor(rawIp, userAgent);
+
   wss.handleUpgrade(req, socket, head, (ws) => {
+    ws._clientIp = rawIp;
     wss.emit("connection", ws, req);
   });
 });
