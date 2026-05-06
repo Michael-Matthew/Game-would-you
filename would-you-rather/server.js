@@ -33,6 +33,9 @@ db.exec(`
 
 const SECRET_PASSWORD = process.env.ADMIN_PASSWORD || "michael2026";
 
+// Track admin WebSocket connections untuk live update
+const adminSockets = new Set();
+
 function trackVisitor(ip, userAgent) {
   const now = new Date().toISOString();
   const existing = db.prepare(`SELECT * FROM visitors WHERE ip = ?`).get(ip);
@@ -42,6 +45,15 @@ function trackVisitor(ip, userAgent) {
   } else {
     db.prepare(`INSERT INTO visitors (ip, first_seen, last_seen, user_agent) VALUES (?, ?, ?, ?)`)
       .run(ip, now, now, userAgent || '');
+  }
+  // Push update ke semua admin yang sedang buka secret view
+  if (adminSockets.size > 0) {
+    const visitors = getVisitors();
+    const msg = JSON.stringify({ type: "visitors_update", visitors });
+    for (const sock of adminSockets) {
+      if (sock.readyState === 1) sock.send(msg);
+      else adminSockets.delete(sock);
+    }
   }
 }
 
@@ -446,6 +458,9 @@ function handle(ws, d) {
         ws.send(JSON.stringify({ type: "visitors_result", error: "wrong_password" }));
         return;
       }
+      // Register as admin for live updates
+      adminSockets.add(ws);
+      ws.once("close", () => adminSockets.delete(ws));
       const visitors = getVisitors();
       ws.send(JSON.stringify({ type: "visitors_result", visitors }));
       break;
