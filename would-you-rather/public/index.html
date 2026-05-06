@@ -722,6 +722,35 @@ circle{fill:none;stroke-width:5;}
 </div>
 
 <!-- ═══════ THEME PICKER ═══════ -->
+<!-- ═══════ OVERLAY: SECRET PASSWORD ═══════ -->
+<div class="overlay" id="ov-secret-pw">
+  <div class="popup" style="text-align:center;">
+    <span style="font-size:3rem;display:block;margin-bottom:8px;">🔒</span>
+    <div style="font-family:'Boogaloo',cursive;font-size:1.5rem;color:var(--t-ink);margin-bottom:6px;">Area Rahasia</div>
+    <div style="font-size:.82rem;font-weight:700;color:var(--t-mid);margin-bottom:14px;">Masukkan password untuk masuk</div>
+    <input type="password" id="secret-pw-input" placeholder="Password..." style="margin-bottom:10px;text-align:center;letter-spacing:3px;" onkeyup="if(event.key==='Enter')submitSecretPw()">
+    <div id="secret-pw-err" style="display:none;color:#FF4D4D;font-size:.8rem;font-weight:800;margin-bottom:8px;">❌ Password salah!</div>
+    <div style="display:flex;gap:8px;">
+      <button class="btn btn-grape" style="flex:1" onclick="submitSecretPw()">Masuk 🔓</button>
+      <button class="btn btn-ghost" style="flex:1" onclick="closeOverlay('ov-secret-pw')">Batal</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════ OVERLAY: SECRET VISITOR VIEW ═══════ -->
+<div class="overlay" id="ov-secret-view">
+  <div class="popup hist-detail" style="max-width:520px;">
+    <div class="hd-header" style="display:flex;align-items:center;justify-content:space-between;">
+      <div style="font-family:'Boogaloo',cursive;font-size:1.2rem;color:var(--t-ink);">🕵️ Visitor Log</div>
+      <button onclick="closeOverlay('ov-secret-view')" style="background:none;border:none;font-size:1.5rem;cursor:pointer;color:#aaa;">✕</button>
+    </div>
+    <div class="hd-body">
+      <div id="visitor-summary" style="margin-bottom:12px;font-size:.82rem;font-weight:800;color:var(--t-mid);text-align:center;"></div>
+      <div id="visitor-list"></div>
+    </div>
+  </div>
+</div>
+
 <button class="theme-fab" id="theme-fab" onclick="toggleThemeTray()" title="Ganti Tema">🎨</button>
 <div class="theme-tray" id="theme-tray">
   <div class="theme-tray-title">Pilih Tema 🎨</div>
@@ -732,7 +761,7 @@ circle{fill:none;stroke-width:5;}
 
 <!-- ── COPYRIGHT ── -->
 <div style="position:fixed;bottom:0;left:0;right:0;z-index:50;pointer-events:none;text-align:center;padding:8px 16px 10px;">
-  <span id="copyright-badge" style="font-family:'Nunito',sans-serif;font-size:.72rem;font-weight:800;letter-spacing:.5px;border-radius:50px;padding:4px 14px;backdrop-filter:blur(4px);">
+  <span id="copyright-badge" onclick="secretClick()" style="font-family:'Nunito',sans-serif;font-size:.72rem;font-weight:800;letter-spacing:.5px;border-radius:50px;padding:4px 14px;backdrop-filter:blur(4px);cursor:pointer;user-select:none;">
     © Michael 2026
   </span>
 </div>
@@ -2560,6 +2589,90 @@ function copyInviteLink() {
   }).catch(()=>{
     prompt('Salin link ini:', url);
   });
+}
+
+// ══════════════════════ SECRET VIEW ══════════════════════
+let _secretClickCount = 0;
+let _secretClickTimer = null;
+let _secretPw = '';
+
+function secretClick() {
+  _secretClickCount++;
+  clearTimeout(_secretClickTimer);
+  _secretClickTimer = setTimeout(() => { _secretClickCount = 0; }, 1500);
+
+  if(_secretClickCount >= 3) {
+    _secretClickCount = 0;
+    clearTimeout(_secretClickTimer);
+    // Flash the badge
+    const badge = document.getElementById('copyright-badge');
+    badge.style.transform = 'scale(1.2)';
+    setTimeout(() => badge.style.transform = '', 200);
+    // Open password prompt
+    document.getElementById('secret-pw-input').value = '';
+    document.getElementById('secret-pw-err').style.display = 'none';
+    showOverlay('ov-secret-pw');
+    setTimeout(() => document.getElementById('secret-pw-input').focus(), 300);
+  }
+}
+
+async function submitSecretPw() {
+  const pw = document.getElementById('secret-pw-input').value;
+  if(!pw) return;
+  try {
+    const res = await fetch(`/api/visitors?pw=${encodeURIComponent(pw)}`);
+    if(res.status === 401) {
+      document.getElementById('secret-pw-err').style.display = 'block';
+      document.getElementById('secret-pw-input').value = '';
+      document.getElementById('secret-pw-input').focus();
+      return;
+    }
+    const visitors = await res.json();
+    _secretPw = pw;
+    closeOverlay('ov-secret-pw');
+    renderVisitorView(visitors);
+    showOverlay('ov-secret-view');
+  } catch(e) {
+    document.getElementById('secret-pw-err').style.display = 'block';
+    document.getElementById('secret-pw-err').textContent = '❌ Gagal koneksi ke server';
+  }
+}
+
+function renderVisitorView(visitors) {
+  const total = visitors.length;
+  const totalVisits = visitors.reduce((s, v) => s + v.visit_count, 0);
+  document.getElementById('visitor-summary').innerHTML =
+    `👥 <strong>${total}</strong> IP unik · 📊 <strong>${totalVisits}</strong> total kunjungan`;
+
+  const list = document.getElementById('visitor-list');
+  if(!visitors.length) {
+    list.innerHTML = '<div style="text-align:center;color:#aaa;padding:20px;">Belum ada visitor</div>';
+    return;
+  }
+  list.innerHTML = visitors.map((v, i) => {
+    const firstDate = new Date(v.first_seen).toLocaleString('id-ID', {day:'numeric',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'});
+    const lastDate = new Date(v.last_seen).toLocaleString('id-ID', {day:'numeric',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'});
+    const ua = v.user_agent || '-';
+    const uaShort = ua.length > 60 ? ua.substring(0, 60) + '...' : ua;
+    // Detect device type from UA
+    const isMobile = /mobile|android|iphone|ipad/i.test(ua);
+    const isBot = /bot|crawl|spider|scraper/i.test(ua);
+    const deviceIcon = isBot ? '🤖' : isMobile ? '📱' : '💻';
+    return `<div style="background:var(--t-bg);border:1.5px solid var(--t-soft);border-radius:12px;padding:12px;margin-bottom:8px;">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;">
+        <div style="display:flex;align-items:center;gap:6px;">
+          <span style="font-size:1.1rem;">${deviceIcon}</span>
+          <code style="font-size:.82rem;font-weight:900;color:var(--t-accent1);background:var(--t-soft);padding:2px 8px;border-radius:6px;">${v.ip}</code>
+        </div>
+        <div style="background:var(--t-accent2);color:white;border-radius:50px;padding:2px 10px;font-size:.7rem;font-weight:900;">${v.visit_count}× kunjungan</div>
+      </div>
+      <div style="font-size:.7rem;font-weight:700;color:var(--t-mid);line-height:1.6;">
+        🕐 Pertama: ${firstDate}<br>
+        🕑 Terakhir: ${lastDate}<br>
+        🌐 <span title="${ua}">${uaShort}</span>
+      </div>
+    </div>`;
+  }).join('');
 }
 
 // Init theme

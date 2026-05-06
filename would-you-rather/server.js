@@ -20,6 +20,35 @@ db.exec(`
   );
 `);
 
+db.exec(`
+  CREATE TABLE IF NOT EXISTS visitors (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    ip TEXT NOT NULL UNIQUE,
+    first_seen TEXT NOT NULL,
+    last_seen TEXT NOT NULL,
+    visit_count INTEGER DEFAULT 1,
+    user_agent TEXT
+  );
+`);
+
+const SECRET_PASSWORD = process.env.ADMIN_PASSWORD || "michael2026";
+
+function trackVisitor(ip, userAgent) {
+  const now = new Date().toISOString();
+  const existing = db.prepare(`SELECT * FROM visitors WHERE ip = ?`).get(ip);
+  if (existing) {
+    db.prepare(`UPDATE visitors SET last_seen = ?, visit_count = visit_count + 1, user_agent = ? WHERE ip = ?`)
+      .run(now, userAgent || existing.user_agent, ip);
+  } else {
+    db.prepare(`INSERT INTO visitors (ip, first_seen, last_seen, user_agent) VALUES (?, ?, ?, ?)`)
+      .run(ip, now, now, userAgent || '');
+  }
+}
+
+function getVisitors() {
+  return db.prepare(`SELECT * FROM visitors ORDER BY last_seen DESC`).all();
+}
+
 function saveHistory(roomCode, p1name, p2name, levels) {
   db.prepare(`
     INSERT INTO game_history (room_code, played_at, player1_name, player2_name, levels)
@@ -43,8 +72,15 @@ function deleteHistory(id) {
 const server = http.createServer((req, res) => {
   res.setHeader("Access-Control-Allow-Origin", "*");
 
-  // Serve frontend HTML
-  if (req.method === "GET" && (req.url === "/" || req.url === "/index.html")) {
+  // Get real IP (Railway uses X-Forwarded-For)
+  const rawIp = req.headers["x-forwarded-for"]?.split(",")[0]?.trim()
+    || req.socket?.remoteAddress
+    || "unknown";
+  const userAgent = req.headers["user-agent"] || "";
+
+  // Serve frontend HTML + track visitor
+  if (req.method === "GET" && (req.url === "/" || req.url === "/index.html" || req.url?.startsWith("/?") )) {
+    trackVisitor(rawIp, userAgent);
     const filePath = path.join(__dirname, "public", "index.html");
     fs.readFile(filePath, (err, data) => {
       if (err) { res.writeHead(500); res.end("Error loading index.html"); return; }
@@ -56,6 +92,21 @@ const server = http.createServer((req, res) => {
   }
 
   res.setHeader("Content-Type", "application/json");
+
+  // Secret admin: get visitors
+  if (req.method === "GET" && req.url?.startsWith("/api/visitors")) {
+    const url = new URL(req.url, "http://localhost");
+    const pw = url.searchParams.get("pw");
+    if (pw !== SECRET_PASSWORD) {
+      res.writeHead(401);
+      res.end(JSON.stringify({ error: "Unauthorized" }));
+      return;
+    }
+    const visitors = getVisitors();
+    res.writeHead(200);
+    res.end(JSON.stringify(visitors));
+    return;
+  }
 
   if (req.method === "GET" && req.url === "/history") {
     const rows = getAllHistory();
