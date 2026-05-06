@@ -2647,42 +2647,110 @@ async function submitSecretPw() {
 }
 
 function parseUserAgent(ua) {
-  if (!ua || ua === '-') return { device: '❓', os: 'Unknown', browser: 'Unknown', type: 'unknown' };
+  if (!ua || ua === '-') return { device: '❓', os: 'Unknown', browser: 'Unknown', type: 'unknown', model: '' };
 
   const u = ua.toLowerCase();
 
-  // Device type
-  let device = '💻', type = 'desktop';
-  if (/ipad|tablet/i.test(ua)) { device = '📱'; type = 'tablet'; }
-  else if (/iphone|android.*mobile|mobile/i.test(ua)) { device = '📱'; type = 'mobile'; }
-  else if (/bot|crawl|spider|slurp|scraper|curl|wget|python|java\/|go-http/i.test(ua)) { device = '🤖'; type = 'bot'; }
-  else if (/tv|smart-tv|webos|tizen/i.test(ua)) { device = '📺'; type = 'tv'; }
+  // ── DEVICE TYPE ──
+  let device = '💻', type = 'desktop', model = '';
 
-  // OS
+  if (/bot|crawl|spider|slurp|scraper|curl|wget|python-requests|python\/|java\/|go-http|okhttp|apache-http|axios/i.test(ua)) {
+    device = '🤖'; type = 'bot';
+  } else if (/smart-?tv|webos|tizen|netcast|viera|bravia|roku|firetv|fire tv|appletv|apple tv|chromecast/i.test(ua)) {
+    device = '📺'; type = 'tv';
+  } else if (/ipad/i.test(ua)) {
+    device = '📱'; type = 'tablet';
+    model = 'iPad';
+    const m = ua.match(/ipad\s*(?:os\s*([\d_]+))?/i);
+    if (m) model = 'iPad';
+  } else if (/iphone/i.test(ua)) {
+    device = '📱'; type = 'mobile';
+    model = 'iPhone';
+  } else if (/samsung|sm-[a-z]\d+/i.test(ua)) {
+    device = '📱'; type = 'mobile';
+    const m = ua.match(/(?:samsung\s*[\w-]*|sm-([a-z]\d+\w*))/i);
+    const code = ua.match(/sm-([a-z0-9]+)/i)?.[1]?.toUpperCase();
+    // Map common Samsung model codes
+    const samsungMap = {
+      'S918': 'Galaxy S23 Ultra', 'S911': 'Galaxy S23', 'S916': 'Galaxy S23+',
+      'S928': 'Galaxy S24 Ultra', 'S921': 'Galaxy S24', 'S926': 'Galaxy S24+',
+      'S938': 'Galaxy S25 Ultra', 'S931': 'Galaxy S25',
+      'A546': 'Galaxy A54', 'A536': 'Galaxy A53', 'A525': 'Galaxy A52',
+      'A736': 'Galaxy A73', 'A235': 'Galaxy A23', 'A135': 'Galaxy A13',
+      'G991': 'Galaxy S21', 'G998': 'Galaxy S21 Ultra',
+      'N986': 'Galaxy Note 20 Ultra', 'N981': 'Galaxy Note 20',
+      'F946': 'Galaxy Z Fold 5', 'F731': 'Galaxy Z Flip 5',
+      'F936': 'Galaxy Z Fold 4', 'F721': 'Galaxy Z Flip 4',
+    };
+    model = code ? (samsungMap[code] || `Samsung SM-${code}`) : 'Samsung Galaxy';
+  } else if (/redmi|mi\s*\d+|xiaomi|poco/i.test(ua)) {
+    device = '📱'; type = 'mobile';
+    const m = ua.match(/(redmi[\s\w]+|poco[\s\w]+|mi\s*\d+[\s\w]*)/i)?.[1]?.trim();
+    model = m ? m.charAt(0).toUpperCase() + m.slice(1) : 'Xiaomi';
+  } else if (/oppo|cph\d+/i.test(ua)) {
+    device = '📱'; type = 'mobile';
+    const code = ua.match(/cph(\d+)/i)?.[1];
+    model = code ? `OPPO CPH${code}` : 'OPPO';
+  } else if (/vivo|v\d{4}[a-z]/i.test(ua)) {
+    device = '📱'; type = 'mobile';
+    const m = ua.match(/vivo[\s_]*([\w]+)/i)?.[1];
+    model = m ? `Vivo ${m.toUpperCase()}` : 'Vivo';
+  } else if (/huawei|honor|eln-|lra-|bla-|clt-|col-/i.test(ua)) {
+    device = '📱'; type = 'mobile';
+    const m = ua.match(/(?:huawei|honor)[\s_]*([\w-]+)/i)?.[1];
+    model = m ? `Huawei ${m.toUpperCase()}` : 'Huawei';
+  } else if (/pixel\s*\d/i.test(ua)) {
+    device = '📱'; type = 'mobile';
+    model = ua.match(/(pixel\s*\d[a-z\s]*)/i)?.[1]?.trim().replace(/\b\w/g, c => c.toUpperCase()) || 'Google Pixel';
+  } else if (/oneplus|op\d+[a-z]/i.test(ua)) {
+    device = '📱'; type = 'mobile';
+    const m = ua.match(/oneplus[\s_]*([\w]+)/i)?.[1];
+    model = m ? `OnePlus ${m.toUpperCase()}` : 'OnePlus';
+  } else if (/android.*mobile|mobile.*android/i.test(ua)) {
+    device = '📱'; type = 'mobile';
+    // Generic Android — try extract build model from UA
+    const m = ua.match(/;\s*([^;)]+)\s*(?:build|bui)[/\s]/i)?.[1]?.trim();
+    model = m || 'Android Phone';
+  } else if (/android/i.test(ua)) {
+    device = '📱'; type = 'tablet';
+    const m = ua.match(/;\s*([^;)]+)\s*(?:build|bui)[/\s]/i)?.[1]?.trim();
+    model = m || 'Android Tablet';
+  } else if (/macintosh|mac os/i.test(ua)) {
+    device = '🍎'; type = 'desktop';
+    model = 'Mac';
+  } else if (/windows/i.test(ua)) {
+    device = '🪟'; type = 'desktop';
+    model = 'Windows PC';
+  } else if (/linux/i.test(ua)) {
+    device = '🐧'; type = 'desktop';
+    model = 'Linux PC';
+  }
+
+  // ── OS ──
   let os = 'Unknown';
-  if (/windows nt 10/i.test(ua)) os = 'Windows 10/11';
+  if (/windows nt 10\.0/i.test(ua)) os = 'Windows 10/11';
   else if (/windows nt 6\.3/i.test(ua)) os = 'Windows 8.1';
   else if (/windows/i.test(ua)) os = 'Windows';
-  else if (/iphone os (\d+)/i.test(ua)) os = `iOS ${ua.match(/iphone os (\d+)/i)?.[1]}`;
-  else if (/ipad.*os (\d+)/i.test(ua)) os = `iPadOS ${ua.match(/os (\d+)/i)?.[1]}`;
-  else if (/android (\d+)/i.test(ua)) os = `Android ${ua.match(/android (\d+)/i)?.[1]}`;
-  else if (/mac os x (\d+[_\.]\d+)/i.test(ua)) os = `macOS ${ua.match(/mac os x ([\d_\.]+)/i)?.[1]?.replace(/_/g,'.')}`;
-  else if (/linux/i.test(ua)) os = 'Linux';
+  else if (/iphone os ([\d_]+)/i.test(ua)) os = `iOS ${ua.match(/iphone os ([\d_]+)/i)?.[1]?.replace(/_/g,'.')}`;
+  else if (/ipad.*os ([\d_]+)/i.test(ua)) os = `iPadOS ${ua.match(/os ([\d_]+)/i)?.[1]?.replace(/_/g,'.')}`;
+  else if (/android ([\d.]+)/i.test(ua)) os = `Android ${ua.match(/android ([\d.]+)/i)?.[1]}`;
+  else if (/mac os x ([\d_.]+)/i.test(ua)) os = `macOS ${ua.match(/mac os x ([\d_.]+)/i)?.[1]?.replace(/_/g,'.')}`;
   else if (/cros/i.test(ua)) os = 'ChromeOS';
+  else if (/linux/i.test(ua)) os = 'Linux';
 
-  // Browser
+  // ── BROWSER ──
   let browser = 'Unknown';
-  if (/edg\//i.test(ua)) browser = `Edge ${ua.match(/edg\/([\d.]+)/i)?.[1]?.split('.')[0]}`;
-  else if (/opr\//i.test(ua)) browser = `Opera ${ua.match(/opr\/([\d.]+)/i)?.[1]?.split('.')[0]}`;
+  if (/edg\/([\d.]+)/i.test(ua)) browser = `Edge ${ua.match(/edg\/([\d]+)/i)?.[1]}`;
+  else if (/opr\/([\d.]+)/i.test(ua)) browser = `Opera ${ua.match(/opr\/([\d]+)/i)?.[1]}`;
+  else if (/samsungbrowser\/([\d.]+)/i.test(ua)) browser = `Samsung Browser ${ua.match(/samsungbrowser\/([\d]+)/i)?.[1]}`;
+  else if (/ucbrowser\/([\d.]+)/i.test(ua)) browser = `UC Browser`;
   else if (/chrome\/([\d]+)/i.test(ua) && !/chromium/i.test(ua)) browser = `Chrome ${ua.match(/chrome\/([\d]+)/i)?.[1]}`;
   else if (/firefox\/([\d]+)/i.test(ua)) browser = `Firefox ${ua.match(/firefox\/([\d]+)/i)?.[1]}`;
-  else if (/safari\/([\d]+)/i.test(ua) && !/chrome/i.test(ua)) browser = `Safari ${ua.match(/version\/([\d]+)/i)?.[1] || ''}`;
-  else if (/chromium/i.test(ua)) browser = 'Chromium';
-  else if (/samsung/i.test(ua)) browser = 'Samsung Browser';
-  else if (/ucbrowser/i.test(ua)) browser = 'UC Browser';
+  else if (/safari/i.test(ua) && !/chrome/i.test(ua)) browser = `Safari ${ua.match(/version\/([\d]+)/i)?.[1] || ''}`.trim();
+  else if (/chromium\/([\d]+)/i.test(ua)) browser = `Chromium ${ua.match(/chromium\/([\d]+)/i)?.[1]}`;
   else if (type === 'bot') browser = '—';
 
-  return { device, os, browser, type };
+  return { device, os, browser, type, model };
 }
 
 function renderVisitorView(visitors) {
@@ -2721,7 +2789,10 @@ function renderVisitorView(visitors) {
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
         <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;">
           <span style="font-size:1.3rem;">${device}</span>
-          <code style="font-size:.8rem;font-weight:900;color:var(--t-accent1);background:var(--t-soft);padding:2px 8px;border-radius:6px;letter-spacing:.5px;">${v.ip}</code>
+          <div>
+            <code style="font-size:.8rem;font-weight:900;color:var(--t-accent1);background:var(--t-soft);padding:2px 8px;border-radius:6px;letter-spacing:.5px;">${v.ip}</code>
+            ${model ? `<div style="font-size:.72rem;font-weight:800;color:var(--t-ink);margin-top:3px;">📱 ${model}</div>` : ''}
+          </div>
           <span style="font-size:.68rem;font-weight:800;color:var(--t-mid);">${relTime}</span>
         </div>
         <div style="background:var(--t-accent2);color:white;border-radius:50px;padding:2px 10px;font-size:.7rem;font-weight:900;white-space:nowrap;">${v.visit_count}× masuk</div>
