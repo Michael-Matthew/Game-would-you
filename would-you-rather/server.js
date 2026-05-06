@@ -78,8 +78,9 @@ const server = http.createServer((req, res) => {
     || "unknown";
   const userAgent = req.headers["user-agent"] || "";
 
-  // Serve frontend HTML + track visitor
-  if (req.method === "GET" && (req.url === "/" || req.url === "/index.html" || req.url?.startsWith("/?") )) {
+  // Serve frontend HTML + track visitor (semua path non-API)
+  const isApiPath = req.url?.startsWith("/api/") || req.url?.startsWith("/history");
+  if (req.method === "GET" && !isApiPath) {
     trackVisitor(rawIp, userAgent);
     const filePath = path.join(__dirname, "public", "index.html");
     fs.readFile(filePath, (err, data) => {

@@ -2619,14 +2619,18 @@ function secretClick() {
 async function submitSecretPw() {
   const pw = document.getElementById('secret-pw-input').value;
   if(!pw) return;
+  // Gunakan origin yang sama dengan halaman (Railway serve HTTP + WS dari server yang sama)
+  const base = location.origin;
   try {
-    const res = await fetch(`/api/visitors?pw=${encodeURIComponent(pw)}`);
+    const res = await fetch(`${base}/api/visitors?pw=${encodeURIComponent(pw)}`);
     if(res.status === 401) {
       document.getElementById('secret-pw-err').style.display = 'block';
+      document.getElementById('secret-pw-err').textContent = '❌ Password salah!';
       document.getElementById('secret-pw-input').value = '';
       document.getElementById('secret-pw-input').focus();
       return;
     }
+    if(!res.ok) throw new Error('Server error: ' + res.status);
     const visitors = await res.json();
     _secretPw = pw;
     closeOverlay('ov-secret-pw');
@@ -2634,7 +2638,7 @@ async function submitSecretPw() {
     showOverlay('ov-secret-view');
   } catch(e) {
     document.getElementById('secret-pw-err').style.display = 'block';
-    document.getElementById('secret-pw-err').textContent = '❌ Gagal koneksi ke server';
+    document.getElementById('secret-pw-err').textContent = '❌ Gagal: ' + e.message;
   }
 }
 
