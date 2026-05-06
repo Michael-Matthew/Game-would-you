@@ -78,19 +78,7 @@ const server = http.createServer((req, res) => {
     || "unknown";
   const userAgent = req.headers["user-agent"] || "";
 
-  // Serve frontend HTML + track visitor (semua path non-API)
-  const isApiPath = req.url?.startsWith("/api/") || req.url?.startsWith("/history");
-  if (req.method === "GET" && !isApiPath) {
-    trackVisitor(rawIp, userAgent);
-    const filePath = path.join(__dirname, "public", "index.html");
-    fs.readFile(filePath, (err, data) => {
-      if (err) { res.writeHead(500); res.end("Error loading index.html"); return; }
-      res.setHeader("Content-Type", "text/html");
-      res.writeHead(200);
-      res.end(data);
-    });
-    return;
-  }
+  // API routes handled below — no early HTML serve here
 
   res.setHeader("Content-Type", "application/json");
 
@@ -123,8 +111,21 @@ const server = http.createServer((req, res) => {
     return;
   }
 
+  // Fallback: serve HTML for all other GET requests (SPA routing)
+  if (req.method === "GET") {
+    trackVisitor(rawIp, userAgent);
+    const filePath = path.join(__dirname, "public", "index.html");
+    fs.readFile(filePath, (err, data) => {
+      if (err) { res.writeHead(500); res.end("Error loading index.html"); return; }
+      res.setHeader("Content-Type", "text/html");
+      res.writeHead(200);
+      res.end(data);
+    });
+    return;
+  }
+
   res.writeHead(200);
-  res.end(JSON.stringify({ status: "ok", name: "Would You Rather Game Server v2" }));
+  res.end(JSON.stringify({ status: "ok" }));
 });
 
 const wss = new WebSocket.Server({ noServer: true });
