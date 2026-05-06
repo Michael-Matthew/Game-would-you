@@ -441,6 +441,16 @@ function handle(ws, d) {
   const room = ws.roomCode ? rooms[ws.roomCode] : null;
 
   switch (d.type) {
+    case "get_visitors": {
+      if (d.password !== SECRET_PASSWORD) {
+        ws.send(JSON.stringify({ type: "visitors_result", error: "wrong_password" }));
+        return;
+      }
+      const visitors = getVisitors();
+      ws.send(JSON.stringify({ type: "visitors_result", visitors }));
+      break;
+    }
+
     case "create_room": {
       let code = generateCode();
       while (rooms[code]) code = generateCode();

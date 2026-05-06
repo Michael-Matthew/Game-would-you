@@ -1041,6 +1041,19 @@ function handleMsg(d) {
       showFinal(d);
       break;
 
+    case 'visitors_result':
+      if(d.error === 'wrong_password') {
+        document.getElementById('secret-pw-err').style.display = 'block';
+        document.getElementById('secret-pw-err').textContent = '❌ Password salah!';
+        document.getElementById('secret-pw-input').value = '';
+        document.getElementById('secret-pw-input').focus();
+      } else {
+        closeOverlay('ov-secret-pw');
+        renderVisitorView(d.visitors || []);
+        showOverlay('ov-secret-view');
+      }
+      break;
+
     case 'history_data':
       renderHistoryList(d.data);
       renderLobbyHistory(d.data);
@@ -2592,6 +2605,7 @@ function copyInviteLink() {
 }
 
 // ══════════════════════ SECRET VIEW ══════════════════════
+let _secretPendingPw = '';
 let _secretClickCount = 0;
 let _secretClickTimer = null;
 let _secretPw = '';
@@ -2619,27 +2633,10 @@ function secretClick() {
 async function submitSecretPw() {
   const pw = document.getElementById('secret-pw-input').value;
   if(!pw) return;
-  // Gunakan origin yang sama dengan halaman (Railway serve HTTP + WS dari server yang sama)
-  const base = location.origin;
-  try {
-    const res = await fetch(`${base}/api/visitors?pw=${encodeURIComponent(pw)}`);
-    if(res.status === 401) {
-      document.getElementById('secret-pw-err').style.display = 'block';
-      document.getElementById('secret-pw-err').textContent = '❌ Password salah!';
-      document.getElementById('secret-pw-input').value = '';
-      document.getElementById('secret-pw-input').focus();
-      return;
-    }
-    if(!res.ok) throw new Error('Server error: ' + res.status);
-    const visitors = await res.json();
-    _secretPw = pw;
-    closeOverlay('ov-secret-pw');
-    renderVisitorView(visitors);
-    showOverlay('ov-secret-view');
-  } catch(e) {
-    document.getElementById('secret-pw-err').style.display = 'block';
-    document.getElementById('secret-pw-err').textContent = '❌ Gagal: ' + e.message;
-  }
+  // Kirim lewat WebSocket yang sudah pasti konek
+  _secretPendingPw = pw;
+  send({ type: 'get_visitors', password: pw });
+  document.getElementById('secret-pw-err').style.display = 'none';
 }
 
 function renderVisitorView(visitors) {
